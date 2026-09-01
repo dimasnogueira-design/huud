@@ -46,4 +46,18 @@
   } else {
     boot();
   }
+
+  // HOME V5: entra por último para que a nova Home prevaleça sobre as versões anteriores.
+  function loadHomeV5() {
+    if (document.querySelector('script[data-huud-home-v5]')) return;
+    const script = document.createElement('script');
+    script.src = 'huud-home-v5.js';
+    script.dataset.huudHomeV5 = '1';
+    document.body.appendChild(script);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadHomeV5);
+  } else {
+    setTimeout(loadHomeV5, 0);
+  }
 })();
