@@ -1,0 +1,62 @@
+/* HUUD OS — HOME V4
+   Direção: recuperar a qualidade da Home anterior, adicionar realidade sem inventar métricas,
+   dar entrada clara para cada módulo e preparar o Modo Comandante como experiência separada.
+*/
+(function(){
+  'use strict';
+  const modules = [
+    ['REALIDADE','Mapa da Realidade','A síntese do diagnóstico: trajetória, direção, riscos, forças e o que precisa ser enfrentado.','realidade-v2','MAPA →'],
+    ['FINANÇAS','Sala de Guerra Financeira','Caixa, dívidas, entradas e obrigações. Ver a situação sem maquiagem e decidir o próximo movimento.','debts','ABRIR →'],
+    ['TERRENO','Mar Verde / Operação','Negócio, imóveis, clientes e ações comerciais que sustentam o presente e constroem a próxima fase.','land','ABRIR →'],
+    ['TI + IA','Sala de Aula','Curso diário do básico ao avançado, aprendendo tecnologia enquanto constrói Disciplina OS e GO PARAGUAY GO.','tech','ESTUDAR →'],
+    ['GO PARAGUAY GO','Operação Paraguai','Pesquisa, inteligência comercial, produtos, margem e construção do projeto.','py','ABRIR →'],
+    ['ORIGEM','56 Perguntas','A história e o diagnóstico profundo. Não é uma lista de tarefas: é a origem que orienta o sistema.','diag','REVISAR →']
+  ];
+  function css(){
+    if(document.getElementById('huud-home-v4-css'))return;
+    const s=document.createElement('style');s.id='huud-home-v4-css';s.textContent=`
+      #view-flow .dashboard-tactical-grid,#view-flow .room-header-banner{display:none!important}
+      .h4{display:grid;gap:16px}.h4-hero{position:relative;min-height:390px;overflow:hidden;border:1px solid #202733;border-radius:16px;background:linear-gradient(105deg,#07090c 0%,#090c10 58%,#050608 100%);padding:34px;display:flex;align-items:flex-end}.h4-hero:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,9,12,.98) 0%,rgba(7,9,12,.82) 48%,rgba(7,9,12,.2) 100%),url('perfil.png') 88% 50%/auto 92% no-repeat;filter:contrast(1.08);pointer-events:none}.h4-hero:after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,var(--neon),transparent 70%);box-shadow:0 0 18px var(--neon-glow)}.h4-copy{position:relative;z-index:2;max-width:720px}.h4-k{font:900 .62rem var(--mono);letter-spacing:2px;color:var(--neon)}.h4-title{font-size:clamp(2.4rem,6vw,5.8rem);font-weight:900;line-height:.86;letter-spacing:-4px;margin:13px 0}.h4-title em{font-style:normal;color:var(--neon)}.h4-sub{font-size:.88rem;color:#a5afbd;line-height:1.55;max-width:650px}.h4-reality{margin-top:22px;display:flex;flex-wrap:wrap;gap:7px}.h4-chip{border:1px solid #29313e;background:rgba(4,5,7,.72);padding:7px 9px;border-radius:4px;font:800 .55rem var(--mono);letter-spacing:.7px}.h4-chip strong{color:var(--neon)}.h4-chip.warn strong{color:var(--warning)}.h4-chip.danger strong{color:var(--danger)}.h4-actions{position:relative;z-index:3;display:flex;gap:8px;margin-top:20px}.h4-btn{border:1px solid var(--neon);background:var(--neon);color:#000;padding:12px 16px;border-radius:5px;font:900 .62rem var(--mono);letter-spacing:1px;cursor:pointer}.h4-btn.alt{background:rgba(0,0,0,.65);color:var(--neon)}.h4-section{display:grid;gap:10px}.h4-section-head{display:flex;justify-content:space-between;align-items:end}.h4-label{font:900 .6rem var(--mono);letter-spacing:2px;color:var(--text-muted)}.h4-heading{font-size:1.35rem;font-weight:900}.h4-modules{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.h4-module{position:relative;min-height:170px;padding:17px;border:1px solid #1b222c;border-radius:11px;background:linear-gradient(145deg,#0a0d12,#07090c);cursor:pointer;transition:.2s}.h4-module:hover{transform:translateY(-2px);border-color:#303a49}.h4-module:after{content:'↗';position:absolute;right:14px;top:12px;color:#3c4655;font:900 .8rem var(--mono)}.h4-num{font:900 .58rem var(--mono);color:var(--neon);letter-spacing:1px}.h4-module h3{font-size:1rem;margin:10px 0 7px}.h4-module p{font-size:.67rem;color:var(--text-muted);line-height:1.45;max-width:330px}.h4-link{position:absolute;bottom:14px;left:17px;font:900 .56rem var(--mono);color:var(--text);letter-spacing:1px}.h4-command{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;padding:18px;border:1px solid #242b37;border-left:4px solid var(--danger);border-radius:11px;background:#080b0f}.h4-command small{font:900 .57rem var(--mono);color:var(--danger);letter-spacing:1.5px}.h4-command h2{font-size:1.05rem;margin:5px 0}.h4-command p{font-size:.68rem;color:var(--text-muted)}.h4-origin{display:grid;grid-template-columns:1.4fr .6fr;gap:10px}.h4-origin-card{border:1px solid #1b222c;border-radius:11px;background:#080b0f;padding:18px}.h4-origin-card h3{font-size:1rem;margin:6px 0}.h4-origin-card p{font-size:.7rem;color:var(--text-muted);line-height:1.5}.h4-origin-mark{font:900 2.7rem var(--mono);color:var(--neon);text-align:right}.h4-footer{padding:5px 0 24px;color:#465162;font:700 .55rem var(--mono);letter-spacing:1px}
+      @media(max-width:1000px){.h4-modules{grid-template-columns:repeat(2,1fr)}.h4-origin{grid-template-columns:1fr}.h4-hero:before{background-position:100% 50%;opacity:.8}}@media(max-width:650px){.h4-hero{min-height:520px;padding:22px}.h4-hero:before{background-position:100% 5%;background-size:auto 64%;align-items:flex-end}.h4-title{letter-spacing:-2px}.h4-modules{grid-template-columns:1fr}.h4-command{grid-template-columns:1fr}.h4-actions{flex-wrap:wrap}}
+    `;document.head.appendChild(s);
+  }
+  function command(){
+    try{
+      const a=JSON.parse(localStorage.getItem('HUUD_REALIDADE_V1')||'[]');
+      const b=JSON.parse(localStorage.getItem('HUUD_PENDENCIAS_V1')||'[]');
+      const all=[...(Array.isArray(a)?a:[]),...(Array.isArray(b)?b:[])].filter(x=>x.status!=='RESOLVIDA');
+      const rank=x=>x.risk==='CRÍTICA'?0:x.risk==='ALTA'?1:2;
+      const x=all.sort((p,q)=>rank(p)-rank(q))[0];
+      const t=document.getElementById('h4-command-title'),c=document.getElementById('h4-command-copy');
+      if(x){t.textContent=x.title||x.name||'Situação em aberto';c.textContent=x.next||x.plan||'Defina o próximo passo concreto e execute.'}
+      else{t.textContent='NENHUMA PENDÊNCIA CRÍTICA IDENTIFICADA';c.textContent='O sistema está pronto para transformar direção em próxima ação.'}
+    }catch(e){ }
+  }
+  function open(id){
+    try{ if(window.HUUD&&typeof window.HUUD.switchView==='function') window.HUUD.switchView(id); else {document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));const v=document.getElementById('view-'+id);if(v)v.classList.add('active');} }catch(e){}
+  }
+  function render(){
+    const v=document.getElementById('view-flow');if(!v)return;if(v.dataset.h4ready)return;v.dataset.h4ready='1';
+    v.innerHTML=`<div class="h4">
+      <section class="h4-hero"><div class="h4-copy"><div class="h4-k">DISCIPLINA OS // QG PRINCIPAL</div><div class="h4-title">ENCARAR.<br><em>DECIDIR.</em><br>EXECUTAR.</div><div class="h4-sub">O HUUD não existe para esconder a realidade em um painel. Ele existe para colocá-la na sua frente, identificar o que realmente importa e transformar decisão em movimento.</div><div class="h4-reality"><span class="h4-chip"><strong>REALIDADE</strong> // SEM ATALHOS</span><span class="h4-chip warn"><strong>DIREÇÃO</strong> // CONSTRUÇÃO</span><span class="h4-chip danger"><strong>FOCO</strong> // ENFRENTAR</span></div><div class="h4-actions"><button class="h4-btn" onclick="HUUD.openCommander()">ENTRAR NO MODO COMANDANTE →</button><button class="h4-btn alt" onclick="window.HUUD_R2&&HUUD_R2.open()">VER MAPA DA REALIDADE</button></div></div></section>
+      <section class="h4-command"><div><small>COMANDO DE HOJE // PRÓXIMO MOVIMENTO</small><h2 id="h4-command-title">CARREGANDO...</h2><p id="h4-command-copy">O HUUD está lendo as pendências abertas.</p></div><button class="h4-btn" onclick="HUUD.openCommander()">EXECUTAR</button></section>
+      <section class="h4-section"><div class="h4-section-head"><div><div class="h4-label">SISTEMAS DO HUUD</div><div class="h4-heading">Cada sala tem uma função.</div></div></div><div class="h4-modules">${modules.map((m,i)=>`<article class="h4-module" onclick="(${open.toString()})('${m[3]}')"><div class="h4-num">0${i+1} // ${m[0]}</div><h3>${m[1]}</h3><p>${m[2]}</p><span class="h4-link">${m[4]}</span></article>`).join('')}</div></section>
+      <section class="h4-origin"><div class="h4-origin-card"><div class="h4-label">ORIGEM // DIAGNÓSTICO PROFUNDO</div><h3>As 56 perguntas não são tarefas.</h3><p>Elas registram a trajetória, as escolhas, os medos, as forças, a direção e aquilo que precisa ser encarado. O mapa é a síntese. A Home é a execução. O diagnóstico permanece como origem para o sistema não esquecer de onde você veio nem para onde está indo.</p><button class="h4-btn alt" style="margin-top:13px" onclick="(${open.toString()})('diag')">REVISAR DIAGNÓSTICO →</button></div><div class="h4-origin-card"><div class="h4-label">MÉTODO</div><div class="h4-origin-mark">VER →<br>DECIDIR →<br>FAZER</div></div></section>
+      <div class="h4-footer">HUUD OS // CONTEÚDO SEM AÇÃO É RUÍDO // A TELA NÃO É A MISSÃO</div>
+    </div>`;
+    command();
+  }
+  function enhanceCommander(){
+    const root=document.querySelector('.commander-full-screen');if(!root||root.querySelector('.h4-cmd-shell'))return;
+    const shell=document.createElement('div');shell.className='h4-cmd-shell';shell.innerHTML=`<div class="h4-cmd-grid"><div><div class="h4-cmd-k">HUUD OS // COMMAND MODE</div><div class="h4-cmd-title">MISSION<br><span>CONTROL</span></div><div class="h4-cmd-line"></div><div class="h4-cmd-copy">A partir deste momento, a tela não é a missão. A missão é a missão.</div></div><div class="h4-cmd-panel"><div class="h4-cmd-label">MISSION STATUS</div><div class="h4-cmd-state">ARMED</div><div class="h4-cmd-row"><span>FOCUS</span><b>ONE TARGET</b></div><div class="h4-cmd-row"><span>RULE</span><b>NO ESCAPE</b></div><button class="h4-cmd-engage" onclick="document.querySelector('.commander-full-screen .btn-audit-success,.commander-full-screen .btn-action-neon')?.scrollIntoView({behavior:'smooth',block:'center'})">ENGAGE →</button></div></div>`;root.prepend(shell);
+    const s=document.createElement('style');s.id='huud-cmd-v4-css';s.textContent=`.h4-cmd-shell{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:30px 22px 0;pointer-events:none}.h4-cmd-grid{min-height:230px;display:grid;grid-template-columns:1.4fr .6fr;gap:16px;align-items:end}.h4-cmd-k,.h4-cmd-label{font:900 .6rem var(--mono);letter-spacing:2px;color:var(--neon)}.h4-cmd-title{font-size:clamp(2.8rem,7vw,6.8rem);font-weight:900;line-height:.82;letter-spacing:-5px;margin-top:14px}.h4-cmd-title span{color:var(--neon)}.h4-cmd-line{height:2px;width:170px;background:var(--neon);box-shadow:0 0 16px var(--neon-glow);margin:20px 0}.h4-cmd-copy{font-size:.75rem;color:#8d98a9;max-width:470px;line-height:1.5}.h4-cmd-panel{pointer-events:auto;border:1px solid #28313d;background:rgba(4,5,7,.82);backdrop-filter:blur(12px);padding:18px;border-radius:9px}.h4-cmd-state{font:900 1.8rem var(--mono);color:var(--neon);margin:8px 0 15px}.h4-cmd-row{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #1b222c;font:700 .57rem var(--mono);color:#687588}.h4-cmd-row b{color:#fff}.h4-cmd-engage{width:100%;margin-top:13px;padding:12px;border:1px solid var(--neon);background:var(--neon);color:#000;font:900 .62rem var(--mono);cursor:pointer;border-radius:4px}.commander-full-screen{background:radial-gradient(circle at 50% 5%,#111821 0,#030406 52%)}@media(max-width:750px){.h4-cmd-grid{grid-template-columns:1fr}.h4-cmd-title{letter-spacing:-2px}.h4-cmd-shell{padding-top:16px}}
+    `;document.head.appendChild(s);
+  }
+  function wrapCommander(){
+    if(window.HUUD&&!window.HUUD.__h4wrapped&&typeof window.HUUD.openCommander==='function'){
+      const original=window.HUUD.openCommander;window.HUUD.openCommander=function(){const r=original.apply(this,arguments);setTimeout(enhanceCommander,20);return r};window.HUUD.__h4wrapped=true;
+    }
+  }
+  function boot(){css();render();wrapCommander();setTimeout(()=>{css();render();wrapCommander();command()},500)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
