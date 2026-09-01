@@ -21,6 +21,11 @@ jobs:
           from pathlib import Path
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
+
+          # Remove a camada antiga de pipeline da operação Mar Verde.
+          old = '<script src="huud-mar-verde-pipeline.js"></script>'
+          text = text.replace(old + '\n', '').replace(old, '')
+
           markers = [
               '<script src="huud-pendencias.js"></script>',
               '<script src="huud-pendencias-fix.js"></script>',
@@ -29,20 +34,22 @@ jobs:
               '<script src="huud-home-f1-v3.js"></script>',
               '<script src="huud-home-v4.js"></script>',
               '<script src="huud-tech-curriculum-v2.js"></script>',
-              '<script src="huud-mar-verde-pipeline.js"></script>',
               '<script src="huud-mar-verde-agenda.js"></script>'
           ]
+
           needle = '</body>'
           if needle not in text:
               raise SystemExit('Não encontrei </body> no index.html')
-          changed = False
+
+          changed = old in text
           for marker in markers:
               if marker not in text:
                   text = text.replace(needle, marker + '\n' + needle, 1)
                   changed = True
+
           if changed:
               p.write_text(text, encoding='utf-8')
-              print('Camadas HUUD integradas.')
+              print('Camadas HUUD integradas. Pipeline antigo removido; agenda operacional Mar Verde mantida.')
           else:
               print('Camadas já integradas.')
           PY
@@ -57,5 +64,5 @@ jobs:
           git config user.name 'HUUD Bot'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'Integrate Mar Verde operational agenda'
+          git commit -m 'Remove legacy Mar Verde pipeline and keep operational agenda'
           git push
