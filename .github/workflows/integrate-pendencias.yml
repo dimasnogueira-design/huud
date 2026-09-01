@@ -22,7 +22,6 @@ jobs:
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
 
-          # Remove a camada antiga de pipeline da operação Mar Verde.
           old = '<script src="huud-mar-verde-pipeline.js"></script>'
           text = text.replace(old + '\n', '').replace(old, '')
 
@@ -35,7 +34,8 @@ jobs:
               '<script src="huud-home-v4.js"></script>',
               '<script src="huud-tech-curriculum-v2.js"></script>',
               '<script src="huud-mar-verde-agenda.js"></script>',
-              '<script src="huud-home-correction-v1.js"></script>'
+              '<script src="huud-home-correction-v1.js"></script>',
+              '<script src="huud-command-center-v2.js"></script>'
           ]
 
           needle = '</body>'
@@ -50,7 +50,7 @@ jobs:
 
           if changed:
               p.write_text(text, encoding='utf-8')
-              print('Camadas HUUD integradas. Pipeline antigo removido; agenda e correção da HOME mantidas.')
+              print('Camadas HUUD integradas. Command Center V2 adicionado.')
           else:
               print('Camadas já integradas.')
           PY
@@ -65,5 +65,5 @@ jobs:
           git config user.name 'HUUD Bot'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'Integrate HUUD home correction and Mar Verde agenda'
+          git commit -m 'Integrate HUUD command center v2'
           git push
