@@ -1,0 +1,47 @@
+name: HUUD — Integrar camada de realidade
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Integrar camada de Pendências no HUUD
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          marker = '<script src="huud-pendencias.js"></script>'
+          if marker not in text:
+              needle = '</body>'
+              if needle not in text:
+                  raise SystemExit('Não encontrei </body> no index.html')
+              text = text.replace(needle, marker + '\n' + needle, 1)
+              p.write_text(text, encoding='utf-8')
+              print('Camada HUUD Pendências integrada.')
+          else:
+              print('Camada já integrada.')
+          PY
+
+      - name: Commit da integração
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'Nenhuma alteração necessária.'
+            exit 0
+          fi
+          git config user.name 'HUUD Bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Integrate HUUD reality and pending layer'
+          git push
