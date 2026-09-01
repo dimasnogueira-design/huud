@@ -4,340 +4,724 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HUUD — Life Command Center</title>
-  <meta name="theme-color" content="#0a0c10">
+  <meta name="theme-color" content="#08090a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg-primary: #0a0c10;
-      --bg-card: #12161f;
-      --border-color: #232a3b;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --accent: #2563eb;
-      --accent-light: #60a5fa;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --bg: #08090a;
+      --bg-card: #101216;
+      --bg-card-elevated: #161920;
+      --border: #1c2026;
+      --border-focus: #2d3440;
+      --text: #f0f3f6;
+      --text-muted: #7e8794;
+      --neon: #d4ff00;
+      --neon-glow: rgba(212, 255, 0, 0.18);
+      --neon-dark: #a6c900;
+      --danger: #ff334b;
+      --danger-bg: rgba(255, 51, 75, 0.12);
+      --success: #00e599;
+      --success-bg: rgba(0, 229, 153, 0.12);
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-family); -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-primary); color: var(--text-main); padding-top: 56px; padding-bottom: 80px; min-height: 100vh; }
+
+    [data-theme="light"] {
+      --bg: #f4f6f8;
+      --bg-card: #ffffff;
+      --bg-card-elevated: #e9ecef;
+      --border: #dbe1e8;
+      --border-focus: #bac4ce;
+      --text: #0d1117;
+      --text-muted: #64748b;
+      --neon: #65a30d;
+      --neon-glow: rgba(101, 163, 13, 0.15);
+      --neon-dark: #4d7c0f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--sans); -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); padding-top: 64px; padding-bottom: 84px; min-height: 100vh; overflow-x: hidden; }
+
+    /* TOP BAR */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: rgba(8, 9, 10, 0.88); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border); display: flex; align-items: center;
+      justify-content: space-between; padding: 0 16px; z-index: 100;
+    }
+    .brand-group { display: flex; align-items: center; gap: 8px; }
+    .brand-icon {
+      width: 22px; height: 22px; border-left: 3px solid var(--neon);
+      border-right: 3px solid var(--neon); position: relative;
+    }
+    .brand-icon::after {
+      content: ''; position: absolute; left: 5px; right: 5px; top: 3px; bottom: 3px;
+      background: var(--neon);
+    }
+    .brand-name { font-size: 0.95rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
+    .brand-name span { color: var(--neon); }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
     
-    .top-bar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 100; }
-    .logo-title { font-weight: 900; font-size: 1.1rem; letter-spacing: 2px; }
-    .logo-sub { font-size: 0.6rem; letter-spacing: 1.5px; color: var(--accent-light); font-weight: 700; margin-left: 4px; }
+    .btn-ghost {
+      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+      width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer;
+    }
+    .btn-mode-trigger {
+      background: var(--neon); color: #000; border: none; font-size: 0.65rem;
+      font-weight: 900; letter-spacing: 1px; padding: 7px 12px; border-radius: 4px;
+      cursor: pointer; transition: transform 0.1s;
+    }
+    .btn-mode-trigger:active { transform: scale(0.96); }
+
+    /* SUBHEADER TABS */
+    .sub-nav {
+      display: flex; gap: 6px; overflow-x: auto; padding: 0 16px 12px 16px;
+      scrollbar-width: none; border-bottom: 1px solid var(--border);
+    }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .nav-pill {
+      background: transparent; border: none; color: var(--text-muted);
+      font-family: var(--mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+      padding: 6px 12px; border-radius: 20px; white-space: nowrap; cursor: pointer;
+    }
+    .nav-pill.active {
+      background: var(--neon); color: #000; box-shadow: 0 0 15px var(--neon-glow);
+    }
+
+    /* CONTAINER & VIEWS */
+    .main-wrapper { max-width: 600px; margin: 0 auto; padding: 16px; }
+    .view { display: none; animation: fadeIn 0.2s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* EDITORIAL HERO */
+    .hero-meta { font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 8px; }
+    .hero-meta span { color: var(--neon); }
+    .hero-title {
+      font-size: 1.7rem; font-weight: 900; line-height: 1.15; letter-spacing: -0.5px;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .hero-title em { font-style: normal; color: var(--neon); }
+    .hero-body { font-size: 0.88rem; line-height: 1.5; color: var(--text-muted); margin-bottom: 20px; }
+
+    /* ACTION BUTTONS (NEON CTA) */
+    .btn-action-neon {
+      background: var(--neon); color: #000; border: none; width: 100%; padding: 16px;
+      border-radius: 8px; font-weight: 900; font-size: 0.85rem; letter-spacing: 1.5px;
+      text-transform: uppercase; display: flex; align-items: center; justify-content: center;
+      gap: 8px; cursor: pointer; box-shadow: 0 0 20px var(--neon-glow); margin-bottom: 16px;
+    }
+
+    /* RADIAL GAUGES HUD */
+    .gauge-hud-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px 16px; display: flex; flex-direction: column; align-items: center;
+      position: relative; margin-bottom: 16px; overflow: hidden;
+    }
+    .radial-center-box { position: relative; width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; }
+    .radial-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+    .circle-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+    .circle-progress-outer {
+      fill: none; stroke: var(--neon); stroke-width: 6; stroke-linecap: round;
+      stroke-dasharray: 440; stroke-dashoffset: 110; filter: drop-shadow(0 0 6px var(--neon));
+      transition: stroke-dashoffset 0.5s ease;
+    }
+    .circle-progress-inner {
+      fill: none; stroke: rgba(212, 255, 0, 0.4); stroke-width: 4; stroke-linecap: round;
+      stroke-dasharray: 314; stroke-dashoffset: 60;
+    }
+    .radial-text { text-align: center; z-index: 2; }
+    .radial-num { font-size: 2.2rem; font-weight: 900; font-family: var(--mono); color: var(--text); line-height: 1; }
+    .radial-sub { font-size: 0.65rem; font-family: var(--mono); color: var(--text-muted); margin-top: 4px; }
     
-    .main-content { max-width: 800px; margin: 0 auto; padding: 16px; }
-    .view-section { display: none; animation: fadeIn 0.2s ease-in-out; }
-    .view-section.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    
-    .view-title { font-size: 1.5rem; font-weight: 800; }
-    .subtext { color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 16px 0; }
-    .hero-header { margin-bottom: 20px; text-align: center; }
-    .view-quote { font-style: italic; color: var(--text-muted); font-size: 0.95rem; margin-top: 4px; }
-    
-    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-    .tactical-border { border-left: 4px solid var(--accent); }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
-    .card-h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
-    .card-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.4; }
-    
-    .badge { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; background: rgba(37, 99, 235, 0.2); color: var(--accent-light); border: 1px solid var(--accent); }
-    .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); border-color: var(--danger); }
-    .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); border-color: var(--success); }
-    
-    .label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 4px; }
-    .label-alert { font-size: 0.7rem; font-weight: 800; color: var(--warning); display: block; margin-bottom: 4px; }
-    .val-text { font-size: 0.9rem; color: var(--text-main); }
-    
-    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
-    @media (min-width: 600px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
-    
-    .progress-bar-bg { height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; margin-top: 6px; }
-    .progress-bar-bg.large { height: 10px; }
-    .progress-bar-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
-    
-    .btn-tactical { background: var(--accent); color: #fff; border: none; padding: 12px 16px; font-size: 0.85rem; font-weight: 800; border-radius: 6px; cursor: pointer; text-align: center; }
-    .btn-small { padding: 6px 10px; font-size: 0.7rem; }
-    .full-width { width: 100%; display: block; }
-    
-    .commander-card { background: #000; border: 2px solid var(--accent); border-radius: 8px; padding: 16px; }
-    .next-action-focus { background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warning); padding: 12px; margin: 16px 0; }
-    .checklist-container { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
-    .check-item { display: flex; align-items: center; gap: 10px; background: var(--bg-card); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer; }
-    .check-item.done span { text-decoration: line-through; color: var(--text-muted); }
-    .commander-actions-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
-    @media (min-width: 600px) { .commander-actions-grid { grid-template-columns: 2fr 1fr 1fr; } }
-    .btn-action { padding: 12px; border: none; border-radius: 6px; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
-    .btn-success { background: var(--success); color: #fff; }
-    .btn-warning { background: var(--warning); color: #fff; }
-    .btn-danger { background: var(--danger); color: #fff; }
-    
-    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media (min-width: 600px) { .metrics-grid { grid-template-columns: repeat(4, 1fr); } }
-    .metric-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; text-align: center; }
-    .metric-value { font-size: 1.4rem; font-weight: 900; color: var(--accent-light); }
-    .metric-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); margin-top: 4px; display: block; }
-    
-    .tabs-nav { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
-    .tab-btn { background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; font-weight: 700; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
-    .tab-btn.active { background: var(--bg-card); color: var(--accent-light); border: 1px solid var(--border-color); }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--bg-primary); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-    .nav-item { background: transparent; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 0.65rem; font-weight: 700; cursor: pointer; width: 20%; }
-    .nav-item.active { color: var(--accent-light); }
-    
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
-    .modal-overlay.active { display: flex; }
-    .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; width: 100%; max-width: 450px; padding: 20px; max-height: 90vh; overflow-y: auto; }
-    .input-field { width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; border-radius: 6px; font-size: 0.85rem; margin-top: 4px; }
-    .margin-top { margin-top: 16px; }
-    .text-success { color: var(--success); }
-    .text-danger { color: var(--danger); }
-    .text-warning { color: var(--warning); }
-    .border-left-green { border-left: 4px solid var(--success); }
-    .border-left-red { border-left: 4px solid var(--danger); }
+    .hud-stats-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; width: 100%;
+      margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;
+    }
+    .hud-stat-item { text-align: center; }
+    .hud-stat-val { font-size: 1.1rem; font-weight: 900; font-family: var(--mono); color: var(--text); }
+    .hud-stat-lbl { font-size: 0.6rem; font-family: var(--mono); color: var(--text-muted); letter-spacing: 0.5px; margin-top: 2px; }
+
+    /* TIMELINE NODES (DISCIPLINA OS STYLE) */
+    .section-headline {
+      font-size: 0.75rem; font-family: var(--mono); font-weight: 700; letter-spacing: 1.5px;
+      color: var(--text-muted); margin: 24px 0 12px 0; display: flex; align-items: center; justify-content: space-between;
+    }
+    .timeline-chain { display: flex; flex-direction: column; gap: 16px; position: relative; }
+    .timeline-chain::before {
+      content: ''; position: absolute; left: 18px; top: 20px; bottom: 20px; width: 2px;
+      background: var(--border); z-index: 1;
+    }
+    .timeline-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px; position: relative; margin-left: 40px;
+    }
+    .timeline-card.active-priority {
+      border-color: rgba(212, 255, 0, 0.4);
+      background: linear-gradient(180deg, var(--bg-card-elevated) 0%, var(--bg-card) 100%);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    .node-badge {
+      position: absolute; left: -40px; top: 16px; width: 24px; height: 24px;
+      border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border);
+      color: var(--text-muted); font-size: 0.65rem; font-family: var(--mono); font-weight: 800;
+      display: flex; align-items: center; justify-content: center; z-index: 2;
+    }
+    .node-badge.done { border-color: var(--success); background: var(--success-bg); color: var(--success); }
+    .node-badge.active { border-color: var(--neon); background: #000; color: var(--neon); box-shadow: 0 0 10px var(--neon-glow); }
+
+    .tag-priority {
+      font-size: 0.6rem; font-family: var(--mono); font-weight: 800; letter-spacing: 1px;
+      padding: 3px 6px; border-radius: 4px; background: var(--neon); color: #000;
+      display: inline-block; margin-bottom: 8px;
+    }
+    .card-task-title { font-size: 0.95rem; font-weight: 800; line-height: 1.35; margin-bottom: 8px; color: var(--text); }
+    .card-task-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px; }
+    .evidence-box {
+      background: rgba(0,0,0,0.3); border: 1px dashed var(--border); border-radius: 6px;
+      padding: 8px 10px; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;
+    }
+    .evidence-box strong { color: var(--neon); font-family: var(--mono); }
+
+    /* MODO COMANDANTE (IMERSIVO) */
+    .commander-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #050607;
+      z-index: 500; overflow-y: auto; padding: 20px 16px 40px 16px; display: none;
+    }
+    .commander-overlay.active { display: block; }
+    .commander-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .commander-title-badge { font-family: var(--mono); font-size: 0.75rem; color: var(--neon); font-weight: 800; letter-spacing: 2px; }
+    .btn-exit-mode {
+      background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+      font-size: 0.65rem; font-family: var(--mono); padding: 6px 10px; border-radius: 4px;
+      cursor: pointer;
+    }
+    .commander-hero-card {
+      border: 1px solid var(--border); background: var(--bg-card); border-radius: 12px;
+      padding: 20px; text-align: center; margin-bottom: 16px; position: relative;
+    }
+    .timer-display {
+      font-size: 2.2rem; font-weight: 900; font-family: var(--mono); color: var(--text);
+      letter-spacing: 2px; margin: 10px 0; text-shadow: 0 0 20px rgba(255,255,255,0.1);
+    }
+    .timer-lbl { font-size: 0.6rem; font-family: var(--mono); color: var(--text-muted); letter-spacing: 1px; }
+
+    .checklist-dark { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; text-align: left; }
+    .check-dark-item {
+      background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 6px;
+      padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+    }
+    .check-dark-item.done { opacity: 0.45; }
+    .check-dark-item.done span { text-decoration: line-through; }
+    .check-box-custom {
+      width: 18px; height: 18px; border: 2px solid var(--border-focus); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .check-dark-item.done .check-box-custom { background: var(--neon); border-color: var(--neon); color: #000; }
+
+    /* BOTTOM NAV */
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
+      background: rgba(8, 9, 10, 0.95); backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+      align-items: center; z-index: 100;
+    }
+    .nav-btn {
+      background: transparent; border: none; color: var(--text-muted);
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 0.6rem; font-family: var(--mono); font-weight: 700; letter-spacing: 0.5px;
+      cursor: pointer; width: 20%;
+    }
+    .nav-btn.active { color: var(--neon); }
+    .nav-btn svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    /* RESPONSABILIDADE & REALIDADE */
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    @media (min-width: 500px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .metric-radar-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; margin-bottom: 12px;
+    }
+    .radar-bar-group { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .radar-bar-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; }
+    .bar-track { width: 60%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--neon); }
+
+    /* MODAL */
+    .modal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85);
+      z-index: 600; display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal.active { display: flex; }
+    .modal-box {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      width: 100%; max-width: 440px; padding: 20px;
+    }
+    .input-dark {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 12px; color: var(--text); font-size: 0.85rem; margin-top: 6px; margin-bottom: 14px;
+      outline: none;
+    }
+    .input-dark:focus { border-color: var(--neon); }
   </style>
 </head>
 <body>
 
+  <!-- TOP BAR -->
   <header class="top-bar">
-    <div>
-      <span class="logo-title">HUUD</span>
-      <span class="logo-sub">COMMAND CENTER</span>
+    <div class="brand-group">
+      <div class="brand-icon"></div>
+      <div class="brand-name">DISCIPLINA <span>OS</span></div>
     </div>
-    <button class="btn-tactical btn-small" onclick="app.navigateTo('commander')">MODO COMANDANTE</button>
+    <div class="top-actions">
+      <button class="btn-ghost" onclick="app.toggleTheme()" title="Alternar Modo">🌓</button>
+      <button class="btn-mode-trigger" onclick="app.openCommander()">COMANDANTE</button>
+    </div>
   </header>
 
-  <main class="main-content">
-    <section id="view-dashboard" class="view-section active">
-      <div class="hero-header">
-        <h1 class="view-title">HUUD</h1>
-        <p class="view-quote">“Você já sabe o que precisa fazer. Agora execute.”</p>
-      </div>
-
-      <div class="card tactical-border">
-        <div class="card-header">
-          <span class="badge">MISSÃO DE HOJE</span>
-          <span id="dash-mission-status" class="val-text">EM ANDAMENTO</span>
-        </div>
-        <h2 class="card-title" id="dash-mission-title">Estruturar Plano de Renda Imediata & Dívidas</h2>
-        <div class="grid-2">
-          <div><span class="label">OBJETIVO</span><p class="val-text">Mapear credores e ativar ponte financeira.</p></div>
-          <div><span class="label">PRAZO</span><p class="val-text text-warning" id="dash-mission-deadline">Hoje - 23:59</p></div>
-        </div>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="dash-mission-bar" style="width: 50%;"></div></div>
-        <div class="margin-top">
-          <span class="label">PRÓXIMA AÇÃO</span>
-          <p class="val-text" id="dash-mission-next">Listar dívidas por taxa de juros e contatar credores.</p>
-        </div>
-        <button class="btn-tactical full-width margin-top" onclick="app.navigateTo('commander')">ENTRAR NO MODO COMANDANTE</button>
-      </div>
-
-      <div class="metrics-grid">
-        <div class="metric-card"><span class="metric-value">14</span><span class="metric-label">DIAS EXECUTADOS</span></div>
-        <div class="metric-card"><span class="metric-value">82%</span><span class="metric-label">TAXA DE EXECUÇÃO</span></div>
-        <div class="metric-card"><span class="metric-value">FASE 1</span><span class="metric-label">PARAGUAY 90 DIAS</span></div>
-        <div class="metric-card"><span class="metric-value">42h</span><span class="metric-label">ESTUDO TI / IA</span></div>
-      </div>
-    </section>
-
-    <section id="view-commander" class="view-section">
-      <div class="commander-card">
-        <div style="display:flex; justify-content:space-between;">
-          <span class="label">MISSÃO ATUAL</span>
-          <span class="text-warning" style="font-size:0.75rem; font-weight:800;" id="cmd-deadline">PRAZO: 23:59</span>
-        </div>
-        <h2 class="margin-top" id="cmd-mission-title">Estruturar Plano de Renda Imediata & Dívidas</h2>
-        <div class="next-action-focus">
-          <span class="label-alert">PRÓXIMA AÇÃO CRÍTICA</span>
-          <h3 id="cmd-next-action">Listar dívidas por taxa de juros e contatar credores.</h3>
-        </div>
-        <span class="label">CHECKLIST OPERACIONAL</span>
-        <div id="commander-checklist" class="checklist-container"></div>
-        <div class="commander-actions-grid margin-top">
-          <button class="btn-action btn-success" onclick="app.completeMission()">CONCLUIR</button>
-          <button class="btn-action btn-warning" onclick="app.openModal('modal-postpone')">ADIAR</button>
-          <button class="btn-action btn-danger" onclick="app.openModal('modal-reformulate')">REFORMULAR</button>
-        </div>
-      </div>
-      <div class="card margin-top">
-        <span class="label">PROGRESSO DIÁRIO</span>
-        <div class="progress-bar-bg large"><div class="progress-bar-fill" id="cmd-progress-bar" style="width: 50%;"></div></div>
-      </div>
-    </section>
-
-    <section id="view-reality" class="view-section">
-      <h2 class="view-title">MINHA REALIDADE</h2>
-      <p class="subtext">Diagnóstico e clareza de território.</p>
-      <div class="tabs-nav">
-        <button class="tab-btn active" onclick="app.switchTab(this, 'tab-sit')">SITUAÇÃO</button>
-        <button class="tab-btn" onclick="app.switchTab(this, 'tab-fun')">FUNCIONA / NÃO FUNCIONA</button>
-      </div>
-      <div id="tab-sit" class="tab-content active">
-        <div class="card">
-          <h3 class="card-h3">Pressão Financeira & Dívidas</h3>
-          <p class="card-desc">Foco rigoroso em estancar perdas e levantar liquidez sem falsas esperanças.</p>
-        </div>
-        <div class="card">
-          <h3 class="card-h3">Imobiliário como Ponte</h3>
-          <p class="card-desc">Atuação usada unicamente para levantar caixa rápido, não como carreira definitiva.</p>
-        </div>
-      </div>
-      <div id="tab-fun" class="tab-content">
-        <div class="card border-left-green">
-          <h3 class="card-h3 text-success">O QUE FUNCIONA</h3>
-          <p class="card-desc">Capacidade analítica, decisão firme de transição para tecnologia (TI/IA).</p>
-        </div>
-        <div class="card border-left-red margin-top">
-          <h3 class="card-h3 text-danger">O QUE NÃO FUNCIONA</h3>
-          <p class="card-desc">Esperar terceiros para tomar atitudes cruciais na própria vida.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-decisions" class="view-section">
-      <h2 class="view-title">DECISÕES ESTRATÉGICAS</h2>
-      <p class="subtext">Diretrizes inegociáveis.</p>
-      <div id="decisions-list"></div>
-    </section>
-  </main>
-
-  <nav class="bottom-nav">
-    <button class="nav-item active" onclick="app.navigateTo('dashboard')">HUUD</button>
-    <button class="nav-item" onclick="app.navigateTo('commander')">COMANDO</button>
-    <button class="nav-item" onclick="app.navigateTo('reality')">REALIDADE</button>
-    <button class="nav-item" onclick="app.navigateTo('decisions')">DECISÕES</button>
+  <!-- SUBHEADER PILLS -->
+  <nav class="sub-nav">
+    <button class="nav-pill active" onclick="app.switchView('flow')">FLUXO</button>
+    <button class="nav-pill" onclick="app.switchView('reality')">REALIDADE</button>
+    <button class="nav-pill" onclick="app.switchView('decisions')">DECISÕES</button>
+    <button class="nav-pill" onclick="app.switchView('py')">GO PARAGUAY</button>
+    <button class="nav-pill" onclick="app.switchView('journal')">DIÁRIO</button>
   </nav>
 
-  <div id="modal-reformulate" class="modal-overlay">
-    <div class="modal-content">
-      <h3 class="card-h3">CORREÇÃO DE ROTA</h3>
-      <form onsubmit="app.submitReformulation(event)">
-        <label class="label margin-top">O QUE IMPEDIU A EXECUÇÃO?</label>
-        <input type="text" id="ref-reason" class="input-field" required>
-        <label class="label margin-top">QUAL É A NOVA AÇÃO?</label>
-        <input type="text" id="ref-action" class="input-field" required>
-        <button type="submit" class="btn-tactical full-width margin-top">CORRIGIR AGORA</button>
-      </form>
+  <!-- MAIN VIEW AREA -->
+  <main class="main-wrapper">
+
+    <!-- 1. FLUXO (DASHBOARD TÁTICO) -->
+    <section id="view-flow" class="view active">
+      <div class="hero-meta">00 / INICIALIZAÇÃO • <span>CONSULTOR OPERACIONAL ATIVO</span></div>
+      <h1 class="hero-title">Você não precisa vencer tudo hoje. <em>Precisa recuperar o próximo comando.</em></h1>
+      <p class="hero-body">O sistema começa pela realidade. Separamos fatos de medo, identificamos o que está sob seu controle e transformamos incerteza em execução sem negociação.</p>
+
+      <!-- RADIAL GAUGE HUD -->
+      <div class="gauge-hud-card">
+        <div class="radial-center-box">
+          <svg class="radial-svg" viewBox="0 0 160 160">
+            <circle class="circle-bg" cx="80" cy="80" r="70" />
+            <circle class="circle-progress-outer" id="main-progress-circle" cx="80" cy="80" r="70" />
+            <circle class="circle-progress-inner" cx="80" cy="80" r="50" />
+          </svg>
+          <div class="radial-text">
+            <div class="radial-num" id="hud-done-count">03</div>
+            <div class="radial-sub">DE 30 DIAS</div>
+          </div>
+        </div>
+
+        <div class="hud-stats-row">
+          <div class="hud-stat-item">
+            <div class="hud-stat-val" id="hud-stat-exec">75%</div>
+            <div class="hud-stat-lbl">EXECUÇÃO</div>
+          </div>
+          <div class="hud-stat-item">
+            <div class="hud-stat-val">1</div>
+            <div class="hud-stat-lbl">EVIDÊNCIA</div>
+          </div>
+          <div class="hud-stat-item">
+            <div class="hud-stat-val">2h / 2h</div>
+            <div class="hud-stat-lbl">ESTUDO TI/IA</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-action-neon" onclick="app.openCommander()">ENTRAR NO MODO COMANDANTE →</button>
+
+      <!-- TIMELINE DE MISSÕES (ESTILO DISCIPLINA OS) -->
+      <div class="section-headline">
+        <span>A DECISÃO QUE MUDA O CICLO</span>
+        <span style="color:var(--neon)">PRIORIDADE 01</span>
+      </div>
+
+      <div class="timeline-chain">
+        <!-- Card 1: Ativa -->
+        <div class="timeline-card active-priority">
+          <div class="node-badge active">01</div>
+          <span class="tag-priority">PRIORIDADE MÁXIMA</span>
+          <h3 class="card-task-title" id="flow-task-title">Estruturar Plano de Renda Imediata & Diagnóstico de Dívidas</h3>
+          <p class="card-task-desc">Mapear 100% dos credores e definir ações de liquidez rápida usando o mercado imobiliário exclusivamente como ponte financeira.</p>
+          <div class="evidence-box">
+            <strong>EVIDÊNCIA EXIGIDA:</strong> Planilha de passivos por ordem de juros e 3 contatos de negociação realizados hoje.
+          </div>
+          <button class="btn-action-neon" style="padding:10px; margin-bottom:0;" onclick="app.openCommander()">ATUALIZAR RESULTADO →</button>
+        </div>
+
+        <!-- Card 2: Anterior -->
+        <div class="timeline-card">
+          <div class="node-badge done">✓</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">MISSÃO ANTERIOR</span>
+            <span style="font-size:0.65rem; font-family:var(--mono); color:var(--success)">CONCLUÍDA</span>
+          </div>
+          <h4 class="card-task-title" style="font-size:0.85rem;">Definir corte de custos supérfluos e blindagem de emergência</h4>
+        </div>
+
+        <!-- Card 3: Próxima -->
+        <div class="timeline-card">
+          <div class="node-badge">03</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PRÓXIMA MISSÃO</span>
+            <span style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">BLOQUEADA</span>
+          </div>
+          <h4 class="card-task-title" style="font-size:0.85rem;">Documentação e Caixa Inicial para GO Paraguay GO (Fase 1)</h4>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. REALIDADE (DIAGNÓSTICO) -->
+    <section id="view-reality" class="view">
+      <div class="hero-meta">01 / DIAGNÓSTICO • <span>TERRITÓRIO REAL</span></div>
+      <h2 class="hero-title">Confronto com os <em>Fatos</em>.</h2>
+
+      <div class="metric-radar-card">
+        <span style="font-size:0.7rem; font-family:var(--mono); color:var(--neon); font-weight:800;">RADAR DE CONTROLE</span>
+        <div class="radar-bar-group">
+          <div class="radar-bar-row">
+            <span>Finanças & Dívidas</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 40%; background:var(--danger)"></div></div>
+          </div>
+          <div class="radar-bar-row">
+            <span>Foco em TI & IA</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 85%;"></div></div>
+          </div>
+          <div class="radar-bar-row">
+            <span>Disciplina Diária</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 75%;"></div></div>
+          </div>
+          <div class="radar-bar-row">
+            <span>Transição Paraguai</span>
+            <div class="bar-track"><div class="bar-fill" style="width: 30%; background:var(--neon)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="metric-radar-card" style="border-left:3px solid var(--success);">
+          <span style="font-size:0.7rem; font-family:var(--mono); color:var(--success); font-weight:800;">SOB MEU CONTROLE</span>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:8px; line-height:1.4;">
+            • Horas estudadas de código e IA<br>
+            • Postura fria nas renegociações<br>
+            • Prospecção no mercado imobiliário
+          </p>
+        </div>
+        <div class="metric-radar-card" style="border-left:3px solid var(--danger);">
+          <span style="font-size:0.7rem; font-family:var(--mono); color:var(--danger); font-weight:800;">FORA DO CONTROLE</span>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:8px; line-height:1.4;">
+            • Decisões de outras pessoas<br>
+            • Oscilações de mercado<br>
+            • Ruído emocional de terceiros
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. DECISÕES ESTRATÉGICAS -->
+    <section id="view-decisions" class="view">
+      <div class="hero-meta">02 / DIRETRIZES • <span>INEGOCIÁVEIS</span></div>
+      <h2 class="hero-title">Decisões <em>Estratégicas</em>.</h2>
+      <div id="decisions-container" class="timeline-chain" style="margin-top:16px;"></div>
+    </section>
+
+    <!-- 4. GO PARAGUAY GO -->
+    <section id="view-py" class="view">
+      <div class="hero-meta">03 / TRANSIÇÃO • <span>CRONOGRAMA 90 DIAS</span></div>
+      <h2 class="hero-title">GO Paraguay <em>GO</em>.</h2>
+      <p class="hero-body">Não é solução mágica. É arbitragem estratégica de custo de vida e recomeço operacional.</p>
+
+      <div class="timeline-chain">
+        <div class="timeline-card active-priority">
+          <div class="node-badge active">F1</div>
+          <span class="tag-priority">EM ANDAMENTO</span>
+          <h3 class="card-task-title">Fase 1: Preparação no Brasil</h3>
+          <p class="card-task-desc">Diagnóstico final de dívidas, documentação pessoal e caixa de sobrevivência.</p>
+        </div>
+        <div class="timeline-card">
+          <div class="node-badge">F2</div>
+          <h4 class="card-task-title" style="font-size:0.85rem;">Fase 2: Partida & Logística</h4>
+        </div>
+        <div class="timeline-card">
+          <div class="node-badge">F3</div>
+          <h4 class="card-task-title" style="font-size:0.85rem;">Fase 3: Primeiros 7 Dias (Cédula & Terreno)</h4>
+        </div>
+        <div class="timeline-card">
+          <div class="node-badge">F4</div>
+          <h4 class="card-task-title" style="font-size:0.85rem;">Fase 4: 30 Dias (Primeira Renda Ativa)</h4>
+        </div>
+        <div class="timeline-card">
+          <div class="node-badge">F6</div>
+          <h4 class="card-task-title" style="font-size:0.85rem;">Fase 6: 90 Dias (Estabilização Plena)</h4>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. DIÁRIO DE EXECUÇÃO -->
+    <section id="view-journal" class="view">
+      <div class="hero-meta">04 / AUDITORIA • <span>SEM AUTONOMIA SEM REGISTRO</span></div>
+      <h2 class="hero-title">Diário de <em>Execução</em>.</h2>
+
+      <div class="metric-radar-card">
+        <form onsubmit="app.saveJournal(event)">
+          <label style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted)">MISSÃO DO DIA</label>
+          <input type="text" id="j-title" class="input-dark" required placeholder="Ex: Prospecção de 5 contatos">
+
+          <label style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted)">O QUE DE FATO FOI REALIZADO?</label>
+          <input type="text" id="j-done" class="input-dark" required placeholder="Fatos concretos...">
+
+          <label style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted)">QUAL FOI O IMPEDIMENTO REAL?</label>
+          <input type="text" id="j-reason" class="input-dark" placeholder="Sem desculpas emocionais...">
+
+          <button type="submit" class="btn-action-neon" style="margin-bottom:0; padding:12px;">GRAVAR REGISTRO</button>
+        </form>
+      </div>
+
+      <div id="journal-list" style="margin-top:16px;"></div>
+    </section>
+
+  </main>
+
+  <!-- MODO COMANDANTE (OVERLAY EM TELA CHEIA) -->
+  <div id="commander-mode" class="commander-overlay">
+    <div class="commander-top">
+      <span class="commander-title-badge">● MODO COMANDANTE ATIVO</span>
+      <button class="btn-exit-mode" onclick="app.closeCommander()">SAIR DO MODO ✕</button>
+    </div>
+
+    <div class="commander-hero-card">
+      <span style="font-size:0.65rem; font-family:var(--mono); color:var(--neon); letter-spacing:1.5px;">MISSÃO PRIORITÁRIA DE HOJE</span>
+      <h2 style="font-size:1.2rem; font-weight:900; margin-top:6px; color:#fff;" id="cmd-task-title">Estruturar Plano de Renda Imediata & Dívidas</h2>
+
+      <div class="timer-display" id="cmd-timer">14 : 18 : 27</div>
+      <div class="timer-lbl">TEMPO RESTANTE PARA EXECUÇÃO</div>
+    </div>
+
+    <div class="evidence-box">
+      <strong>PRÓXIMA AÇÃO CRÍTICA:</strong> Listar dívidas por taxa de juros e fechar bloco de 2h de estudo de IA.
+    </div>
+
+    <div class="section-headline">
+      <span>CHECKLIST INEGOCIÁVEL</span>
+      <span id="cmd-progress-stat" style="color:var(--neon)">2 / 4</span>
+    </div>
+
+    <div id="commander-checklist-container" class="checklist-dark"></div>
+
+    <button class="btn-action-neon" onclick="app.completeDayMission()">EXECUTAR MISSÃO • CONCLUIR DIA</button>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+      <button class="btn-action-neon" style="background:#1a1e24; color:var(--danger); border:1px solid var(--border);" onclick="app.openModal('modal-reformulate')">REFORMULAR</button>
+      <button class="btn-action-neon" style="background:#1a1e24; color:var(--text-muted); border:1px solid var(--border);" onclick="app.openModal('modal-postpone')">ADIAR</button>
     </div>
   </div>
 
-  <div id="modal-postpone" class="modal-overlay">
-    <div class="modal-content">
-      <h3 class="card-h3">ADIAR MISSÃO</h3>
-      <form onsubmit="app.submitPostpone(event)">
-        <label class="label margin-top">NOVO PRAZO</label>
-        <input type="datetime-local" id="post-date" class="input-field" required>
-        <button type="submit" class="btn-tactical full-width margin-top">CONFIRMAR</button>
-      </form>
+  <!-- BOTTOM BAR NAV -->
+  <nav class="bottom-bar">
+    <button class="nav-btn active" onclick="app.switchView('flow')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>HOJE</span>
+    </button>
+    <button class="nav-btn" onclick="app.switchView('reality')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span>RADAR</span>
+    </button>
+    <button class="nav-btn" onclick="app.switchView('decisions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>MISSÕES</span>
+    </button>
+    <button class="nav-btn" onclick="app.switchView('py')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span>PARAGUAY</span>
+    </button>
+    <button class="nav-btn" onclick="app.switchView('journal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+      <span>DIÁRIO</span>
+    </button>
+  </nav>
+
+  <!-- MODAL REFORMULAR -->
+  <div id="modal-reformulate" class="modal">
+    <div class="modal-box">
+      <h3 style="font-size:1rem; font-weight:900; margin-bottom:12px; color:var(--neon)">CORREÇÃO TÁTICA DE ROTA</h3>
+      <label style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted)">O QUE BLOQUEOU A EXECUÇÃO?</label>
+      <input type="text" id="ref-reason" class="input-dark" placeholder="Identifique o gargalo...">
+      <label style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted)">QUAL É A NOVA AÇÃO COM MENOS FRICÇÃO?</label>
+      <input type="text" id="ref-action" class="input-dark" placeholder="Ação ultra-específica...">
+      <button class="btn-action-neon" onclick="app.saveReformulation()">RE-ENGANJAR MISSÃO</button>
+      <button class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none; margin-bottom:0;" onclick="app.closeModal('modal-reformulate')">CANCELAR</button>
     </div>
   </div>
 
+  <!-- JAVASCRIPT ENGINE (VANILLA) -->
   <script>
-    const initialDecisions = [
-      { title: "1. Levantar dinheiro imediatamente", reason: "Recuperar margem de manobra.", consequence: "Paz mental e foco na transição.", action: "Ativar oportunidades de liquidez rápida no imobiliário.", status: "EM EXECUÇÃO" },
-      { title: "2. Organizar todas as dívidas", reason: "Fim do ruído emocional.", consequence: "Negociação baseada na realidade.", action: "Listar passivos ordenados por custo/juros.", status: "EM EXECUÇÃO" },
-      { title: "3. Transição GO Paraguay GO", reason: "Arbitragem de custo e eficiência fiscal.", consequence: "Burn rate drasticamente menor.", action: "Cumprir checklist da Fase 1.", status: "EM EXECUÇÃO" },
-      { title: "4. Estudos diários de TI + IA", reason: "Competência técnica global.", consequence: "Independência geográfica e produtos próprios.", action: "2 horas diárias inegociáveis de código.", status: "INEGOCIÁVEL" }
+    const decisionsData = [
+      { id: 1, title: "1. Levantar dinheiro imediatamente", reason: "Autonomia e tranquilidade operacional.", consequence: "Paz para executar a transição sem pânico.", action: "Usar mercado imobiliário unicamente como ponte financeira.", status: "EM EXECUÇÃO" },
+      { id: 2, title: "2. Organizar todas as dívidas", reason: "Mapeamento sem ilusão.", consequence: "Negociação fria baseada na capacidade real de pagamento.", action: "Ordenar credores por juros e consolidar mapa.", status: "EM EXECUÇÃO" },
+      { id: 3, title: "3. GO Paraguay GO (Transição Tática)", reason: "Arbitragem de custo e eficiência fiscal.", consequence: "Burn rate drasticamente reduzido nos 90 dias.", action: "Executar checklist da Fase 1.", status: "EM EXECUÇÃO" },
+      { id: 4, title: "4. Estudos Diários de TI + IA", reason: "Competência técnica global.", consequence: "Renda em moeda forte e produto próprio.", action: "2 horas diárias inegociáveis de código.", status: "INEGOCIÁVEL" }
     ];
 
-    const initialChecklist = [
-      { id: 1, text: "Mapear 100% dos passivos financeiros", done: true },
-      { id: 2, text: "Estudo prático de TI / IA (2h de foco)", done: true },
-      { id: 3, text: "Contatos de liquidez rápida (Imobiliário)", done: false },
-      { id: 4, text: "Checklist de documentação Fase 1 (Paraguai)", done: false }
+    const checklistData = [
+      { id: 1, text: "Levantar mapa de 100% das dívidas e juros", done: true },
+      { id: 2, text: "2 horas de estudo focado de TI / IA", done: true },
+      { id: 3, text: "Prospecção ativa no imobiliário (ponte de caixa)", done: false },
+      { id: 4, text: "Separar documentação para Fase 1 (Paraguai)", done: false }
     ];
 
-    class HUUD {
+    class HuudEngine {
       constructor() {
-        this.decisions = JSON.parse(localStorage.getItem('huud_decisions')) || initialDecisions;
-        this.checklist = JSON.parse(localStorage.getItem('huud_checklist')) || initialChecklist;
-        this.mission = JSON.parse(localStorage.getItem('huud_mission')) || {
-          title: "Estruturar Plano de Renda Imediata & Dívidas",
-          deadline: "Hoje - 23:59", progress: 50, nextAction: "Listar dívidas por taxa de juros e contatar credores."
-        };
+        this.checklist = JSON.parse(localStorage.getItem('huud_tasks')) || checklistData;
+        this.journal = JSON.parse(localStorage.getItem('huud_j_data')) || [
+          { title: "Início do HUUD OS", done: "Estruturação visual com identidade Disciplina OS", reason: "Nenhum", date: "Hoje" }
+        ];
         this.init();
       }
+
       init() {
         this.renderDecisions();
         this.renderChecklist();
-        this.updateUI();
+        this.renderJournal();
+        this.updateHUD();
+        this.startTimer();
       }
-      navigateTo(id) {
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.getElementById('view-' + id)?.classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        event?.target?.classList?.add('active');
+
+      switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+        const target = document.getElementById('view-' + viewId);
+        if (target) target.classList.add('active');
+
+        const pills = Array.from(document.querySelectorAll('.nav-pill'));
+        const activePill = pills.find(p => p.getAttribute('onclick').includes(viewId));
+        if (activePill) activePill.classList.add('active');
+
         window.scrollTo(0, 0);
       }
-      switchTab(btn, id) {
-        btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.closest('.view-section').querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(id).classList.add('active');
-      }
+
       renderDecisions() {
-        const el = document.getElementById('decisions-list');
-        if (!el) return;
-        el.innerHTML = this.decisions.map(d => `
-          <div class="card">
-            <span class="badge ${d.status === 'INEGOCIÁVEL' ? 'badge-danger' : 'badge-success'}">${d.status}</span>
-            <h3 class="card-h3 margin-top">${d.title}</h3>
-            <p class="val-text" style="margin-top:6px;"><strong>Ação:</strong> ${d.action}</p>
+        const c = document.getElementById('decisions-container');
+        if (!c) return;
+        c.innerHTML = decisionsData.map(d => `
+          <div class="timeline-card">
+            <span class="tag-priority">${d.status}</span>
+            <h3 class="card-task-title">${d.title}</h3>
+            <p class="card-task-desc"><strong>Motivo:</strong> ${d.reason}<br><strong>Consequência:</strong> ${d.consequence}</p>
+            <div class="evidence-box"><strong>PRÓXIMA AÇÃO:</strong> ${d.action}</div>
           </div>
         `).join('');
       }
+
       renderChecklist() {
-        const el = document.getElementById('commander-checklist');
-        if (!el) return;
-        el.innerHTML = this.checklist.map(item => `
-          <div class="check-item ${item.done ? 'done' : ''}" onclick="app.toggleCheck(${item.id})">
-            <input type="checkbox" ${item.done ? 'checked' : ''}>
-            <span>${item.text}</span>
+        const c = document.getElementById('commander-checklist-container');
+        if (!c) return;
+        c.innerHTML = this.checklist.map(item => `
+          <div class="check-dark-item ${item.done ? 'done' : ''}" onclick="app.toggleTask(${item.id})">
+            <div class="check-box-custom">${item.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem; font-weight:600;">${item.text}</span>
           </div>
         `).join('');
       }
-      toggleCheck(id) {
-        this.checklist = this.checklist.map(i => i.id === id ? { ...i, done: !i.done } : i);
-        localStorage.setItem('huud_checklist', JSON.stringify(this.checklist));
-        const done = this.checklist.filter(i => i.done).length;
-        this.mission.progress = Math.round((done / this.checklist.length) * 100);
+
+      toggleTask(id) {
+        this.checklist = this.checklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        localStorage.setItem('huud_tasks', JSON.stringify(this.checklist));
         this.renderChecklist();
-        this.updateUI();
+        this.updateHUD();
       }
-      updateUI() {
-        document.getElementById('dash-mission-bar').style.width = this.mission.progress + '%';
-        document.getElementById('cmd-progress-bar').style.width = this.mission.progress + '%';
-        document.getElementById('dash-mission-next').innerText = this.mission.nextAction;
-        document.getElementById('cmd-next-action').innerText = this.mission.nextAction;
-        document.getElementById('dash-mission-deadline').innerText = this.mission.deadline;
-        document.getElementById('cmd-deadline').innerText = 'PRAZO: ' + this.mission.deadline;
+
+      updateHUD() {
+        const total = this.checklist.length;
+        const done = this.checklist.filter(t => t.done).length;
+        const pct = Math.round((done / total) * 100);
+
+        document.getElementById('hud-stat-exec').innerText = pct + '%';
+        document.getElementById('cmd-progress-stat').innerText = `${done} / ${total}`;
+
+        const circle = document.getElementById('main-progress-circle');
+        if (circle) {
+          const offset = 440 - (440 * (pct / 100));
+          circle.style.strokeDashoffset = offset;
+        }
       }
-      completeMission() { alert("MISSÃO CONCLUÍDA."); }
+
+      startTimer() {
+        const timerEl = document.getElementById('cmd-timer');
+        setInterval(() => {
+          const now = new Date();
+          const hrs = String(23 - now.getHours()).padStart(2, '0');
+          const mins = String(59 - now.getMinutes()).padStart(2, '0');
+          const secs = String(59 - now.getSeconds()).padStart(2, '0');
+          if (timerEl) timerEl.innerText = `${hrs} : ${mins} : ${secs}`;
+        }, 1000);
+      }
+
+      openCommander() { document.getElementById('commander-mode').classList.add('active'); }
+      closeCommander() { document.getElementById('commander-mode').classList.remove('active'); }
+
       openModal(id) { document.getElementById(id).classList.add('active'); }
       closeModal(id) { document.getElementById(id).classList.remove('active'); }
-      submitReformulation(e) {
-        e.preventDefault();
-        this.mission.nextAction = document.getElementById('ref-action').value;
-        localStorage.setItem('huud_mission', JSON.stringify(this.mission));
-        this.updateUI();
+
+      saveReformulation() {
+        const action = document.getElementById('ref-action').value;
+        if (action) {
+          document.getElementById('cmd-task-title').innerText = action;
+          document.getElementById('flow-task-title').innerText = action;
+        }
         this.closeModal('modal-reformulate');
       }
-      submitPostpone(e) {
+
+      saveJournal(e) {
         e.preventDefault();
-        this.mission.deadline = document.getElementById('post-date').value.replace('T', ' ');
-        localStorage.setItem('huud_mission', JSON.stringify(this.mission));
-        this.updateUI();
-        this.closeModal('modal-postpone');
+        const entry = {
+          title: document.getElementById('j-title').value,
+          done: document.getElementById('j-done').value,
+          reason: document.getElementById('j-reason').value || "Nenhum",
+          date: new Date().toLocaleDateString('pt-BR')
+        };
+        this.journal.unshift(entry);
+        localStorage.setItem('huud_j_data', JSON.stringify(this.journal));
+        this.renderJournal();
+        e.target.reset();
+      }
+
+      renderJournal() {
+        const el = document.getElementById('journal-list');
+        if (!el) return;
+        el.innerHTML = this.journal.map(j => `
+          <div class="metric-radar-card">
+            <span style="font-size:0.65rem; font-family:var(--mono); color:var(--neon)">${j.date}</span>
+            <h4 style="font-size:0.9rem; font-weight:800; margin:4px 0;">${j.title}</h4>
+            <p style="font-size:0.8rem; color:var(--text-muted)"><strong>Realizado:</strong> ${j.done}</p>
+            ${j.reason !== 'Nenhum' ? `<p style="font-size:0.75rem; color:var(--danger); margin-top:2px;"><strong>Gargalo:</strong> ${j.reason}</p>` : ''}
+          </div>
+        `).join('');
+      }
+
+      completeDayMission() {
+        alert("EXECUÇÃO CONFIRMADA. Disciplina é decisão repetida todos os dias.");
+        this.closeCommander();
+      }
+
+      toggleTheme() {
+        const current = document.body.getAttribute('data-theme');
+        if (current === 'light') {
+          document.body.removeAttribute('data-theme');
+        } else {
+          document.body.setAttribute('data-theme', 'light');
+        }
       }
     }
-    const app = new HUUD();
+
+    let app;
+    window.addEventListener('DOMContentLoaded', () => { app = new HuudEngine(); });
   </script>
 </body>
 </html>
