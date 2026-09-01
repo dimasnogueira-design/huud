@@ -76,8 +76,8 @@
     .nav-pill.active { background: var(--neon); color: #000; box-shadow: 0 0 12px var(--neon-glow); }
 
     .main-wrapper { max-width: 720px; margin: 0 auto; padding: 16px; }
-    .view { display: none; animation: fadeIn 0.2s ease; }
-    .view.active { display: block; }
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.2s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
     /* EDITORIAL HEADERS */
@@ -451,7 +451,7 @@
         </div>
       </div>
 
-      <!-- BOTÕES DE ADICIONAR (SAÍDA / ENTRADA / RECORRENTE) -->
+      <!-- BOTÕES DE ADICIONAR -->
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
         <button class="btn-action-neon" style="margin-bottom:0; padding:12px; font-size:0.75rem;" onclick="app.openModal('modal-add-entry', 'DEBT')">
           + REGISTRAR DÍVIDA / SAÍDA
@@ -709,11 +709,18 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
     </button>
   </nav>
 
-  <!-- JAVASCRIPT & SUPABASE CLOUD SYNC -->
+  <!-- JAVASCRIPT ENGINE -->
   <script>
-    const SUPABASE_URL = 'https://inqrtidtdzearvhjjpmq.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_Z1FHc9GmJUeSugGhNRikIA_N4EjDrBo';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let supabaseClient = null;
+    try {
+      if (window.supabase) {
+        const SUPABASE_URL = 'https://inqrtidtdzearvhjjpmq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Z1FHc9GmJUeSugGhNRikIA_N4EjDrBo';
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+    } catch (e) {
+      console.log('Supabase offline');
+    }
 
     const initialFinance = [
       { id: 1, type: "DEBT", name: "Urgência Dia 3", amount: 10000, date: "2026-09-03", urgency: "CRITICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
@@ -747,73 +754,45 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
     const diagnosticData = [
       {
         block: "1. REALIDADE — O que é verdade?",
-        content: `
-          <div class="diag-q">Situação financeira e rotina:</div>
-          <div class="diag-a">Pressão alta com dívidas e duas crianças. A empresa Mar Verde não gera mais tração. Necessidade de parar de esperar as coisas caírem do céu.</div>
-          <div class="diag-q">O que está funcionando?</div>
-          <div class="diag-a">Apenas a academia. O resto precisa de comando imediato.</div>
-        `
+        content: '<div class="diag-q">Situação financeira e rotina:</div><div class="diag-a">Pressão alta com dívidas e duas crianças. A empresa Mar Verde não gera mais tração. Necessidade de parar de esperar as coisas caírem do céu.</div><div class="diag-q">O que está funcionando?</div><div class="diag-a">Apenas a academia. O resto precisa de comando imediato.</div>'
       },
       {
         block: "2. EU — Quem estou me tornando?",
-        content: `
-          <div class="diag-q">Quem eu era antes?</div>
-          <div class="diag-a">Um cara organizado, inteligente, que venceu o crack e a dependência química, sabe criar e trabalhar.</div>
-          <div class="diag-q">O que eu faria sem medo de julgamentos?</div>
-          <div class="diag-a">Voltaria para o computador para criar projetos e estudar TI/IA ouvindo metal.</div>
-        `
+        content: '<div class="diag-q">Quem eu era antes?</div><div class="diag-a">Um cara organizado, inteligente, que venceu o crack e a dependência química, sabe criar e trabalhar.</div><div class="diag-q">O que eu faria sem medo de julgamentos?</div><div class="diag-a">Voltaria para o computador para criar projetos e estudar TI/IA ouvindo metal.</div>'
       },
       {
         block: "3. RELACIONAMENTO — Viper",
-        content: `
-          <div class="diag-q">Diretriz adotada:</div>
-          <div class="diag-a">Não romper no meio do caos, mas não paralisar meu plano dependendo das atitudes dela. Cada um carrega a própria mochila. Compartilhar os números frios.</div>
-        `
+        content: '<div class="diag-q">Diretriz adotada:</div><div class="diag-a">Não romper no meio do caos, mas não paralisar meu plano dependendo das atitudes dela. Cada um carrega a própria mochila. Compartilhar os números frios.</div>'
       },
       {
         block: "4. OPORTUNIDADES — Para onde aponta?",
-        content: `
-          <div class="diag-q">Vetor principal nos próximos 12 meses:</div>
-          <div class="diag-a">Área de TI + IA, desenvolvimento do Disciplina OS e monetização de negócios digitais. Imobiliária apenas como ponte.</div>
-        `
+        content: '<div class="diag-q">Vetor principal nos próximos 12 meses:</div><div class="diag-a">Área de TI + IA, desenvolvimento do Disciplina OS e monetização de negócios digitais. Imobiliária apenas como ponte.</div>'
       },
       {
         block: "5. PARAGUAI — Fuga ou Movimento?",
-        content: `
-          <div class="diag-q">É fuga?</div>
-          <div class="diag-a">Não. É criação de oportunidade, redução de custo de vida e novo ambiente. As dívidas continuam para serem quitadas.</div>
-        `
+        content: '<div class="diag-q">É fuga?</div><div class="diag-a">Não. É criação de oportunidade, redução de custo de vida e novo ambiente. As dívidas continuam para serem quitadas.</div>'
       },
       {
         block: "6. MEDO — O que realmente trava?",
-        content: `
-          <div class="diag-q">Maior medo:</div>
-          <div class="diag-a">Meu maior medo é NÃO TENTAR e continuar parado por mais um ano.</div>
-        `
+        content: '<div class="diag-q">Maior medo:</div><div class="diag-a">Meu maior medo é NÃO TENTAR e continuar parado por mais um ano.</div>'
       },
       {
         block: "7. RESPONSABILIDADE — Extreme Ownership",
-        content: `
-          <div class="diag-q">O que está sob controle?</div>
-          <div class="diag-a">Minhas próximas ações, meu trabalho, meu estudo de código e minhas negociações. Honrar sem carregar.</div>
-        `
+        content: '<div class="diag-q">O que está sob controle?</div><div class="diag-a">Minhas próximas ações, meu trabalho, meu estudo de código e minhas negociações. Honrar sem carregar.</div>'
       },
       {
         block: "8. A ESTÁTUA — O Legado",
-        content: `
-          <div class="diag-q">O que estará escrito aos 80 anos?</div>
-          <div class="diag-a">“Ele foi um cara que fez o que tinha que ser feito e deu certo. Seu legado foi escrito.”</div>
-        `
+        content: '<div class="diag-q">O que estará escrito aos 80 anos?</div><div class="diag-a">“Ele foi um cara que fez o que tinha que ser feito e deu certo. Seu legado foi escrito.”</div>'
       }
     ];
 
     class HuudSystem {
       constructor() {
-        this.finance = JSON.parse(localStorage.getItem('huud_fin_v7')) || initialFinance;
-        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v7')) || defaultTasks;
-        this.landChecklist = JSON.parse(localStorage.getItem('huud_land_v7')) || defaultLandChecklist;
-        this.pyChecklist = JSON.parse(localStorage.getItem('huud_py_v7')) || defaultPyChecklist;
-        this.techHours = Number(localStorage.getItem('huud_tech_hours_v7')) || 42;
+        this.finance = JSON.parse(localStorage.getItem('huud_fin_v8')) || initialFinance;
+        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v8')) || defaultTasks;
+        this.landChecklist = JSON.parse(localStorage.getItem('huud_land_v8')) || defaultLandChecklist;
+        this.pyChecklist = JSON.parse(localStorage.getItem('huud_py_v8')) || defaultPyChecklist;
+        this.techHours = Number(localStorage.getItem('huud_tech_hours_v8')) || 42;
         this.currentFilter = 'ALL';
         this.currentSort = 'URGENCY_DESC';
         this.init();
@@ -831,6 +810,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
       }
 
       async syncFromCloud() {
+        if (!supabaseClient) return;
         try {
           const { data, error } = await supabaseClient
             .from('huud_state')
@@ -839,10 +819,10 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
             .single();
 
           if (data && !error) {
-            if (data.debts && data.debts.length > 0) this.finance = data.debts;
-            if (data.tasks && data.tasks.length > 0) this.tasks = data.tasks;
-            if (data.land_checklist && data.land_checklist.length > 0) this.landChecklist = data.land_checklist;
-            if (data.py_checklist && data.py_checklist.length > 0) this.pyChecklist = data.py_checklist;
+            if (data.debts && Array.isArray(data.debts) && data.debts.length > 0) this.finance = data.debts;
+            if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) this.tasks = data.tasks;
+            if (data.land_checklist && Array.isArray(data.land_checklist) && data.land_checklist.length > 0) this.landChecklist = data.land_checklist;
+            if (data.py_checklist && Array.isArray(data.py_checklist) && data.py_checklist.length > 0) this.pyChecklist = data.py_checklist;
             if (data.tech_hours) this.techHours = Number(data.tech_hours);
 
             this.saveLocally();
@@ -851,10 +831,11 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
             this.renderLandChecklist();
             this.renderPyChecklist();
             this.updateHUD();
-            document.getElementById('cloud-sync-status').innerHTML = '<span class="sync-dot"></span> SINCRONIZADO';
+            const statusEl = document.getElementById('cloud-sync-status');
+            if (statusEl) statusEl.innerHTML = '<span class="sync-dot"></span> SINCRONIZADO';
           }
         } catch (err) {
-          console.log('Offline - usando dados locais');
+          console.log('Operando offline');
         }
       }
 
@@ -865,32 +846,34 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         const statusEl = document.getElementById('cloud-sync-status');
         if (statusEl) statusEl.innerHTML = '<span class="sync-dot" style="background:var(--warning)"></span> SALVANDO...';
 
-        try {
-          const payload = {
-            id: 'dimas_primary',
-            debts: this.finance,
-            tasks: this.tasks,
-            land_checklist: this.landChecklist,
-            py_checklist: this.pyChecklist,
-            tech_hours: this.techHours,
-            updated_at: new Date().toISOString()
-          };
+        if (supabaseClient) {
+          try {
+            const payload = {
+              id: 'dimas_primary',
+              debts: this.finance,
+              tasks: this.tasks,
+              land_checklist: this.landChecklist,
+              py_checklist: this.pyChecklist,
+              tech_hours: this.techHours,
+              updated_at: new Date().toISOString()
+            };
 
-          const { error } = await supabaseClient.from('huud_state').upsert(payload);
-          if (!error && statusEl) {
-            statusEl.innerHTML = '<span class="sync-dot"></span> NUVEM OK';
+            const { error } = await supabaseClient.from('huud_state').upsert(payload);
+            if (!error && statusEl) {
+              statusEl.innerHTML = '<span class="sync-dot"></span> NUVEM OK';
+            }
+          } catch (err) {
+            if (statusEl) statusEl.innerHTML = '<span class="sync-dot" style="background:var(--danger)"></span> LOCAL';
           }
-        } catch (err) {
-          if (statusEl) statusEl.innerHTML = '<span class="sync-dot" style="background:var(--danger)"></span> LOCAL';
         }
       }
 
       saveLocally() {
-        localStorage.setItem('huud_fin_v7', JSON.stringify(this.finance));
-        localStorage.setItem('huud_tasks_v7', JSON.stringify(this.tasks));
-        localStorage.setItem('huud_land_v7', JSON.stringify(this.landChecklist));
-        localStorage.setItem('huud_py_v7', JSON.stringify(this.pyChecklist));
-        localStorage.setItem('huud_tech_hours_v7', this.techHours);
+        localStorage.setItem('huud_fin_v8', JSON.stringify(this.finance));
+        localStorage.setItem('huud_tasks_v8', JSON.stringify(this.tasks));
+        localStorage.setItem('huud_land_v8', JSON.stringify(this.landChecklist));
+        localStorage.setItem('huud_py_v8', JSON.stringify(this.pyChecklist));
+        localStorage.setItem('huud_tech_hours_v8', this.techHours);
       }
 
       switchView(viewId) {
@@ -901,9 +884,15 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         const target = document.getElementById('view-' + viewId);
         if (target) target.classList.add('active');
 
-        const pills = Array.from(document.querySelectorAll('.nav-pill'));
-        const activePill = pills.find(p => p.getAttribute('onclick').includes(viewId));
-        if (activePill) activePill.classList.add('active');
+        document.querySelectorAll('.nav-pill').forEach(p => {
+          const attr = p.getAttribute('onclick') || '';
+          if (attr.includes(`'${viewId}'`)) p.classList.add('active');
+        });
+
+        document.querySelectorAll('.nav-btn').forEach(b => {
+          const attr = b.getAttribute('onclick') || '';
+          if (attr.includes(`'${viewId}'`)) b.classList.add('active');
+        });
 
         window.scrollTo(0, 0);
       }
@@ -951,9 +940,12 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
           else if (item.type === 'RECURRENT') totalRecurrent += val;
         });
 
-        document.getElementById('fin-debts-total').innerText = `R$ ${totalDebts.toLocaleString('pt-BR')}`;
-        document.getElementById('fin-inflows-total').innerText = `R$ ${totalInflows.toLocaleString('pt-BR')}`;
-        document.getElementById('fin-recurrent-total').innerText = `R$ ${totalRecurrent.toLocaleString('pt-BR')}`;
+        const dEl = document.getElementById('fin-debts-total');
+        const iEl = document.getElementById('fin-inflows-total');
+        const rEl = document.getElementById('fin-recurrent-total');
+        if (dEl) dEl.innerText = `R$ ${totalDebts.toLocaleString('pt-BR')}`;
+        if (iEl) iEl.innerText = `R$ ${totalInflows.toLocaleString('pt-BR')}`;
+        if (rEl) rEl.innerText = `R$ ${totalRecurrent.toLocaleString('pt-BR')}`;
         
         const net = totalInflows - totalDebts;
         const netEl = document.getElementById('hud-net-balance');
@@ -962,7 +954,6 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
           netEl.style.color = net >= 0 ? 'var(--blue-inflow)' : 'var(--danger)';
         }
 
-        // Filtro
         let filtered = this.finance.filter(item => {
           if (this.currentFilter === 'ALL') return true;
           if (this.currentFilter === 'DONE') return item.controlled;
@@ -974,7 +965,6 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
           return true;
         });
 
-        // Ordenação
         const urgencyWeight = { 'CRITICA': 3, 'ALTA': 2, 'NEGOCIAVEL': 1, 'INFLOW': 0 };
         filtered.sort((a, b) => {
           if (this.currentSort === 'URGENCY_DESC') {
@@ -989,7 +979,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         });
 
         if (filtered.length === 0) {
-          container.innerHTML = `<div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.8rem; font-family:var(--mono);">NENHUM REGISTRO ENCONTRADO PARA ESTE FILTRO.</div>`;
+          container.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.8rem; font-family:var(--mono);">NENHUM REGISTRO ENCONTRADO PARA ESTE FILTRO.</div>';
           return;
         }
 
@@ -1058,10 +1048,8 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
 
       onEntryTypeChange(val) {
         const ug = document.getElementById('urgency-group');
-        if (val === 'INFLOW' || val === 'RECURRENT') {
-          ug.style.display = 'none';
-        } else {
-          ug.style.display = 'block';
+        if (ug) {
+          ug.style.display = (val === 'INFLOW' || val === 'RECURRENT') ? 'none' : 'block';
         }
       }
 
@@ -1070,11 +1058,14 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         if (modal) {
           modal.classList.add('active');
           if (preType) {
-            document.getElementById('ent-type').value = preType;
-            this.onEntryTypeChange(preType);
+            const entType = document.getElementById('ent-type');
+            if (entType) {
+              entType.value = preType;
+              this.onEntryTypeChange(preType);
+            }
           }
-          const today = new Date().toISOString().split('T')[0];
-          document.getElementById('ent-date').value = today;
+          const entDate = document.getElementById('ent-date');
+          if (entDate) entDate.value = new Date().toISOString().split('T')[0];
         }
       }
 
@@ -1090,7 +1081,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
           id: Date.now(),
           type: type,
           name: document.getElementById('ent-name').value,
-          amount: document.getElementById('ent-amount').value,
+          amount: Number(document.getElementById('ent-amount').value),
           date: document.getElementById('ent-date').value,
           urgency: type === 'INFLOW' ? 'INFLOW' : (type === 'RECURRENT' ? 'RECURRENT' : document.getElementById('ent-urgency').value),
           plan: document.getElementById('ent-plan').value || "Sem observações adicionais",
@@ -1137,32 +1128,21 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
           }
         });
 
-        const report = `📋 *RELATÓRIO FINANCEIRO & DIRETRIZ TÁTICA*
-` +
-          `-----------------------------------
-` +
-          `🚨 *URGÊNCIAS CRÍTICAS (IMEDIATO):*
-${criticas.length ? criticas.join('
-') : '• Nenhuma urgência crítica pendente.'}
+        const critText = criticas.length > 0 ? criticas.join('\n') : '• Nenhuma urgência crítica pendente.';
+        const entText = entradas.length > 0 ? entradas.join('\n') : '• Sem entradas mapeadas.';
 
-` +
-          `🔵 *ENTRADAS PREVISTAS A RECEBER:*
-${entradas.length ? entradas.join('
-') : '• Sem entradas mapeadas.'}
-
-` +
-          `📊 *RESUMO DO FLUXO:*
-` +
-          `• Total Passivos Pendentes: R$ ${totalOut.toLocaleString('pt-BR')}
-` +
-          `• Total Entradas Mapeadas: R$ ${totalIn.toLocaleString('pt-BR')}
-` +
-          `• Saldo Projetado: R$ ${(totalIn - totalOut).toLocaleString('pt-BR')}
-
-` +
+        const report = `📋 *RELATÓRIO FINANCEIRO & DIRETRIZ TÁTICA*\n` +
+          `-----------------------------------\n` +
+          `🚨 *URGÊNCIAS CRÍTICAS (IMEDIATO):*\n${critText}\n\n` +
+          `🔵 *ENTRADAS PREVISTAS A RECEBER:*\n${entText}\n\n` +
+          `📊 *RESUMO DO FLUXO:*\n` +
+          `• Total Passivos Pendentes: R$ ${totalOut.toLocaleString('pt-BR')}\n` +
+          `• Total Entradas Mapeadas: R$ ${totalIn.toLocaleString('pt-BR')}\n` +
+          `• Saldo Projetado: R$ ${(totalIn - totalOut).toLocaleString('pt-BR')}\n\n` +
           `🎯 *Foco:* Concluir venda do terreno para liquidar urgências do dia 3 e proteger caixa.`;
 
-        document.getElementById('rafaela-report-text').value = report;
+        const reportEl = document.getElementById('rafaela-report-text');
+        if (reportEl) reportEl.value = report;
         this.openModal('modal-share-rafaela');
       }
 
@@ -1231,8 +1211,10 @@ ${entradas.length ? entradas.join('
 
       logTechHours() {
         this.techHours += 2;
-        document.getElementById('tech-hours-display').innerText = `${this.techHours}h`;
-        document.getElementById('hud-tech-hours').innerText = `${this.techHours}h`;
+        const thDisplay = document.getElementById('tech-hours-display');
+        const hudTh = document.getElementById('hud-tech-hours');
+        if (thDisplay) thDisplay.innerText = `${this.techHours}h`;
+        if (hudTh) hudTh.innerText = `${this.techHours}h`;
         this.saveAll();
         alert("2 HORAS DE CÓDIGO REGISTRADAS. Sincronizado na nuvem.");
       }
@@ -1240,9 +1222,10 @@ ${entradas.length ? entradas.join('
       updateHUD() {
         const total = this.tasks.length;
         const done = this.tasks.filter(t => t.done).length;
-        const pct = Math.round((done / total) * 100);
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-        document.getElementById('hud-exec-rate').innerText = pct + '%';
+        const execRate = document.getElementById('hud-exec-rate');
+        if (execRate) execRate.innerText = pct + '%';
         const circle = document.getElementById('hud-circle');
         if (circle) {
           const offset = 440 - (440 * (pct / 100));
@@ -1269,6 +1252,7 @@ ${entradas.length ? entradas.join('
       toggleAccordion(index) {
         const body = document.getElementById(`diag-body-${index}`);
         const arrow = document.getElementById(`diag-arrow-${index}`);
+        if (!body || !arrow) return;
         if (body.classList.contains('open')) {
           body.classList.remove('open');
           arrow.innerText = '+';
@@ -1289,8 +1273,15 @@ ${entradas.length ? entradas.join('
         }, 1000);
       }
 
-      openCommander() { document.getElementById('commander-mode').classList.add('active'); }
-      closeCommander() { document.getElementById('commander-mode').classList.remove('active'); }
+      openCommander() { 
+        const cmd = document.getElementById('commander-mode');
+        if (cmd) cmd.classList.add('active'); 
+      }
+      
+      closeCommander() { 
+        const cmd = document.getElementById('commander-mode');
+        if (cmd) cmd.classList.remove('active'); 
+      }
 
       completeDay() {
         alert("EVIDÊNCIA GRAVADA E SINCRONIZADA.");
@@ -1336,8 +1327,7 @@ ${entradas.length ? entradas.join('
       }
     }
 
-    let app;
-    window.addEventListener('DOMContentLoaded', () => { app = new HuudSystem(); });
+    let app = new HuudSystem();
   </script>
 </body>
 </html>
