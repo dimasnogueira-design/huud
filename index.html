@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800;900&display=swap" rel="stylesheet">
   
   <!-- Supabase CDN Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -28,13 +28,16 @@
       --danger: #ff334b;
       --danger-bg: rgba(255, 51, 75, 0.14);
       --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.14);
+      --blue-inflow: #38bdf8;
+      --blue-inflow-bg: rgba(56, 189, 248, 0.14);
       --success: #00e599;
       --mono: 'JetBrains Mono', monospace;
       --sans: 'Inter', -apple-system, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--sans); -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg); color: var(--text); padding-top: 60px; padding-bottom: 80px; min-height: 100vh; overflow-x: hidden; }
+    body { background-color: var(--bg); color: var(--text); padding-top: 60px; padding-bottom: 84px; min-height: 100vh; overflow-x: hidden; }
 
     /* TOP BAR */
     .top-bar {
@@ -72,7 +75,7 @@
     }
     .nav-pill.active { background: var(--neon); color: #000; box-shadow: 0 0 12px var(--neon-glow); }
 
-    .main-wrapper { max-width: 680px; margin: 0 auto; padding: 16px; }
+    .main-wrapper { max-width: 720px; margin: 0 auto; padding: 16px; }
     .view { display: none; animation: fadeIn 0.2s ease; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -98,6 +101,13 @@
       border-radius: 8px; font-weight: 900; font-size: 0.82rem; font-family: var(--mono);
       letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center;
       justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px var(--neon-glow);
+      margin-bottom: 16px;
+    }
+    .btn-action-blue {
+      background: var(--blue-inflow); color: #000; border: none; width: 100%; padding: 14px;
+      border-radius: 8px; font-weight: 900; font-size: 0.82rem; font-family: var(--mono);
+      letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center;
+      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
       margin-bottom: 16px;
     }
 
@@ -155,22 +165,64 @@
     .card-task-title { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; }
     .card-task-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
 
-    /* WORKSPACES */
-    .workspace-header-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .stat-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
-    .stat-val-danger { font-size: 1.25rem; font-weight: 900; font-family: var(--mono); color: var(--danger); }
-    .stat-val-neon { font-size: 1.25rem; font-weight: 900; font-family: var(--mono); color: var(--neon); }
+    /* FINANCIAL WORKSPACE */
+    .financial-hud-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px;
+    }
+    .stat-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; text-align: center; }
+    .stat-val-danger { font-size: 1.15rem; font-weight: 900; font-family: var(--mono); color: var(--danger); }
+    .stat-val-blue { font-size: 1.15rem; font-weight: 900; font-family: var(--mono); color: var(--blue-inflow); }
+    .stat-val-neon { font-size: 1.15rem; font-weight: 900; font-family: var(--mono); color: var(--neon); }
+    .stat-lbl { font-size: 0.58rem; font-family: var(--mono); color: var(--text-muted); margin-top: 4px; }
+
+    /* TACTICAL FILTERS & SORT */
+    .filter-bar {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px; scrollbar-width: none;
+    }
+    .filter-btn {
+      background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);
+      font-family: var(--mono); font-size: 0.65rem; font-weight: 800; padding: 6px 10px;
+      border-radius: 6px; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+    .filter-btn.active-all { background: var(--text); color: #000; border-color: var(--text); }
+    .filter-btn.active-critica { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 0 10px rgba(255,51,75,0.4); }
+    .filter-btn.active-alta { background: var(--warning); color: #000; border-color: var(--warning); box-shadow: 0 0 10px rgba(245,158,11,0.4); }
+    .filter-btn.active-negociavel { background: #334155; color: #fff; border-color: #475569; }
+    .filter-btn.active-inflows { background: var(--blue-inflow); color: #000; border-color: var(--blue-inflow); box-shadow: 0 0 10px rgba(56,189,248,0.4); }
+    .filter-btn.active-recorrente { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
+
+    .sort-control-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px; font-size: 0.7rem; font-family: var(--mono); color: var(--text-muted);
+    }
+    .select-tactical {
+      background: var(--bg-card); border: 1px solid var(--border); color: var(--text);
+      font-family: var(--mono); font-size: 0.68rem; padding: 4px 8px; border-radius: 4px; outline: none;
+    }
 
     .item-card {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
       padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;
+      position: relative;
     }
+    .item-card.is-inflow { border-left: 3px solid var(--blue-inflow); }
+    .item-card.is-critica { border-left: 3px solid var(--danger); }
+    .item-card.is-alta { border-left: 3px solid var(--warning); }
+    .item-card.is-negociavel { border-left: 3px solid #64748b; }
+    .item-card.is-recurrent { border-left: 3px solid #8b5cf6; }
+
     .item-top { display: flex; justify-content: space-between; align-items: center; }
     .item-title { font-weight: 800; font-size: 0.9rem; }
-    .item-val { font-family: var(--mono); font-weight: 800; color: var(--danger); }
+    .item-val { font-family: var(--mono); font-weight: 800; }
+    .item-val.val-out { color: var(--danger); }
+    .item-val.val-in { color: var(--blue-inflow); }
+
     .badge-status { font-family: var(--mono); font-size: 0.58rem; font-weight: 800; padding: 3px 6px; border-radius: 4px; }
     .badge-critica { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
-    .badge-alta { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+    .badge-alta { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
+    .badge-negociavel { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid #475569; }
+    .badge-inflow { background: var(--blue-inflow-bg); color: var(--blue-inflow); border: 1px solid var(--blue-inflow); }
+    .badge-recurrent { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid #8b5cf6; }
     .badge-done { background: rgba(0, 229, 153, 0.15); color: var(--success); border: 1px solid var(--success); }
 
     /* MODO COMANDANTE */
@@ -263,7 +315,7 @@
     .modal.active { display: flex; }
     .modal-box {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-      width: 100%; max-width: 480px; padding: 20px;
+      width: 100%; max-width: 480px; padding: 20px; max-height: 90vh; overflow-y: auto;
     }
 
     /* ACCORDION 56 PERGUNTAS */
@@ -294,7 +346,7 @@
   <!-- SUBNAV PILLS -->
   <nav class="sub-nav">
     <button class="nav-pill active" onclick="app.switchView('flow')">FLUXO</button>
-    <button class="nav-pill" onclick="app.switchView('debts')">DÍVIDAS & CREDORES</button>
+    <button class="nav-pill" onclick="app.switchView('debts')">FINANÇAS & DÍVIDAS</button>
     <button class="nav-pill" onclick="app.switchView('land')">TERRENO & CAIXA</button>
     <button class="nav-pill" onclick="app.switchView('tech')">SALA DE AULA TI/IA</button>
     <button class="nav-pill" onclick="app.switchView('py')">GO PARAGUAY GO</button>
@@ -329,7 +381,7 @@
         </div>
         <div class="hud-row">
           <div><div class="hud-stat-val" id="hud-exec-rate">50%</div><div class="hud-stat-lbl">EXECUÇÃO HOJE</div></div>
-          <div><div class="hud-stat-val">R$ 10K</div><div class="hud-stat-lbl">URGÊNCIA DIA 3</div></div>
+          <div><div class="hud-stat-val" id="hud-net-balance">R$ 0</div><div class="hud-stat-lbl">SALDO PREVISTO</div></div>
           <div><div class="hud-stat-val" id="hud-tech-hours">42h</div><div class="hud-stat-lbl">ESTUDO TI/IA</div></div>
         </div>
       </div>
@@ -346,9 +398,9 @@
         <div class="timeline-card active-priority" onclick="app.switchView('debts')">
           <div class="node-badge active">01</div>
           <span class="tag-priority">SALA DE GUERRA</span>
-          <h3 class="card-task-title">Gestão de Dívidas & Credores (R$ 10.000)</h3>
-          <p class="card-task-desc">Planilha detalhada de credores, cálculo de juros e baixa individual de passivos.</p>
-          <div style="font-family:var(--mono); font-size:0.72rem; color:var(--neon);">ABRIR SALA DE DÍVIDAS →</div>
+          <h3 class="card-task-title">Gestão Financeira: Dívidas, Entradas & Recorrentes</h3>
+          <p class="card-task-desc">Planilha detalhada com filtros por cor de urgência, previsão de entradas em azul e exportação para Rafaela.</p>
+          <div style="font-family:var(--mono); font-size:0.72rem; color:var(--neon);">ABRIR SALA FINANCEIRA →</div>
         </div>
 
         <div class="timeline-card" onclick="app.switchView('land')">
@@ -377,27 +429,68 @@
       </div>
     </section>
 
-    <!-- 2. WORKSPACE: DÍVIDAS & CREDORES -->
+    <!-- 2. WORKSPACE: FINANÇAS & DÍVIDAS AVANÇADO -->
     <section id="view-debts" class="view">
-      <div class="hero-meta">SALA 01 • <span>GESTOR DE PASSIVOS</span></div>
-      <h2 class="hero-title">Mapa de <em>Dívidas & Credores</em>.</h2>
-      <p class="hero-body">Negociação fria e realista. O plano Paraguai carrega as obrigações para quitá-las, sem fuga.</p>
+      <div class="hero-meta">SALA 01 • <span>FLUXO DE CAIXA TÁTICO</span></div>
+      <h2 class="hero-title">Quadro de <em>Finanças & Dívidas</em>.</h2>
+      <p class="hero-body">Separação cirúrgica de passivos por urgência, entradas a receber e despesas fixas para alinhamento e clareza total.</p>
 
-      <div class="workspace-header-stats">
+      <!-- METRIC HUD 3 CORES -->
+      <div class="financial-hud-grid">
         <div class="stat-box">
-          <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">PASSIVO TOTAL REGISTRADO</div>
-          <div class="stat-val-danger" id="debt-total-val">R$ 0,00</div>
+          <div class="stat-val-danger" id="fin-debts-total">R$ 0</div>
+          <div class="stat-lbl">PASSIVO PENDENTE</div>
         </div>
         <div class="stat-box">
-          <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">RENEGOCIADO / QUITADO</div>
-          <div class="stat-val-neon" id="debt-controlled-val">R$ 0,00</div>
+          <div class="stat-val-blue" id="fin-inflows-total">R$ 0</div>
+          <div class="stat-lbl">A RECEBER (AZUL)</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val-neon" id="fin-recurrent-total">R$ 0</div>
+          <div class="stat-lbl">FIXO RECORRENTE</div>
         </div>
       </div>
 
-      <button class="btn-action-neon" onclick="app.openModal('modal-add-debt')">+ CADASTRAR NOVO CREDOR / CONTA</button>
+      <!-- BOTÕES DE ADICIONAR (SAÍDA / ENTRADA / RECORRENTE) -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
+        <button class="btn-action-neon" style="margin-bottom:0; padding:12px; font-size:0.75rem;" onclick="app.openModal('modal-add-entry', 'DEBT')">
+          + REGISTRAR DÍVIDA / SAÍDA
+        </button>
+        <button class="btn-action-blue" style="margin-bottom:0; padding:12px; font-size:0.75rem;" onclick="app.openModal('modal-add-entry', 'INFLOW')">
+          + ENTRADA A RECEBER
+        </button>
+      </div>
 
-      <div style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted); margin:16px 0 8px 0;">QUADRO DE CREDORES</div>
-      <div id="debts-list-container"></div>
+      <!-- BOTÃO DE COMPARTILHAMENTO COM RAFAELA -->
+      <button class="btn-action-neon" style="background:#13161c; color:#38bdf8; border:1px solid #2d3542; margin-bottom:16px; padding:10px; font-size:0.72rem;" onclick="app.shareWithRafaela()">
+        📲 GERAR RELATÓRIO PARA RAFAELA (WHATSAPP / COPIAR)
+      </button>
+
+      <!-- BARRA DE FILTROS POR COR DE URGÊNCIA -->
+      <div style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted); margin-bottom:6px;">FILTRAR POR GRAU DE URGÊNCIA:</div>
+      <div class="filter-bar">
+        <button class="filter-btn active-all" id="flt-ALL" onclick="app.setFilter('ALL')">TODOS</button>
+        <button class="filter-btn" id="flt-CRITICA" onclick="app.setFilter('CRITICA')">🔴 CRÍTICA (URGENTES)</button>
+        <button class="filter-btn" id="flt-ALTA" onclick="app.setFilter('ALTA')">🟡 ALTA</button>
+        <button class="filter-btn" id="flt-NEGOCIAVEL" onclick="app.setFilter('NEGOCIAVEL')">⚪ NEGOCIÁVEL</button>
+        <button class="filter-btn" id="flt-INFLOW" onclick="app.setFilter('INFLOW')">🔵 ENTRADAS (AZUL)</button>
+        <button class="filter-btn" id="flt-RECORRENTE" onclick="app.setFilter('RECORRENTE')">🟣 FIXO MENSAL</button>
+        <button class="filter-btn" id="flt-DONE" onclick="app.setFilter('DONE')">🟢 QUITADOS / ACORDADOS</button>
+      </div>
+
+      <!-- CONTROLE DE ORDENAÇÃO -->
+      <div class="sort-control-row">
+        <span>ORDENAR LISTA POR:</span>
+        <select class="select-tactical" id="sort-select" onchange="app.setSort(this.value)">
+          <option value="URGENCY_DESC">Maior Urgência ➔ Menor</option>
+          <option value="DATE_ASC">Data de Vencimento (Mais Próxima)</option>
+          <option value="AMOUNT_DESC">Maior Valor ➔ Menor</option>
+          <option value="AMOUNT_ASC">Menor Valor ➔ Maior</option>
+        </select>
+      </div>
+
+      <!-- LISTA DINÂMICA DE ITENS FINANCEIROS -->
+      <div id="financial-items-container"></div>
     </section>
 
     <!-- 3. WORKSPACE: TERRENO & MAR VERDE -->
@@ -421,14 +514,18 @@
       <h2 class="hero-title">Terminal de <em>TI & IA</em>.</h2>
       <p class="hero-body">2 horas inegociáveis de código e tela por dia. Voltar para o computador e construir produtos reais.</p>
 
-      <div class="workspace-header-stats">
+      <div class="financial-hud-grid">
         <div class="stat-box">
-          <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">HORAS ACUMULADAS</div>
           <div class="stat-val-neon" id="tech-hours-display">42h</div>
+          <div class="stat-lbl">HORAS ACUMULADAS</div>
         </div>
         <div class="stat-box">
-          <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">AULAS CONCLUÍDAS</div>
           <div class="stat-val-neon" id="tech-lessons-display">3 / 6</div>
+          <div class="stat-lbl">AULAS CONCLUÍDAS</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val-neon" style="color:var(--blue-inflow);">WEB/IA</div>
+          <div class="stat-lbl">STACK ATUAL</div>
         </div>
       </div>
 
@@ -499,7 +596,6 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
 
   <!-- MODO COMANDANTE -->
   <div id="commander-mode" class="commander-full-screen">
-    
     <div class="commander-portrait-wrapper">
       <div class="commander-top-actions">
         <div class="cmd-badge">● MODO COMANDANTE ATIVO</div>
@@ -528,38 +624,64 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
     </div>
   </div>
 
-  <!-- MODAL: CADASTRAR DÍVIDA -->
-  <div id="modal-add-debt" class="modal">
+  <!-- MODAL: CADASTRAR ENTRADA / SAÍDA / DÍVIDA -->
+  <div id="modal-add-entry" class="modal">
     <div class="modal-box">
-      <h3 style="font-size:1rem; font-weight:900; color:var(--neon); margin-bottom:12px;">CADASTRAR CREDOR / PASSIVO</h3>
-      <form onsubmit="app.addDebt(event)">
-        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">NOME DO CREDOR / CONTA</label>
-        <input type="text" id="debt-name" class="input-dark" required placeholder="Ex: Emergência Dia 3 / Banco / Cartão">
+      <h3 style="font-size:1rem; font-weight:900; color:var(--neon); margin-bottom:12px;" id="modal-entry-title">REGISTRAR LANÇAMENTO FINANCEIRO</h3>
+      <form onsubmit="app.saveEntry(event)">
+        
+        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">TIPO DE LANÇAMENTO</label>
+        <select id="ent-type" class="input-dark" onchange="app.onEntryTypeChange(this.value)">
+          <option value="DEBT">Dívida / Passivo / Conta a Pagar</option>
+          <option value="INFLOW">Entrada a Receber (Azul)</option>
+          <option value="RECURRENT">Despesa Fixa Recorrente Mensal</option>
+        </select>
+
+        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">NOME DO CREDOR / FONTE / CONTA</label>
+        <input type="text" id="ent-name" class="input-dark" required placeholder="Ex: Emergência Dia 3 / Aluguel SP / Venda Terreno">
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
           <div>
             <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">VALOR (R$)</label>
-            <input type="number" id="debt-amount" class="input-dark" required placeholder="Ex: 10000">
+            <input type="number" id="ent-amount" class="input-dark" required placeholder="Ex: 10000">
           </div>
           <div>
-            <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PRAZO</label>
-            <input type="text" id="debt-deadline" class="input-dark" placeholder="Ex: Dia 3">
+            <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">DATA VENCIMENTO / RECEBIMENTO</label>
+            <input type="date" id="ent-date" class="input-dark" required>
           </div>
         </div>
 
-        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">GRAU DE URGÊNCIA</label>
-        <select id="debt-urgency" class="input-dark">
-          <option value="CRÍTICA">CRÍTICA (Risco imediato / Dia 3)</option>
-          <option value="ALTA">ALTA (Restrição operacional)</option>
-          <option value="NEGOCIÁVEL">NEGOCIÁVEL (Pode aguardar entrada)</option>
-        </select>
+        <div id="urgency-group">
+          <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">GRAU DE URGÊNCIA</label>
+          <select id="ent-urgency" class="input-dark">
+            <option value="CRITICA">🔴 CRÍTICA (Ação imediata / Juros altos / Risco de corte)</option>
+            <option value="ALTA">🟡 ALTA (Restrição operacional / Negociação no radar)</option>
+            <option value="NEGOCIAVEL">⚪ NEGOCIÁVEL (Pode aguardar entrada de caixa)</option>
+          </select>
+        </div>
 
-        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PROPOSTA DE ACORDO / PLANO</label>
-        <input type="text" id="debt-plan" class="input-dark" placeholder="Ex: Negociar com comissão do terreno">
+        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PLANO DE AÇÃO / DETALHE</label>
+        <input type="text" id="ent-plan" class="input-dark" placeholder="Ex: Negociar com dinheiro do terreno / Recebimento previsto via PIX">
 
-        <button type="submit" class="btn-action-neon" style="margin-bottom:8px;">SALVAR CREDOR</button>
-        <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none;" onclick="app.closeModal('modal-add-debt')">CANCELAR</button>
+        <button type="submit" class="btn-action-neon" style="margin-bottom:8px;">SALVAR LANÇAMENTO</button>
+        <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none;" onclick="app.closeModal('modal-add-entry')">CANCELAR</button>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RELATÓRIO RAFAELA -->
+  <div id="modal-share-rafaela" class="modal">
+    <div class="modal-box">
+      <h3 style="font-size:1rem; font-weight:900; color:#38bdf8; margin-bottom:12px;">RELATÓRIO FINANCEIRO • RAFAELA</h3>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Resumo gerado automaticamente para alinhamento sem atritos e com base nos fatos reais.</p>
+      
+      <textarea id="rafaela-report-text" class="input-dark" style="height:180px; font-family:var(--mono); font-size:0.75rem; white-space:pre-wrap;" readonly></textarea>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <button class="btn-action-neon" style="background:#25d366; color:#000;" onclick="app.sendWhatsApp()">ENVIAR NO WHATSAPP 📲</button>
+        <button class="btn-action-neon" style="background:#1e293b; color:#fff;" onclick="app.copyReport()">COPIAR TEXTO 📋</button>
+      </div>
+      <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none; margin-top:8px;" onclick="app.closeModal('modal-share-rafaela')">FECHAR</button>
     </div>
   </div>
 
@@ -571,7 +693,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
     </button>
     <button class="nav-btn" onclick="app.switchView('debts')">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      <span>DÍVIDAS</span>
+      <span>FINANÇAS</span>
     </button>
     <button class="nav-btn" onclick="app.switchView('tech')">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
@@ -593,10 +715,12 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
     const SUPABASE_KEY = 'sb_publishable_Z1FHc9GmJUeSugGhNRikIA_N4EjDrBo';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const defaultDebts = [
-      { id: 1, name: "Urgência Dia 3", amount: 10000, deadline: "Dia 3", urgency: "CRÍTICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
-      { id: 2, name: "Taxa Venda do Terreno", amount: 1500, deadline: "Imediato", urgency: "ALTA", plan: "Pagar para liberar dinheiro da venda", controlled: false },
-      { id: 3, name: "Sistemas & Obrigações Mar Verde", amount: 4500, deadline: "Mês atual", urgency: "NEGOCIÁVEL", plan: "Cortar o desnecessário e congelar contratos", controlled: true }
+    const initialFinance = [
+      { id: 1, type: "DEBT", name: "Urgência Dia 3", amount: 10000, date: "2026-09-03", urgency: "CRITICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
+      { id: 2, type: "DEBT", name: "Taxa Venda do Terreno", amount: 1500, date: "2026-09-02", urgency: "ALTA", plan: "Pagar para liberar dinheiro da venda", controlled: false },
+      { id: 3, type: "RECURRENT", name: "Sistemas & Obrigações Mar Verde", amount: 4500, date: "2026-09-10", urgency: "NEGOCIAVEL", plan: "Cortar desnecessário e congelar contratos", controlled: true },
+      { id: 4, type: "INFLOW", name: "Aluguel São Paulo", amount: 3200, date: "2026-09-05", urgency: "INFLOW", plan: "Entrada regular de aluguel mensal", controlled: false },
+      { id: 5, type: "INFLOW", name: "Liberação Venda do Terreno", amount: 18000, date: "2026-09-15", urgency: "INFLOW", plan: "Saldo líquido da venda pós-taxa", controlled: false }
     ];
 
     const defaultTasks = [
@@ -643,7 +767,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         block: "3. RELACIONAMENTO — Viper",
         content: `
           <div class="diag-q">Diretriz adotada:</div>
-          <div class="diag-a">Não romper no meio do caos, mas não paralisar meu plano dependendo das atitudes dela. Cada um carrega a própria mochila.</div>
+          <div class="diag-a">Não romper no meio do caos, mas não paralisar meu plano dependendo das atitudes dela. Cada um carrega a própria mochila. Compartilhar os números frios.</div>
         `
       },
       {
@@ -685,16 +809,18 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
 
     class HuudSystem {
       constructor() {
-        this.debts = JSON.parse(localStorage.getItem('huud_debts_v6')) || defaultDebts;
-        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v6')) || defaultTasks;
-        this.landChecklist = JSON.parse(localStorage.getItem('huud_land_v6')) || defaultLandChecklist;
-        this.pyChecklist = JSON.parse(localStorage.getItem('huud_py_v6')) || defaultPyChecklist;
-        this.techHours = Number(localStorage.getItem('huud_tech_hours_v6')) || 42;
+        this.finance = JSON.parse(localStorage.getItem('huud_fin_v7')) || initialFinance;
+        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v7')) || defaultTasks;
+        this.landChecklist = JSON.parse(localStorage.getItem('huud_land_v7')) || defaultLandChecklist;
+        this.pyChecklist = JSON.parse(localStorage.getItem('huud_py_v7')) || defaultPyChecklist;
+        this.techHours = Number(localStorage.getItem('huud_tech_hours_v7')) || 42;
+        this.currentFilter = 'ALL';
+        this.currentSort = 'URGENCY_DESC';
         this.init();
       }
 
       async init() {
-        this.renderDebts();
+        this.renderFinance();
         this.renderTasks();
         this.renderLandChecklist();
         this.renderPyChecklist();
@@ -713,14 +839,14 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
             .single();
 
           if (data && !error) {
-            if (data.debts && data.debts.length > 0) this.debts = data.debts;
+            if (data.debts && data.debts.length > 0) this.finance = data.debts;
             if (data.tasks && data.tasks.length > 0) this.tasks = data.tasks;
             if (data.land_checklist && data.land_checklist.length > 0) this.landChecklist = data.land_checklist;
             if (data.py_checklist && data.py_checklist.length > 0) this.pyChecklist = data.py_checklist;
             if (data.tech_hours) this.techHours = Number(data.tech_hours);
 
             this.saveLocally();
-            this.renderDebts();
+            this.renderFinance();
             this.renderTasks();
             this.renderLandChecklist();
             this.renderPyChecklist();
@@ -728,7 +854,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
             document.getElementById('cloud-sync-status').innerHTML = '<span class="sync-dot"></span> SINCRONIZADO';
           }
         } catch (err) {
-          console.log('Operando offline via localStorage');
+          console.log('Offline - usando dados locais');
         }
       }
 
@@ -742,7 +868,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         try {
           const payload = {
             id: 'dimas_primary',
-            debts: this.debts,
+            debts: this.finance,
             tasks: this.tasks,
             land_checklist: this.landChecklist,
             py_checklist: this.pyChecklist,
@@ -760,11 +886,11 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
       }
 
       saveLocally() {
-        localStorage.setItem('huud_debts_v6', JSON.stringify(this.debts));
-        localStorage.setItem('huud_tasks_v6', JSON.stringify(this.tasks));
-        localStorage.setItem('huud_land_v6', JSON.stringify(this.landChecklist));
-        localStorage.setItem('huud_py_v6', JSON.stringify(this.pyChecklist));
-        localStorage.setItem('huud_tech_hours_v6', this.techHours);
+        localStorage.setItem('huud_fin_v7', JSON.stringify(this.finance));
+        localStorage.setItem('huud_tasks_v7', JSON.stringify(this.tasks));
+        localStorage.setItem('huud_land_v7', JSON.stringify(this.landChecklist));
+        localStorage.setItem('huud_py_v7', JSON.stringify(this.pyChecklist));
+        localStorage.setItem('huud_tech_hours_v7', this.techHours);
       }
 
       switchView(viewId) {
@@ -782,65 +908,274 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         window.scrollTo(0, 0);
       }
 
-      renderDebts() {
-        const c = document.getElementById('debts-list-container');
-        if (!c) return;
+      setFilter(filter) {
+        this.currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.className = 'filter-btn');
+        const activeBtn = document.getElementById(`flt-${filter}`);
+        if (activeBtn) {
+          if (filter === 'ALL') activeBtn.classList.add('active-all');
+          else if (filter === 'CRITICA') activeBtn.classList.add('active-critica');
+          else if (filter === 'ALTA') activeBtn.classList.add('active-alta');
+          else if (filter === 'NEGOCIAVEL') activeBtn.classList.add('active-negociavel');
+          else if (filter === 'INFLOW') activeBtn.classList.add('active-inflows');
+          else if (filter === 'RECORRENTE') activeBtn.classList.add('active-recorrente');
+          else if (filter === 'DONE') activeBtn.classList.add('active-all');
+        }
+        this.renderFinance();
+      }
 
-        let total = 0;
-        let controlled = 0;
+      setSort(sortType) {
+        this.currentSort = sortType;
+        this.renderFinance();
+      }
 
-        c.innerHTML = this.debts.map(d => {
-          total += Number(d.amount);
-          if (d.controlled) controlled += Number(d.amount);
+      formatDateBR(dateStr) {
+        if (!dateStr) return 'Sem Data';
+        const parts = dateStr.split('-');
+        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        return dateStr;
+      }
 
-          const badgeClass = d.controlled ? 'badge-done' : (d.urgency === 'CRÍTICA' ? 'badge-critica' : 'badge-alta');
-          const badgeText = d.controlled ? 'RENEGOCIADO / QUITADO ✓' : `${d.urgency} • ${d.deadline || 'S/ Prazo'}`;
+      renderFinance() {
+        const container = document.getElementById('financial-items-container');
+        if (!container) return;
+
+        let totalDebts = 0;
+        let totalInflows = 0;
+        let totalRecurrent = 0;
+
+        this.finance.forEach(item => {
+          const val = Number(item.amount) || 0;
+          if (item.type === 'INFLOW' && !item.controlled) totalInflows += val;
+          else if (item.type === 'DEBT' && !item.controlled) totalDebts += val;
+          else if (item.type === 'RECURRENT') totalRecurrent += val;
+        });
+
+        document.getElementById('fin-debts-total').innerText = `R$ ${totalDebts.toLocaleString('pt-BR')}`;
+        document.getElementById('fin-inflows-total').innerText = `R$ ${totalInflows.toLocaleString('pt-BR')}`;
+        document.getElementById('fin-recurrent-total').innerText = `R$ ${totalRecurrent.toLocaleString('pt-BR')}`;
+        
+        const net = totalInflows - totalDebts;
+        const netEl = document.getElementById('hud-net-balance');
+        if (netEl) {
+          netEl.innerText = `R$ ${net.toLocaleString('pt-BR')}`;
+          netEl.style.color = net >= 0 ? 'var(--blue-inflow)' : 'var(--danger)';
+        }
+
+        // Filtro
+        let filtered = this.finance.filter(item => {
+          if (this.currentFilter === 'ALL') return true;
+          if (this.currentFilter === 'DONE') return item.controlled;
+          if (this.currentFilter === 'INFLOW') return item.type === 'INFLOW';
+          if (this.currentFilter === 'RECORRENTE') return item.type === 'RECURRENT';
+          if (this.currentFilter === 'CRITICA') return item.urgency === 'CRITICA' && !item.controlled;
+          if (this.currentFilter === 'ALTA') return item.urgency === 'ALTA' && !item.controlled;
+          if (this.currentFilter === 'NEGOCIAVEL') return item.urgency === 'NEGOCIAVEL' && !item.controlled;
+          return true;
+        });
+
+        // Ordenação
+        const urgencyWeight = { 'CRITICA': 3, 'ALTA': 2, 'NEGOCIAVEL': 1, 'INFLOW': 0 };
+        filtered.sort((a, b) => {
+          if (this.currentSort === 'URGENCY_DESC') {
+            const wA = a.controlled ? -1 : (urgencyWeight[a.urgency] || 0);
+            const wB = b.controlled ? -1 : (urgencyWeight[b.urgency] || 0);
+            return wB - wA;
+          }
+          if (this.currentSort === 'AMOUNT_DESC') return Number(b.amount) - Number(a.amount);
+          if (this.currentSort === 'AMOUNT_ASC') return Number(a.amount) - Number(b.amount);
+          if (this.currentSort === 'DATE_ASC') return (a.date || '').localeCompare(b.date || '');
+          return 0;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.8rem; font-family:var(--mono);">NENHUM REGISTRO ENCONTRADO PARA ESTE FILTRO.</div>`;
+          return;
+        }
+
+        container.innerHTML = filtered.map(item => {
+          const isDone = item.controlled;
+          const isInflow = item.type === 'INFLOW';
+          const isRecurrent = item.type === 'RECURRENT';
+
+          let borderClass = 'is-negociavel';
+          let badgeClass = 'badge-negociavel';
+          let badgeText = 'NEGOCIÁVEL';
+
+          if (isInflow) {
+            borderClass = 'is-inflow';
+            badgeClass = 'badge-inflow';
+            badgeText = 'ENTRADA A RECEBER (AZUL)';
+          } else if (isRecurrent) {
+            borderClass = 'is-recurrent';
+            badgeClass = 'badge-recurrent';
+            badgeText = 'FIXO MENSAL RECORRENTE';
+          } else if (item.urgency === 'CRITICA') {
+            borderClass = 'is-critica';
+            badgeClass = 'badge-critica';
+            badgeText = '🔴 CRÍTICA • URGENTE';
+          } else if (item.urgency === 'ALTA') {
+            borderClass = 'is-alta';
+            badgeClass = 'badge-alta';
+            badgeText = '🟡 ALTA PRIORIDADE';
+          }
+
+          if (isDone) {
+            badgeClass = 'badge-done';
+            badgeText = isInflow ? 'RECEBIDO / CONCLUÍDO ✓' : 'QUITADO / ACORDADO ✓';
+          }
+
+          const valColorClass = isInflow ? 'val-in' : 'val-out';
+          const sign = isInflow ? '+ R$' : '- R$';
 
           return `
-            <div class="item-card">
+            <div class="item-card ${borderClass}" style="${isDone ? 'opacity:0.5;' : ''}">
               <div class="item-top">
-                <span class="item-title">${d.name}</span>
-                <span class="item-val">R$ ${Number(d.amount).toLocaleString('pt-BR')}</span>
+                <span class="item-title">${item.name}</span>
+                <span class="item-val ${valColorClass}">${sign} ${Number(item.amount).toLocaleString('pt-BR')}</span>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
                 <span class="badge-status ${badgeClass}">${badgeText}</span>
-                <button style="background:transparent; border:none; color:var(--neon); font-size:0.7rem; font-family:var(--mono); cursor:pointer;" onclick="app.toggleDebtControl(${d.id})">
-                  ${d.controlled ? 'Marcar Pendente' : 'Dar Baixa / Acordo ✓'}
-                </button>
+                <span style="font-family:var(--mono); font-size:0.68rem; color:var(--text-muted);">
+                  📅 ${this.formatDateBR(item.date)}
+                </span>
               </div>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
-                <strong>Plano:</strong> ${d.plan}
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:flex; justify-content:space-between; align-items:flex-end;">
+                <div><strong>Ação:</strong> ${item.plan || 'Em definição'}</div>
+                <div style="display:flex; gap:8px;">
+                  <button style="background:transparent; border:none; color:var(--neon); font-size:0.7rem; font-family:var(--mono); cursor:pointer;" onclick="app.toggleFinanceStatus(${item.id})">
+                    ${isDone ? 'Reabrir' : (isInflow ? 'Dar Baixa Recebido ✓' : 'Dar Baixa Quitado ✓')}
+                  </button>
+                  <button style="background:transparent; border:none; color:var(--danger); font-size:0.7rem; font-family:var(--mono); cursor:pointer;" onclick="app.deleteFinanceItem(${item.id})">
+                    ✕
+                  </button>
+                </div>
               </div>
             </div>
           `;
         }).join('');
-
-        document.getElementById('debt-total-val').innerText = `R$ ${total.toLocaleString('pt-BR')}`;
-        document.getElementById('debt-controlled-val').innerText = `R$ ${controlled.toLocaleString('pt-BR')}`;
       }
 
-      addDebt(e) {
+      onEntryTypeChange(val) {
+        const ug = document.getElementById('urgency-group');
+        if (val === 'INFLOW' || val === 'RECURRENT') {
+          ug.style.display = 'none';
+        } else {
+          ug.style.display = 'block';
+        }
+      }
+
+      openModal(id, preType) {
+        const modal = document.getElementById(id);
+        if (modal) {
+          modal.classList.add('active');
+          if (preType) {
+            document.getElementById('ent-type').value = preType;
+            this.onEntryTypeChange(preType);
+          }
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('ent-date').value = today;
+        }
+      }
+
+      closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.remove('active');
+      }
+
+      saveEntry(e) {
         e.preventDefault();
-        const newDebt = {
+        const type = document.getElementById('ent-type').value;
+        const newEntry = {
           id: Date.now(),
-          name: document.getElementById('debt-name').value,
-          amount: document.getElementById('debt-amount').value,
-          deadline: document.getElementById('debt-deadline').value || "A definir",
-          urgency: document.getElementById('debt-urgency').value,
-          plan: document.getElementById('debt-plan').value || "Em negociação",
+          type: type,
+          name: document.getElementById('ent-name').value,
+          amount: document.getElementById('ent-amount').value,
+          date: document.getElementById('ent-date').value,
+          urgency: type === 'INFLOW' ? 'INFLOW' : (type === 'RECURRENT' ? 'RECURRENT' : document.getElementById('ent-urgency').value),
+          plan: document.getElementById('ent-plan').value || "Sem observações adicionais",
           controlled: false
         };
-        this.debts.push(newDebt);
+
+        this.finance.push(newEntry);
         this.saveAll();
-        this.renderDebts();
-        this.closeModal('modal-add-debt');
+        this.renderFinance();
+        this.closeModal('modal-add-entry');
         e.target.reset();
       }
 
-      toggleDebtControl(id) {
-        this.debts = this.debts.map(d => d.id === id ? { ...d, controlled: !d.controlled } : d);
+      toggleFinanceStatus(id) {
+        this.finance = this.finance.map(item => item.id === id ? { ...item, controlled: !item.controlled } : item);
         this.saveAll();
-        this.renderDebts();
+        this.renderFinance();
+      }
+
+      deleteFinanceItem(id) {
+        if (confirm("Deseja realmente remover este lançamento?")) {
+          this.finance = this.finance.filter(item => item.id !== id);
+          this.saveAll();
+          this.renderFinance();
+        }
+      }
+
+      shareWithRafaela() {
+        let totalOut = 0;
+        let totalIn = 0;
+        let criticas = [];
+        let entradas = [];
+
+        this.finance.forEach(item => {
+          const val = Number(item.amount) || 0;
+          if (item.type === 'INFLOW' && !item.controlled) {
+            totalIn += val;
+            entradas.push(`• ${item.name}: +R$ ${val.toLocaleString('pt-BR')} (Prev: ${this.formatDateBR(item.date)})`);
+          } else if (!item.controlled) {
+            totalOut += val;
+            if (item.urgency === 'CRITICA') {
+              criticas.push(`🔴 ${item.name}: R$ ${val.toLocaleString('pt-BR')} (Venc: ${this.formatDateBR(item.date)})`);
+            }
+          }
+        });
+
+        const report = `📋 *RELATÓRIO FINANCEIRO & DIRETRIZ TÁTICA*
+` +
+          `-----------------------------------
+` +
+          `🚨 *URGÊNCIAS CRÍTICAS (IMEDIATO):*
+${criticas.length ? criticas.join('
+') : '• Nenhuma urgência crítica pendente.'}
+
+` +
+          `🔵 *ENTRADAS PREVISTAS A RECEBER:*
+${entradas.length ? entradas.join('
+') : '• Sem entradas mapeadas.'}
+
+` +
+          `📊 *RESUMO DO FLUXO:*
+` +
+          `• Total Passivos Pendentes: R$ ${totalOut.toLocaleString('pt-BR')}
+` +
+          `• Total Entradas Mapeadas: R$ ${totalIn.toLocaleString('pt-BR')}
+` +
+          `• Saldo Projetado: R$ ${(totalIn - totalOut).toLocaleString('pt-BR')}
+
+` +
+          `🎯 *Foco:* Concluir venda do terreno para liquidar urgências do dia 3 e proteger caixa.`;
+
+        document.getElementById('rafaela-report-text').value = report;
+        this.openModal('modal-share-rafaela');
+      }
+
+      sendWhatsApp() {
+        const text = encodeURIComponent(document.getElementById('rafaela-report-text').value);
+        window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+      }
+
+      copyReport() {
+        const copyText = document.getElementById("rafaela-report-text");
+        copyText.select();
+        document.execCommand("copy");
+        alert("Relatório copiado para a área de transferência!");
       }
 
       renderTasks() {
@@ -956,8 +1291,6 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
 
       openCommander() { document.getElementById('commander-mode').classList.add('active'); }
       closeCommander() { document.getElementById('commander-mode').classList.remove('active'); }
-      openModal(id) { document.getElementById(id).classList.add('active'); }
-      closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
       completeDay() {
         alert("EVIDÊNCIA GRAVADA E SINCRONIZADA.");
@@ -966,7 +1299,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
 
       exportBackup() {
         const data = {
-          debts: this.debts,
+          finance: this.finance,
           tasks: this.tasks,
           landChecklist: this.landChecklist,
           pyChecklist: this.pyChecklist,
@@ -976,7 +1309,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `HUUD_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `HUUD_FINANCIAL_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
       }
 
@@ -987,7 +1320,7 @@ const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
         reader.onload = async (event) => {
           try {
             const data = JSON.parse(event.target.result);
-            if (data.debts) this.debts = data.debts;
+            if (data.finance) this.finance = data.finance;
             if (data.tasks) this.tasks = data.tasks;
             if (data.landChecklist) this.landChecklist = data.landChecklist;
             if (data.pyChecklist) this.pyChecklist = data.pyChecklist;
