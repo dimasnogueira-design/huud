@@ -575,11 +575,13 @@
     </div>
   </div>
 
-  <!-- MODAL: CADASTRAR LANÇAMENTO -->
+  <!-- MODAL: CADASTRAR / EDITAR LANÇAMENTO -->
   <div id="modal-add-entry" class="modal">
     <div class="modal-box">
-      <h3 style="font-size:1rem; font-weight:900; color:var(--neon); margin-bottom:12px;">REGISTRAR LANÇAMENTO FINANCEIRO</h3>
+      <h3 style="font-size:1rem; font-weight:900; color:var(--neon); margin-bottom:12px;" id="modal-entry-title">REGISTRAR LANÇAMENTO FINANCEIRO</h3>
       <form onsubmit="saveEntry(event)">
+        <input type="hidden" id="ent-edit-id" value="">
+        
         <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">TIPO DE LANÇAMENTO</label>
         <select id="ent-type" class="input-dark" onchange="onEntryTypeChange(this.value)">
           <option value="DEBT">Dívida / Passivo / Conta a Pagar</option>
@@ -613,7 +615,7 @@
         <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PLANO DE AÇÃO / DETALHE</label>
         <input type="text" id="ent-plan" class="input-dark" placeholder="Ex: Negociar com comissão do terreno">
 
-        <button type="submit" class="btn-action-neon" style="margin-bottom:8px;">SALVAR LANÇAMENTO</button>
+        <button type="submit" class="btn-action-neon" style="margin-bottom:8px;" id="btn-save-entry-submit">SALVAR LANÇAMENTO</button>
         <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none;" onclick="closeModal('modal-add-entry')">CANCELAR</button>
       </form>
     </div>
@@ -656,9 +658,8 @@
     </button>
   </nav>
 
-  <!-- JAVASCRIPT GLOBAL BLINDADO -->
+  <!-- JAVASCRIPT ENGINE -->
   <script>
-    // ESTADO GLOBAL
     let state = {
       finance: [
         { id: 1, type: "DEBT", name: "Urgência Dia 3", amount: 10000, date: "2026-09-03", urgency: "CRITICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
@@ -734,7 +735,7 @@
       }
     } catch(e) {}
 
-    // FUNÇÕES DE NAVEGAÇÃO GLOBAIS
+    // FUNÇÕES DE NAVEGAÇÃO E MODAIS
     window.switchView = function(viewId) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
@@ -774,15 +775,46 @@
       if (el) el.classList.remove('active');
     };
 
+    // ABERTURA DE NOVO LANÇAMENTO
     window.openEntryModal = function(type) {
+      document.getElementById('ent-edit-id').value = '';
+      document.getElementById('modal-entry-title').innerText = 'REGISTRAR LANÇAMENTO FINANCEIRO';
+      document.getElementById('btn-save-entry-submit').innerText = 'SALVAR LANÇAMENTO';
+
       openModal('modal-add-entry');
       const select = document.getElementById('ent-type');
       if (select) {
         select.value = type;
         onEntryTypeChange(type);
       }
-      const dateEl = document.getElementById('ent-date');
-      if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
+      document.getElementById('ent-name').value = '';
+      document.getElementById('ent-amount').value = '';
+      document.getElementById('ent-plan').value = '';
+      document.getElementById('ent-date').value = new Date().toISOString().split('T')[0];
+    };
+
+    // EDIÇÃO DE LANÇAMENTO EXISTENTE
+    window.editFinanceItem = function(id) {
+      const item = state.finance.find(i => i.id === id);
+      if (!item) return;
+
+      document.getElementById('ent-edit-id').value = item.id;
+      document.getElementById('modal-entry-title').innerText = 'EDITAR LANÇAMENTO FINANCEIRO';
+      document.getElementById('btn-save-entry-submit').innerText = 'SALVAR ALTERAÇÕES';
+
+      document.getElementById('ent-type').value = item.type;
+      onEntryTypeChange(item.type);
+
+      document.getElementById('ent-name').value = item.name;
+      document.getElementById('ent-amount').value = item.amount;
+      document.getElementById('ent-date').value = item.date || new Date().toISOString().split('T')[0];
+      
+      if (item.type === 'DEBT') {
+        document.getElementById('ent-urgency').value = item.urgency;
+      }
+      document.getElementById('ent-plan').value = item.plan || '';
+
+      openModal('modal-add-entry');
     };
 
     window.onEntryTypeChange = function(val) {
@@ -790,20 +822,43 @@
       if (ug) ug.style.display = (val === 'INFLOW' || val === 'RECURRENT') ? 'none' : 'block';
     };
 
+    // SALVAR (CRIAÇÃO OU EDIÇÃO)
     window.saveEntry = function(e) {
       e.preventDefault();
+      const editId = document.getElementById('ent-edit-id').value;
       const type = document.getElementById('ent-type').value;
-      const newEntry = {
-        id: Date.now(),
-        type: type,
-        name: document.getElementById('ent-name').value,
-        amount: Number(document.getElementById('ent-amount').value),
-        date: document.getElementById('ent-date').value,
-        urgency: type === 'INFLOW' ? 'INFLOW' : (type === 'RECURRENT' ? 'RECURRENT' : document.getElementById('ent-urgency').value),
-        plan: document.getElementById('ent-plan').value || "Sem observações",
-        controlled: false
-      };
-      state.finance.push(newEntry);
+
+      if (editId) {
+        // Modo Edição
+        state.finance = state.finance.map(i => {
+          if (i.id === Number(editId)) {
+            return {
+              ...i,
+              type: type,
+              name: document.getElementById('ent-name').value,
+              amount: Number(document.getElementById('ent-amount').value),
+              date: document.getElementById('ent-date').value,
+              urgency: type === 'INFLOW' ? 'INFLOW' : (type === 'RECURRENT' ? 'RECURRENT' : document.getElementById('ent-urgency').value),
+              plan: document.getElementById('ent-plan').value || "Sem observações"
+            };
+          }
+          return i;
+        });
+      } else {
+        // Modo Novo
+        const newEntry = {
+          id: Date.now(),
+          type: type,
+          name: document.getElementById('ent-name').value,
+          amount: Number(document.getElementById('ent-amount').value),
+          date: document.getElementById('ent-date').value,
+          urgency: type === 'INFLOW' ? 'INFLOW' : (type === 'RECURRENT' ? 'RECURRENT' : document.getElementById('ent-urgency').value),
+          plan: document.getElementById('ent-plan').value || "Sem observações",
+          controlled: false
+        };
+        state.finance.push(newEntry);
+      }
+
       saveState();
       renderFinance();
       renderHome();
@@ -819,7 +874,7 @@
     };
 
     window.deleteFinanceItem = function(id) {
-      if (confirm("Remover este lançamento?")) {
+      if (confirm("Deseja realmente remover este lançamento?")) {
         state.finance = state.finance.filter(i => i.id !== id);
         saveState();
         renderFinance();
@@ -1108,13 +1163,14 @@
             '<span class="badge-status ' + badgeClass + '">' + badgeText + '</span>' +
             '<span style="font-family:var(--mono); font-size:0.68rem; color:var(--text-muted);">📅 ' + dateStr + '</span>' +
           '</div>' +
-          '<div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:flex; justify-content:space-between; align-items:flex-end;">' +
-            '<div><strong>Ação:</strong> ' + (item.plan || 'Em definição') + '</div>' +
-            '<div style="display:flex; gap:8px;">' +
-              '<button style="background:transparent; border:none; color:var(--neon); font-size:0.7rem; font-family:var(--mono); cursor:pointer;" onclick="toggleFinanceStatus(' + item.id + ')">' +
+          '<div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between; align-items:flex-end;">' +
+            '<div style="max-width:60%;"><strong>Ação:</strong> ' + (item.plan || 'Em definição') + '</div>' +
+            '<div style="display:flex; gap:10px; align-items:center;">' +
+              '<button style="background:transparent; border:none; color:var(--blue-inflow); font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;" onclick="editFinanceItem(' + item.id + ')">✎ Editar</button>' +
+              '<button style="background:transparent; border:none; color:var(--neon); font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;" onclick="toggleFinanceStatus(' + item.id + ')">' +
                 (isDone ? 'Reabrir' : (isInflow ? 'Recebido ✓' : 'Quitado ✓')) +
               '</button>' +
-              '<button style="background:transparent; border:none; color:var(--danger); font-size:0.7rem; font-family:var(--mono); cursor:pointer;" onclick="deleteFinanceItem(' + item.id + ')">✕</button>' +
+              '<button style="background:transparent; border:none; color:var(--danger); font-size:0.75rem; font-family:var(--mono); cursor:pointer;" onclick="deleteFinanceItem(' + item.id + ')">✕</button>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -1180,7 +1236,7 @@
     }
 
     function saveState() {
-      localStorage.setItem('huud_master_state_v10', JSON.stringify(state));
+      localStorage.setItem('huud_master_state_v11', JSON.stringify(state));
       if (supabaseClient) {
         supabaseClient.from('huud_state').upsert({
           id: 'dimas_primary',
@@ -1198,7 +1254,7 @@
     }
 
     function loadSavedState() {
-      const local = localStorage.getItem('huud_master_state_v10');
+      const local = localStorage.getItem('huud_master_state_v11');
       if (local) {
         try {
           const parsed = JSON.parse(local);
@@ -1285,7 +1341,6 @@
       }, 1000);
     }
 
-    // INICIALIZAÇÃO SEGURA
     document.addEventListener('DOMContentLoaded', () => {
       loadSavedState();
       renderAll();
