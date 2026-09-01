@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800;900&display=swap" rel="stylesheet">
   
+  <!-- Supabase CDN Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       --bg: #050608;
@@ -45,6 +48,10 @@
     .brand-icon::after { content: ''; position: absolute; left: 3px; right: 3px; top: 3px; bottom: 3px; background: var(--neon); }
     .brand-name { font-size: 0.9rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
     .brand-name span { color: var(--neon); }
+
+    .top-right { display: flex; align-items: center; gap: 10px; }
+    .sync-status { font-family: var(--mono); font-size: 0.6rem; color: var(--neon); display: flex; align-items: center; gap: 4px; }
+    .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neon); box-shadow: 0 0 6px var(--neon); }
 
     .btn-commander-top {
       background: var(--neon); color: #000; border: none; font-size: 0.65rem;
@@ -148,7 +155,7 @@
     .card-task-title { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; }
     .card-task-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
 
-    /* WORKSPACES / TELAS DEDICADAS */
+    /* WORKSPACES */
     .workspace-header-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .stat-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
     .stat-val-danger { font-size: 1.25rem; font-weight: 900; font-family: var(--mono); color: var(--danger); }
@@ -166,7 +173,7 @@
     .badge-alta { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
     .badge-done { background: rgba(0, 229, 153, 0.15); color: var(--success); border: 1px solid var(--success); }
 
-    /* MODO COMANDANTE - INTEGRAL & IMPACTANTE */
+    /* MODO COMANDANTE */
     .commander-full-screen {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: #000; z-index: 500; overflow-y: auto; display: none;
@@ -217,7 +224,7 @@
     }
     .check-dark-item.done .check-box-custom { background: var(--neon); border-color: var(--neon); color: #000; }
 
-    /* LESSONS / TI TECH MODULE */
+    /* LESSONS TI TECH */
     .lesson-card {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
       padding: 16px; margin-bottom: 12px;
@@ -276,7 +283,12 @@
       <div class="brand-icon"></div>
       <div class="brand-name">DISCIPLINA <span>OS</span></div>
     </div>
-    <button class="btn-commander-top" onclick="app.openCommander()">MODO COMANDANTE</button>
+    <div class="top-right">
+      <div class="sync-status" id="cloud-sync-status">
+        <span class="sync-dot"></span> CLOUD
+      </div>
+      <button class="btn-commander-top" onclick="app.openCommander()">COMANDANTE</button>
+    </div>
   </header>
 
   <!-- SUBNAV PILLS -->
@@ -438,10 +450,10 @@
           <span style="font-family:var(--mono); font-size:0.65rem; color:var(--neon); font-weight:800;">MÓDULO 02 • LÓGICA</span>
           <span class="badge-status badge-alta">EM ANDAMENTO</span>
         </div>
-        <h4 style="font-size:0.95rem; font-weight:800; margin:6px 0;">2. JavaScript & Armazenamento Local</h4>
-        <p style="font-size:0.8rem; color:var(--text-muted)">Manipulação de dados com `localStorage`, arrays e funções de cálculo de dívidas.</p>
-        <div class="code-snippet">// Exemplo prático de cálculo:
-const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
+        <h4 style="font-size:0.95rem; font-weight:800; margin:6px 0;">2. JavaScript & Banco de Dados em Nuvem</h4>
+        <p style="font-size:0.8rem; color:var(--text-muted)">Manipulação de APIs, tabelas PostgreSQL e sincronização em tempo real com Supabase.</p>
+        <div class="code-snippet">// Sincronização em nuvem via Supabase:
+const { data, error } = await supabase.from('huud_state').upsert(payload);</div>
       </div>
 
       <div class="lesson-card">
@@ -472,11 +484,11 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
 
       <div id="diagnostic-blocks-accordion"></div>
 
-      <!-- BOTÃO DE BACKUP / BANCO DE DADOS LOCAL -->
+      <!-- BACKUP / JSON LOCAL -->
       <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:16px;">
-        <span style="font-family:var(--mono); font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:8px;">BANCO DE DADOS NO SEU NOTEBOOK</span>
+        <span style="font-family:var(--mono); font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:8px;">CÓPIA DE SEGURANÇA LOCAL (JSON)</span>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-          <button class="btn-action-neon" style="padding:10px; font-size:0.7rem;" onclick="app.exportBackup()">EXPORTAR BACKUP (JSON)</button>
+          <button class="btn-action-neon" style="padding:10px; font-size:0.7rem;" onclick="app.exportBackup()">EXPORTAR BACKUP</button>
           <button class="btn-action-neon" style="padding:10px; font-size:0.7rem; background:#1b2028; color:#fff;" onclick="document.getElementById('import-file').click()">IMPORTAR BACKUP</button>
         </div>
         <input type="file" id="import-file" style="display:none" onchange="app.importBackup(event)">
@@ -485,7 +497,7 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
 
   </main>
 
-  <!-- MODO COMANDANTE: TELA CHEIA, RETRATO INTEGRAL & IMPACTANTE -->
+  <!-- MODO COMANDANTE -->
   <div id="commander-mode" class="commander-full-screen">
     
     <div class="commander-portrait-wrapper">
@@ -575,8 +587,12 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
     </button>
   </nav>
 
-  <!-- JAVASCRIPT ENGINE & BANCO LOCAL -->
+  <!-- JAVASCRIPT & SUPABASE CLOUD SYNC -->
   <script>
+    const SUPABASE_URL = 'https://inqrtidtdzearvhjjpmq.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Z1FHc9GmJUeSugGhNRikIA_N4EjDrBo';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     const defaultDebts = [
       { id: 1, name: "Urgência Dia 3", amount: 10000, deadline: "Dia 3", urgency: "CRÍTICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
       { id: 2, name: "Taxa Venda do Terreno", amount: 1500, deadline: "Imediato", urgency: "ALTA", plan: "Pagar para liberar dinheiro da venda", controlled: false },
@@ -669,15 +685,15 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
 
     class HuudSystem {
       constructor() {
-        this.debts = JSON.parse(localStorage.getItem('huud_debts_v5')) || defaultDebts;
-        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v5')) || defaultTasks;
-        this.landChecklist = JSON.parse(localStorage.getItem('huud_land_v5')) || defaultLandChecklist;
-        this.pyChecklist = JSON.parse(localStorage.getItem('huud_py_v5')) || defaultPyChecklist;
-        this.techHours = Number(localStorage.getItem('huud_tech_hours')) || 42;
+        this.debts = JSON.parse(localStorage.getItem('huud_debts_v6')) || defaultDebts;
+        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v6')) || defaultTasks;
+        this.landChecklist = JSON.parse(localStorage.getItem('huud_land_v6')) || defaultLandChecklist;
+        this.pyChecklist = JSON.parse(localStorage.getItem('huud_py_v6')) || defaultPyChecklist;
+        this.techHours = Number(localStorage.getItem('huud_tech_hours_v6')) || 42;
         this.init();
       }
 
-      init() {
+      async init() {
         this.renderDebts();
         this.renderTasks();
         this.renderLandChecklist();
@@ -685,6 +701,70 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
         this.renderDiagnosticAccordion();
         this.updateHUD();
         this.startTimer();
+        await this.syncFromCloud();
+      }
+
+      async syncFromCloud() {
+        try {
+          const { data, error } = await supabaseClient
+            .from('huud_state')
+            .select('*')
+            .eq('id', 'dimas_primary')
+            .single();
+
+          if (data && !error) {
+            if (data.debts && data.debts.length > 0) this.debts = data.debts;
+            if (data.tasks && data.tasks.length > 0) this.tasks = data.tasks;
+            if (data.land_checklist && data.land_checklist.length > 0) this.landChecklist = data.land_checklist;
+            if (data.py_checklist && data.py_checklist.length > 0) this.pyChecklist = data.py_checklist;
+            if (data.tech_hours) this.techHours = Number(data.tech_hours);
+
+            this.saveLocally();
+            this.renderDebts();
+            this.renderTasks();
+            this.renderLandChecklist();
+            this.renderPyChecklist();
+            this.updateHUD();
+            document.getElementById('cloud-sync-status').innerHTML = '<span class="sync-dot"></span> SINCRONIZADO';
+          }
+        } catch (err) {
+          console.log('Operando offline via localStorage');
+        }
+      }
+
+      async saveAll() {
+        this.saveLocally();
+        this.updateHUD();
+
+        const statusEl = document.getElementById('cloud-sync-status');
+        if (statusEl) statusEl.innerHTML = '<span class="sync-dot" style="background:var(--warning)"></span> SALVANDO...';
+
+        try {
+          const payload = {
+            id: 'dimas_primary',
+            debts: this.debts,
+            tasks: this.tasks,
+            land_checklist: this.landChecklist,
+            py_checklist: this.pyChecklist,
+            tech_hours: this.techHours,
+            updated_at: new Date().toISOString()
+          };
+
+          const { error } = await supabaseClient.from('huud_state').upsert(payload);
+          if (!error && statusEl) {
+            statusEl.innerHTML = '<span class="sync-dot"></span> NUVEM OK';
+          }
+        } catch (err) {
+          if (statusEl) statusEl.innerHTML = '<span class="sync-dot" style="background:var(--danger)"></span> LOCAL';
+        }
+      }
+
+      saveLocally() {
+        localStorage.setItem('huud_debts_v6', JSON.stringify(this.debts));
+        localStorage.setItem('huud_tasks_v6', JSON.stringify(this.tasks));
+        localStorage.setItem('huud_land_v6', JSON.stringify(this.landChecklist));
+        localStorage.setItem('huud_py_v6', JSON.stringify(this.pyChecklist));
+        localStorage.setItem('huud_tech_hours_v6', this.techHours);
       }
 
       switchView(viewId) {
@@ -751,7 +831,7 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
           controlled: false
         };
         this.debts.push(newDebt);
-        localStorage.setItem('huud_debts_v5', JSON.stringify(this.debts));
+        this.saveAll();
         this.renderDebts();
         this.closeModal('modal-add-debt');
         e.target.reset();
@@ -759,7 +839,7 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
 
       toggleDebtControl(id) {
         this.debts = this.debts.map(d => d.id === id ? { ...d, controlled: !d.controlled } : d);
-        localStorage.setItem('huud_debts_v5', JSON.stringify(this.debts));
+        this.saveAll();
         this.renderDebts();
       }
 
@@ -776,9 +856,8 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
 
       toggleTask(id) {
         this.tasks = this.tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
-        localStorage.setItem('huud_tasks_v5', JSON.stringify(this.tasks));
+        this.saveAll();
         this.renderTasks();
-        this.updateHUD();
       }
 
       renderLandChecklist() {
@@ -794,7 +873,7 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
 
       toggleLandTask(id) {
         this.landChecklist = this.landChecklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
-        localStorage.setItem('huud_land_v5', JSON.stringify(this.landChecklist));
+        this.saveAll();
         this.renderLandChecklist();
       }
 
@@ -811,16 +890,16 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
 
       togglePyTask(id) {
         this.pyChecklist = this.pyChecklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
-        localStorage.setItem('huud_py_v5', JSON.stringify(this.pyChecklist));
+        this.saveAll();
         this.renderPyChecklist();
       }
 
       logTechHours() {
         this.techHours += 2;
-        localStorage.setItem('huud_tech_hours', this.techHours);
         document.getElementById('tech-hours-display').innerText = `${this.techHours}h`;
         document.getElementById('hud-tech-hours').innerText = `${this.techHours}h`;
-        alert("2 HORAS DE CÓDIGO REGISTRADAS. Mantenha a disciplina inegociável.");
+        this.saveAll();
+        alert("2 HORAS DE CÓDIGO REGISTRADAS. Sincronizado na nuvem.");
       }
 
       updateHUD() {
@@ -881,7 +960,7 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
       closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
       completeDay() {
-        alert("EVIDÊNCIA GRAVADA. Dia concluído com execução.");
+        alert("EVIDÊNCIA GRAVADA E SINCRONIZADA.");
         this.closeCommander();
       }
 
@@ -905,837 +984,22 @@ const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
           try {
             const data = JSON.parse(event.target.result);
-            if (data.debts) localStorage.setItem('huud_debts_v5', JSON.stringify(data.debts));
-            if (data.tasks) localStorage.setItem('huud_tasks_v5', JSON.stringify(data.tasks));
-            if (data.landChecklist) localStorage.setItem('huud_land_v5', JSON.stringify(data.landChecklist));
-            if (data.pyChecklist) localStorage.setItem('huud_py_v5', JSON.stringify(data.pyChecklist));
-            if (data.techHours) localStorage.setItem('huud_tech_hours', data.techHours);
-            alert("BANCO DE DADOS RESTAURADO COM SUCESSO!");
+            if (data.debts) this.debts = data.debts;
+            if (data.tasks) this.tasks = data.tasks;
+            if (data.landChecklist) this.landChecklist = data.landChecklist;
+            if (data.pyChecklist) this.pyChecklist = data.pyChecklist;
+            if (data.techHours) this.techHours = data.techHours;
+            await this.saveAll();
+            alert("BANCO DE DADOS RESTAURADO E SINCRONIZADO NA NUVEM!");
             location.reload();
           } catch (err) {
             alert("Arquivo de backup inválido.");
           }
         };
         reader.readAsText(file);
-      }
-    }
-
-    let app;
-    window.addEventListener('DOMContentLoaded', () => { app = new HuudSystem(); });
-  </script>
-</body>
-</html>!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HUUD — Life Command Center | Disciplina OS</title>
-  <meta name="theme-color" content="#060709">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --bg: #060709;
-      --bg-card: #0e1116;
-      --bg-card-elevated: #151922;
-      --border: #1c222c;
-      --border-focus: #2c3545;
-      --text: #f0f3f6;
-      --text-muted: #738094;
-      --neon: #d4ff00;
-      --neon-glow: rgba(212, 255, 0, 0.18);
-      --danger: #ff334b;
-      --danger-bg: rgba(255, 51, 75, 0.12);
-      --warning: #f59e0b;
-      --success: #00e599;
-      --mono: 'JetBrains Mono', monospace;
-      --sans: 'Inter', -apple-system, sans-serif;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--sans); -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg); color: var(--text); padding-top: 60px; padding-bottom: 84px; min-height: 100vh; overflow-x: hidden; }
-
-    /* TOP BAR */
-    .top-bar {
-      position: fixed; top: 0; left: 0; right: 0; height: 60px;
-      background: rgba(6, 7, 9, 0.94); backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border); display: flex; align-items: center;
-      justify-content: space-between; padding: 0 16px; z-index: 100;
-    }
-    .brand-group { display: flex; align-items: center; gap: 8px; }
-    .brand-icon {
-      width: 20px; height: 20px; border-left: 3px solid var(--neon);
-      border-right: 3px solid var(--neon); position: relative;
-    }
-    .brand-icon::after {
-      content: ''; position: absolute; left: 4px; right: 4px; top: 3px; bottom: 3px; background: var(--neon);
-    }
-    .brand-name { font-size: 0.9rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
-    .brand-name span { color: var(--neon); }
-
-    .btn-commander-top {
-      background: var(--neon); color: #000; border: none; font-size: 0.65rem;
-      font-weight: 900; font-family: var(--mono); letter-spacing: 1px; padding: 8px 12px;
-      border-radius: 4px; cursor: pointer;
-    }
-
-    /* SUBNAV PILLS */
-    .sub-nav {
-      display: flex; gap: 6px; overflow-x: auto; padding: 0 16px 12px 16px;
-      scrollbar-width: none; border-bottom: 1px solid var(--border);
-    }
-    .sub-nav::-webkit-scrollbar { display: none; }
-    .nav-pill {
-      background: transparent; border: none; color: var(--text-muted);
-      font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 1px;
-      padding: 6px 12px; border-radius: 20px; white-space: nowrap; cursor: pointer;
-    }
-    .nav-pill.active { background: var(--neon); color: #000; box-shadow: 0 0 12px var(--neon-glow); }
-
-    .main-wrapper { max-width: 650px; margin: 0 auto; padding: 16px; }
-    .view { display: none; animation: fadeIn 0.2s ease; }
-    .view.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* HERO TITLES */
-    .hero-meta { font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 8px; }
-    .hero-meta span { color: var(--neon); }
-    .hero-title { font-size: 1.65rem; font-weight: 900; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 12px; }
-    .hero-title em { font-style: normal; color: var(--neon); }
-    .hero-body { font-size: 0.85rem; line-height: 1.5; color: var(--text-muted); margin-bottom: 16px; }
-
-    /* GENERAL TACTICAL BANNER COM IMAGEM LOCAL */
-    .general-card {
-      background: linear-gradient(180deg, rgba(6, 7, 9, 0.45) 0%, rgba(6, 7, 9, 0.95) 100%),
-                  url('comandante.png') center top/cover no-repeat;
-      border: 1px solid var(--border); border-radius: 12px; padding: 22px 16px;
-      margin-bottom: 20px; position: relative; overflow: hidden;
-    }
-    .general-card::after {
-      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--neon);
-    }
-    .general-avatar-box { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
-    .general-img {
-      width: 58px; height: 58px; border-radius: 50%; border: 2px solid var(--neon);
-      object-fit: cover; box-shadow: 0 0 14px var(--neon-glow); background: #000;
-    }
-    .general-tag { font-family: var(--mono); font-size: 0.62rem; color: var(--neon); letter-spacing: 2px; font-weight: 800; }
-    .general-name { font-size: 1rem; font-weight: 900; letter-spacing: 1px; }
-
-    /* BOTÕES TÁTICOS */
-    .btn-action-neon {
-      background: var(--neon); color: #000; border: none; width: 100%; padding: 15px;
-      border-radius: 8px; font-weight: 900; font-size: 0.82rem; font-family: var(--mono);
-      letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center;
-      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px var(--neon-glow);
-      margin-bottom: 16px;
-    }
-
-    /* RADIAL GAUGES */
-    .gauge-hud-card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-      padding: 20px 16px; display: flex; flex-direction: column; align-items: center; margin-bottom: 16px;
-    }
-    .radial-box { position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; }
-    .radial-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-    .circle-bg { fill: none; stroke: var(--border); stroke-width: 6; }
-    .circle-fill {
-      fill: none; stroke: var(--neon); stroke-width: 6; stroke-linecap: round;
-      stroke-dasharray: 440; stroke-dashoffset: 130; filter: drop-shadow(0 0 6px var(--neon));
-      transition: stroke-dashoffset 0.4s ease;
-    }
-    .radial-num { font-size: 2.2rem; font-weight: 900; font-family: var(--mono); color: var(--text); }
-    .radial-sub { font-size: 0.65rem; font-family: var(--mono); color: var(--text-muted); }
-
-    .hud-row {
-      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; width: 100%;
-      margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; text-align: center;
-    }
-    .hud-stat-val { font-size: 1.1rem; font-weight: 900; font-family: var(--mono); }
-    .hud-stat-lbl { font-size: 0.58rem; font-family: var(--mono); color: var(--text-muted); margin-top: 2px; }
-
-    /* TIMELINE */
-    .timeline-chain { display: flex; flex-direction: column; gap: 14px; position: relative; }
-    .timeline-chain::before {
-      content: ''; position: absolute; left: 18px; top: 20px; bottom: 20px; width: 2px;
-      background: var(--border); z-index: 1;
-    }
-    .timeline-card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
-      padding: 16px; position: relative; margin-left: 40px; cursor: pointer; transition: border-color 0.2s;
-    }
-    .timeline-card:hover { border-color: var(--border-focus); }
-    .timeline-card.active-priority {
-      border-color: rgba(212, 255, 0, 0.4);
-      background: linear-gradient(180deg, var(--bg-card-elevated) 0%, var(--bg-card) 100%);
-    }
-    .node-badge {
-      position: absolute; left: -40px; top: 16px; width: 24px; height: 24px;
-      border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border);
-      color: var(--text-muted); font-size: 0.65rem; font-family: var(--mono); font-weight: 800;
-      display: flex; align-items: center; justify-content: center; z-index: 2;
-    }
-    .node-badge.active { border-color: var(--neon); color: var(--neon); background: #000; box-shadow: 0 0 8px var(--neon-glow); }
-
-    .tag-priority {
-      font-size: 0.58rem; font-family: var(--mono); font-weight: 800; letter-spacing: 1px;
-      padding: 3px 6px; border-radius: 4px; background: var(--neon); color: #000;
-      display: inline-block; margin-bottom: 8px;
-    }
-    .card-task-title { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; }
-    .card-task-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px; }
-
-    /* DÍVIDAS */
-    .debt-header-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .stat-card { background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
-    .stat-val-danger { font-size: 1.3rem; font-weight: 900; font-family: var(--mono); color: var(--danger); }
-    .stat-val-neon { font-size: 1.3rem; font-weight: 900; font-family: var(--mono); color: var(--neon); }
-
-    .debt-item-card {
-      background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 8px;
-      padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;
-    }
-    .debt-top-row { display: flex; justify-content: space-between; align-items: center; }
-    .debt-name { font-weight: 800; font-size: 0.9rem; }
-    .debt-val { font-family: var(--mono); font-weight: 800; color: var(--danger); }
-    .badge-urgency { font-family: var(--mono); font-size: 0.58rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
-    .badge-critica { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
-    .badge-alta { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
-    .badge-renegociada { background: rgba(0, 229, 153, 0.15); color: var(--success); border: 1px solid var(--success); }
-
-    /* ACCORDION 56 PERGUNTAS */
-    .diag-block-card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
-      margin-bottom: 10px; overflow: hidden;
-    }
-    .diag-block-header {
-      padding: 14px 16px; font-weight: 800; font-size: 0.85rem; font-family: var(--mono);
-      display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-      background: var(--bg-card-elevated);
-    }
-    .diag-block-body { padding: 16px; display: none; font-size: 0.82rem; line-height: 1.5; color: var(--text-muted); border-top: 1px solid var(--border); }
-    .diag-block-body.open { display: block; }
-    .diag-q { font-weight: 700; color: var(--text); margin-top: 10px; }
-    .diag-a { color: var(--neon); margin-bottom: 10px; font-style: italic; }
-
-    /* MODO COMANDANTE */
-    .commander-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #050607;
-      z-index: 500; overflow-y: auto; padding: 20px 16px 40px 16px; display: none;
-    }
-    .commander-overlay.active { display: block; }
-    .commander-hero-banner {
-      background: linear-gradient(180deg, rgba(14, 17, 22, 0.5) 0%, #050607 100%),
-                  url('comandante.png') center top/cover no-repeat;
-      border: 1px solid var(--border); border-radius: 12px; padding: 24px 16px; text-align: center; margin-bottom: 16px;
-    }
-    .timer-display {
-      font-size: 2.2rem; font-weight: 900; font-family: var(--mono); color: var(--text);
-      letter-spacing: 2px; margin: 10px 0;
-    }
-
-    .check-dark-item {
-      background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 8px;
-      padding: 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; cursor: pointer;
-    }
-    .check-dark-item.done { opacity: 0.4; }
-    .check-dark-item.done span { text-decoration: line-through; }
-    .check-box-custom {
-      width: 20px; height: 20px; border: 2px solid var(--border-focus); border-radius: 4px;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .check-dark-item.done .check-box-custom { background: var(--neon); border-color: var(--neon); color: #000; }
-
-    /* INPUTS & MODAIS */
-    .input-dark {
-      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-      padding: 12px; color: var(--text); font-size: 0.85rem; margin: 6px 0 12px 0; outline: none;
-    }
-    .input-dark:focus { border-color: var(--neon); }
-
-    .bottom-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
-      background: rgba(6, 7, 9, 0.95); backdrop-filter: blur(14px);
-      border-top: 1px solid var(--border); display: flex; justify-content: space-around;
-      align-items: center; z-index: 100;
-    }
-    .nav-btn {
-      background: transparent; border: none; color: var(--text-muted);
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      font-size: 0.6rem; font-family: var(--mono); font-weight: 700; cursor: pointer; width: 20%;
-    }
-    .nav-btn.active { color: var(--neon); }
-    .nav-btn svg { width: 18px; height: 18px; stroke: currentColor; }
-
-    .modal {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85);
-      z-index: 600; display: none; align-items: center; justify-content: center; padding: 16px;
-    }
-    .modal.active { display: flex; }
-    .modal-box {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-      width: 100%; max-width: 460px; padding: 20px;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- TOP BAR -->
-  <header class="top-bar">
-    <div class="brand-group">
-      <div class="brand-icon"></div>
-      <div class="brand-name">DISCIPLINA <span>OS</span></div>
-    </div>
-    <button class="btn-commander-top" onclick="app.openCommander()">COMANDANTE</button>
-  </header>
-
-  <!-- SUBNAV PILLS -->
-  <nav class="sub-nav">
-    <button class="nav-pill active" onclick="app.switchView('flow')">FLUXO</button>
-    <button class="nav-pill" onclick="app.switchView('debts')">DÍVIDAS (R$ 10K)</button>
-    <button class="nav-pill" onclick="app.switchView('bridge')">PONTE MAR VERDE</button>
-    <button class="nav-pill" onclick="app.switchView('tech')">TI + IA (2H)</button>
-    <button class="nav-pill" onclick="app.switchView('py')">GO PARAGUAY GO</button>
-    <button class="nav-pill" onclick="app.switchView('diag')">56 PERGUNTAS</button>
-  </nav>
-
-  <!-- CONTAINER -->
-  <main class="main-wrapper">
-
-    <!-- 1. FLUXO TÁTICO -->
-    <section id="view-flow" class="view active">
-      
-      <!-- GENERAL CARD COM FOTO DE PERFIL -->
-      <div class="general-card">
-        <div class="general-avatar-box">
-          <img class="general-img" src="perfil.png" onerror="this.src='comandante.png'" alt="Comandante Dimas">
-          <div>
-            <div class="general-tag">CASO 001 • COMANDANTE DIMAS</div>
-            <div class="general-name">Operação 90 Dias</div>
-          </div>
-        </div>
-        <h2 class="hero-title" style="font-size:1.35rem; margin-bottom:6px;">Você não precisa vencer tudo hoje. <em>Precisa recuperar o próximo comando.</em></h2>
-        <p style="font-size:0.8rem; color:#cbd5e1; line-height:1.4;">
-          “Ele foi um cara que fez o que tinha que ser feito e deu certo. Seu legado foi escrito.”
-        </p>
-      </div>
-
-      <!-- RADIAL HUD -->
-      <div class="gauge-hud-card">
-        <div class="radial-box">
-          <svg class="radial-svg" viewBox="0 0 160 160">
-            <circle class="circle-bg" cx="80" cy="80" r="70" />
-            <circle class="circle-fill" id="hud-circle" cx="80" cy="80" r="70" />
-          </svg>
-          <div style="text-align:center; z-index:2;">
-            <div class="radial-num" id="hud-days-count">01</div>
-            <div class="radial-sub">DE 90 DIAS</div>
-          </div>
-        </div>
-        <div class="hud-row">
-          <div><div class="hud-stat-val" id="hud-exec-rate">50%</div><div class="hud-stat-lbl">EXECUÇÃO HOJE</div></div>
-          <div><div class="hud-stat-val">R$ 10K</div><div class="hud-stat-lbl">URGÊNCIA DIA 3</div></div>
-          <div><div class="hud-stat-val">2h / dia</div><div class="hud-stat-lbl">TI + IA</div></div>
-        </div>
-      </div>
-
-      <button class="btn-action-neon" onclick="app.openCommander()">ENTRAR NO MODO COMANDANTE →</button>
-
-      <!-- TIMELINE DE MISSÕES PRIORITÁRIAS -->
-      <div style="display:flex; justify-content:space-between; font-family:var(--mono); font-size:0.7rem; color:var(--text-muted); margin:20px 0 10px 0;">
-        <span>FRENTES EM ANDAMENTO</span>
-        <span style="color:var(--neon)">CASO 001</span>
-      </div>
-
-      <div class="timeline-chain">
-        <div class="timeline-card active-priority" onclick="app.switchView('debts')">
-          <div class="node-badge active">01</div>
-          <span class="tag-priority">EMERGÊNCIA R$ 10.000</span>
-          <h3 class="card-task-title">Gestão de Dívidas & Passivos Imediatos</h3>
-          <p class="card-task-desc">Separar credores por juros, negociar prazos com frieza e proteger a subsistência.</p>
-          <div style="font-family:var(--mono); font-size:0.72rem; color:var(--neon);">ABRIR MAPA DE PASSIVOS →</div>
-        </div>
-
-        <div class="timeline-card" onclick="app.switchView('bridge')">
-          <div class="node-badge">02</div>
-          <span class="tag-priority" style="background:#2c3545; color:#fff;">PONTE DE CAIXA</span>
-          <h3 class="card-task-title">Mar Verde: Monetização e Saída Estruturada</h3>
-          <p class="card-task-desc">Vender o que puder e passar carteira para gerar caixa rápido para o plano.</p>
-        </div>
-
-        <div class="timeline-card" onclick="app.switchView('tech')">
-          <div class="node-badge">03</div>
-          <span class="tag-priority" style="background:#2c3545; color:#fff;">HABILIDADE GLOBAL</span>
-          <h3 class="card-task-title">Bloco de 2h de Código: TI + Inteligência Artificial</h3>
-          <p class="card-task-desc">Construção de autonomia técnica para produtos digitais e renda em moeda forte.</p>
-        </div>
-
-        <div class="timeline-card" onclick="app.switchView('py')">
-          <div class="node-badge">04</div>
-          <h3 class="card-task-title">GO Paraguay GO: Fase 1 (Brasil e Documentos)</h3>
-          <p class="card-task-desc">Montagem de caixa e preparação para a transição dos 90 dias.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. MAPA DE DÍVIDAS INTERATIVO -->
-    <section id="view-debts" class="view">
-      <div class="hero-meta">FRENTE 01 • <span>SOBREVIVÊNCIA FINANCEIRA</span></div>
-      <h2 class="hero-title">Mapa de <em>Dívidas & Credores</em>.</h2>
-      <p class="hero-body">Negociação fria e realista. O plano Paraguai carrega as obrigações para quitá-las, sem fuga.</p>
-
-      <div class="debt-header-stats">
-        <div class="stat-card">
-          <div style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted);">PASSIVO TOTAL REGISTRADO</div>
-          <div class="stat-val-danger" id="debt-total-val">R$ 0,00</div>
-        </div>
-        <div class="stat-card">
-          <div style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted);">ACORDOS / RENEGOCIADO</div>
-          <div class="stat-val-neon" id="debt-controlled-val">R$ 0,00</div>
-        </div>
-      </div>
-
-      <button class="btn-action-neon" onclick="app.openModal('modal-add-debt')">+ ADICIONAR CREDOR / CONTA</button>
-
-      <div style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted); margin:16px 0 8px 0;">QUADRO DE CREDORES</div>
-      <div id="debts-list-container"></div>
-    </section>
-
-    <!-- 3. PONTE MAR VERDE -->
-    <section id="view-bridge" class="view">
-      <div class="hero-meta">FRENTE 02 • <span>IMOBILIÁRIO COMO PONTE</span></div>
-      <h2 class="hero-title">Operação <em>Mar Verde</em>.</h2>
-      <p class="hero-body">A imobiliária não é seu destino final. É uma máquina de gerar liquidez e caixa para a transição.</p>
-
-      <div class="timeline-chain">
-        <div class="timeline-card active-priority">
-          <div class="node-badge active">01</div>
-          <h3 class="card-task-title">Fechamento do Terreno (R$ 1.500 de taxa)</h3>
-          <p class="card-task-desc">Destravar a venda final do terreno para colocar caixa limpo na mão imediatamente.</p>
-        </div>
-        <div class="timeline-card">
-          <div class="node-badge">02</div>
-          <h3 class="card-task-title">Parcerias e Repasse de Carteira</h3>
-          <p class="card-task-desc">Passar imóveis e clientes para corretores parceiros mediante split de comissão.</p>
-        </div>
-        <div class="timeline-card">
-          <div class="node-badge">03</div>
-          <h3 class="card-task-title">Encerramento/Redução de Custos de Sistema</h3>
-          <p class="card-task-desc">Cortar mensalidades pesadas que não trazem retorno imediato.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. TI + IA (NOVA PROFISSÃO) -->
-    <section id="view-tech" class="view">
-      <div class="hero-meta">FRENTE 03 • <span>CONSTRUÇÃO TÉCNICA</span></div>
-      <h2 class="hero-title">Trilha de <em>TI & IA</em>.</h2>
-      <p class="hero-body">2 horas inegociáveis de tela e código por dia. O caminho de volta para o computador ouvindo metal.</p>
-
-      <div class="gauge-hud-card">
-        <div style="font-size:0.75rem; font-family:var(--mono); color:var(--neon); font-weight:800;">HORAS DE ESTUDO ACUMULADAS</div>
-        <div class="radial-num" style="margin:10px 0;">42h</div>
-        <div style="font-size:0.7rem; color:var(--text-muted);">FOCO: HTML / CSS / JS / APIS / PRODUTOS COM IA</div>
-      </div>
-
-      <div class="timeline-chain">
-        <div class="timeline-card active-priority">
-          <div class="node-badge active">01</div>
-          <h3 class="card-task-title">Construção do Disciplina OS</h3>
-          <p class="card-task-desc">Desenvolvimento do código do HUUD e validação como piloto de produto comercializável.</p>
-        </div>
-        <div class="timeline-card">
-          <div class="node-badge">02</div>
-          <h3 class="card-task-title">Engenharia de Prompt & Agentes com IA</h3>
-          <p class="card-task-desc">Criação de automações para venda de soluções digitais remotas.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. GO PARAGUAY GO -->
-    <section id="view-py" class="view">
-      <div class="hero-meta">FRENTE 04 • <span>TRANSIÇÃO TÁTICA</span></div>
-      <h2 class="hero-title">GO Paraguay <em>GO</em>.</h2>
-      <p class="hero-body">Plano operacional de 90 dias: chegar ao ponto de sustentar, produzir e tomar decisões com liberdade.</p>
-
-      <div class="timeline-chain">
-        <div class="timeline-card active-priority">
-          <div class="node-badge active">F1</div>
-          <span class="tag-priority">FASE 1 — BRASIL</span>
-          <h3 class="card-task-title">Preparação Documental & Caixa Inicial</h3>
-          <p class="card-task-desc">Mapeamento de certidões, antecedentes, reserva de emergência e encerramento de pendências.</p>
-        </div>
-        <div class="timeline-card">
-          <div class="node-badge">F2</div>
-          <span class="tag-priority" style="background:#2c3545; color:#fff;">FASE 2</span>
-          <h3 class="card-task-title">Partida & Logística de Transporte</h3>
-        </div>
-        <div class="timeline-card">
-          <div class="node-badge">F3</div>
-          <span class="tag-priority" style="background:#2c3545; color:#fff;">FASE 3</span>
-          <h3 class="card-task-title">Primeiros 7 Dias: Moradia Inicial & Cédula</h3>
-        </div>
-        <div class="timeline-card">
-          <div class="node-badge">F4</div>
-          <span class="tag-priority" style="background:#2c3545; color:#fff;">FASE 4</span>
-          <h3 class="card-task-title">30 Dias: Primeira Renda Ativa (Local/Remota)</h3>
-        </div>
-        <div class="timeline-card">
-          <div class="node-badge">F6</div>
-          <span class="tag-priority" style="background:#2c3545; color:#fff;">FASE 6</span>
-          <h3 class="card-task-title">90 Dias: Estabilização & Nissan 350Z no Radar</h3>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. DIAGNÓSTICO (56 PERGUNTAS) -->
-    <section id="view-diag" class="view">
-      <div class="hero-meta">FRENTE 05 • <span>BASE DA VERDADE</span></div>
-      <h2 class="hero-title">O Diagnóstico das <em>56 Perguntas</em>.</h2>
-      <p class="hero-body">O raio-x completo que você colocou na mesa para romper com a paralisia.</p>
-
-      <div id="diagnostic-blocks-accordion"></div>
-    </section>
-
-  </main>
-
-  <!-- MODO COMANDANTE TELA CHEIA -->
-  <div id="commander-mode" class="commander-overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <span style="font-family:var(--mono); font-size:0.7rem; color:var(--neon); font-weight:800;">● MODO COMANDANTE</span>
-      <button class="btn-commander-top" style="background:transparent; border:1px solid var(--border); color:var(--text-muted)" onclick="app.closeCommander()">SAIR ✕</button>
-    </div>
-
-    <div class="commander-hero-banner">
-      <img class="general-img" style="margin-bottom:8px;" src="perfil.png" onerror="this.src='comandante.png'" alt="Comandante Dimas">
-      <div class="timer-display" id="cmd-timer">14 : 18 : 27</div>
-      <div style="font-size:0.6rem; font-family:var(--mono); color:var(--text-muted);">TEMPO RESTANTE HOJE</div>
-    </div>
-
-    <div style="font-family:var(--mono); font-size:0.7rem; color:var(--text-muted); margin:16px 0 8px 0;">CHECKLIST INEGOCIÁVEL DO DIA</div>
-    <div id="cmd-tasks-container"></div>
-
-    <button class="btn-action-neon" style="margin-top:16px;" onclick="app.completeDay()">CONCLUIR MISSÕES DO DIA</button>
-  </div>
-
-  <!-- MODAL: ADICIONAR DÍVIDA -->
-  <div id="modal-add-debt" class="modal">
-    <div class="modal-box">
-      <h3 style="font-size:1rem; font-weight:900; color:var(--neon); margin-bottom:12px;">REGISTRAR PASSIVO / CONTA</h3>
-      <form onsubmit="app.addDebt(event)">
-        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">NOME DO CREDOR / BANCO</label>
-        <input type="text" id="debt-name" class="input-dark" required placeholder="Ex: Emergência Dia 3 / Banco / Cartão">
-
-        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">VALOR TOTAL (R$)</label>
-        <input type="number" id="debt-amount" class="input-dark" required placeholder="Ex: 10000">
-
-        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">GRAU DE URGÊNCIA</label>
-        <select id="debt-urgency" class="input-dark">
-          <option value="CRÍTICA">CRÍTICA (Risco imediato / Dia 3)</option>
-          <option value="ALTA">ALTA (Restrição operacional)</option>
-          <option value="NEGOCIÁVEL">NEGOCIÁVEL (Pode esperar entrada de caixa)</option>
-        </select>
-
-        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PLANO DE QUITAÇÃO / PROPOSTA</label>
-        <input type="text" id="debt-plan" class="input-dark" placeholder="Ex: Negociar com comissão do terreno">
-
-        <button type="submit" class="btn-action-neon" style="margin-bottom:8px;">SALVAR NO MAPA</button>
-        <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none;" onclick="app.closeModal('modal-add-debt')">CANCELAR</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-bar">
-    <button class="nav-btn active" onclick="app.switchView('flow')">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-      <span>HOJE</span>
-    </button>
-    <button class="nav-btn" onclick="app.switchView('debts')">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      <span>DÍVIDAS</span>
-    </button>
-    <button class="nav-btn" onclick="app.switchView('tech')">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-      <span>TI / IA</span>
-    </button>
-    <button class="nav-btn" onclick="app.switchView('py')">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      <span>PARAGUAY</span>
-    </button>
-    <button class="nav-btn" onclick="app.switchView('diag')">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
-      <span>56 PERGUNTAS</span>
-    </button>
-  </nav>
-
-  <!-- JAVASCRIPT ENGINE -->
-  <script>
-    const defaultDebts = [
-      { id: 1, name: "Urgência Dia 3", amount: 10000, urgency: "CRÍTICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
-      { id: 2, name: "Taxa Venda do Terreno", amount: 1500, urgency: "ALTA", plan: "Pagar para liberar dinheiro da venda", controlled: false },
-      { id: 3, name: "Sistemas & Obrigações Mar Verde", amount: 4500, urgency: "NEGOCIÁVEL", plan: "Cortar o desnecessário e congelar contratos", controlled: true }
-    ];
-
-    const defaultTasks = [
-      { id: 1, text: "Encarar a urgência dos R$ 10.000 do dia 3 com credores", done: true },
-      { id: 2, text: "2 horas inegociáveis de estudo e código em TI + IA", done: true },
-      { id: 3, text: "Agilizar fechamento da venda do terreno (R$ 1.500 taxa)", done: false },
-      { id: 4, text: "Separar certidões para a Fase 1 (GO Paraguay GO)", done: false }
-    ];
-
-    const diagnosticData = [
-      {
-        block: "1. REALIDADE — O que é verdade?",
-        content: `
-          <div class="diag-q">Situação financeira e rotina:</div>
-          <div class="diag-a">Pressão alta com dívidas e duas crianças. A empresa Mar Verde não gera mais tração. Necessidade de parar de esperar as coisas caírem do céu.</div>
-          <div class="diag-q">O que está funcionando?</div>
-          <div class="diag-a">Apenas a academia. O resto precisa de comando imediato.</div>
-          <div class="diag-q">O que drena energia?</div>
-          <div class="diag-a">A falta de dinheiro e o rombo financeiro acumulado.</div>
-        `
-      },
-      {
-        block: "2. EU — Quem estou me tornando?",
-        content: `
-          <div class="diag-q">Quem eu era antes?</div>
-          <div class="diag-a">Um cara organizado, inteligente, que venceu a dependência química e o crack, e sabe criar e trabalhar.</div>
-          <div class="diag-q">Quem me tornei?</div>
-          <div class="diag-a">Alguém com medo e pés no concreto por ter vivido o sonho dos outros.</div>
-          <div class="diag-q">O que eu faria sem medo de julgamentos?</div>
-          <div class="diag-a">Voltaria para o computador para criar projetos e estudar TI/IA ouvindo metal.</div>
-        `
-      },
-      {
-        block: "3. RELACIONAMENTO — Viper",
-        content: `
-          <div class="diag-q">Fortalece ou enfraquece?</div>
-          <div class="diag-a">Ao mesmo tempo que fortalece, enfraquece pela procrastinação mútua.</div>
-          <div class="diag-q">Diretriz adotada:</div>
-          <div class="diag-a">Não romper no meio do caos, mas não paralisar meu plano dependendo das atitudes dela. Cada um carrega a própria mochila.</div>
-        `
-      },
-      {
-        block: "4. OPORTUNIDADES — Para onde aponta?",
-        content: `
-          <div class="diag-q">Vetor principal nos próximos 12 meses:</div>
-          <div class="diag-a">Área de TI + IA, desenvolvimento do Disciplina OS e monetização de negócios digitais.</div>
-          <div class="diag-q">Papel da Imobiliária:</div>
-          <div class="diag-a">Exclusivamente ponte financeira de liquidez rápida, não destino de carreira.</div>
-        `
-      },
-      {
-        block: "5. PARAGUAI — Fuga ou Movimento?",
-        content: `
-          <div class="diag-q">É fuga?</div>
-          <div class="diag-a">Não. É criação de oportunidade, redução de custo de vida e novo ambiente.</div>
-          <div class="diag-q">O que vai na mala?</div>
-          <div class="diag-a">Todas as dívidas e responsabilidades continuam. O objetivo é quitá-las trabalhando de lá.</div>
-        `
-      },
-      {
-        block: "6. MEDO — O que realmente trava?",
-        content: `
-          <div class="diag-q">Maior medo:</div>
-          <div class="diag-a">Meu maior medo é NÃO TENTAR e continuar parado por mais um ano.</div>
-          <div class="diag-q">Pior cenário realista:</div>
-          <div class="diag-a">Ter que começar morando num loft simples e trabalhar no que for preciso (garçom, estivador), mas em movimento.</div>
-        `
-      },
-      {
-        block: "7. RESPONSABILIDADE — Extreme Ownership",
-        content: `
-          <div class="diag-q">O que está sob controle?</div>
-          <div class="diag-a">Minhas próximas ações, meu trabalho, meu estudo de código e minhas negociações.</div>
-          <div class="diag-q">O que não carregar?</div>
-          <div class="diag-a">As decisões da Viper, a vida de terceiros e a economia externa. Honrar sem carregar.</div>
-        `
-      },
-      {
-        block: "8. A ESTÁTUA — O Legado",
-        content: `
-          <div class="diag-q">O que estará escrito aos 80 anos?</div>
-          <div class="diag-a">“Ele foi um cara que fez o que tinha que ser feito e deu certo. Seu legado foi escrito.”</div>
-        `
-      }
-    ];
-
-    class HuudSystem {
-      constructor() {
-        this.debts = JSON.parse(localStorage.getItem('huud_debts_v4')) || defaultDebts;
-        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v4')) || defaultTasks;
-        this.init();
-      }
-
-      init() {
-        this.renderDebts();
-        this.renderTasks();
-        this.renderDiagnosticAccordion();
-        this.updateHUD();
-        this.startTimer();
-      }
-
-      switchView(viewId) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-
-        const target = document.getElementById('view-' + viewId);
-        if (target) target.classList.add('active');
-
-        const pills = Array.from(document.querySelectorAll('.nav-pill'));
-        const activePill = pills.find(p => p.getAttribute('onclick').includes(viewId));
-        if (activePill) activePill.classList.add('active');
-
-        window.scrollTo(0, 0);
-      }
-
-      renderDebts() {
-        const c = document.getElementById('debts-list-container');
-        if (!c) return;
-
-        let total = 0;
-        let controlled = 0;
-
-        c.innerHTML = this.debts.map(d => {
-          total += Number(d.amount);
-          if (d.controlled) controlled += Number(d.amount);
-
-          const badgeClass = d.controlled ? 'badge-renegociada' : (d.urgency === 'CRÍTICA' ? 'badge-critica' : 'badge-alta');
-          const badgeText = d.controlled ? 'RENEGOCIADO / ACORDADO' : d.urgency;
-
-          return `
-            <div class="debt-item-card">
-              <div class="debt-top-row">
-                <span class="debt-name">${d.name}</span>
-                <span class="debt-val">R$ ${Number(d.amount).toLocaleString('pt-BR')}</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-                <span class="badge-urgency ${badgeClass}">${badgeText}</span>
-                <button style="background:transparent; border:none; color:var(--neon); font-size:0.7rem; cursor:pointer;" onclick="app.toggleDebtControl(${d.id})">
-                  ${d.controlled ? 'Marcar Pendente' : 'Marcar Renegociado ✓'}
-                </button>
-              </div>
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
-                <strong>Plano:</strong> ${d.plan}
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        document.getElementById('debt-total-val').innerText = `R$ ${total.toLocaleString('pt-BR')}`;
-        document.getElementById('debt-controlled-val').innerText = `R$ ${controlled.toLocaleString('pt-BR')}`;
-      }
-
-      addDebt(e) {
-        e.preventDefault();
-        const newDebt = {
-          id: Date.now(),
-          name: document.getElementById('debt-name').value,
-          amount: document.getElementById('debt-amount').value,
-          urgency: document.getElementById('debt-urgency').value,
-          plan: document.getElementById('debt-plan').value || "Em negociação",
-          controlled: false
-        };
-        this.debts.push(newDebt);
-        localStorage.setItem('huud_debts_v4', JSON.stringify(this.debts));
-        this.renderDebts();
-        this.closeModal('modal-add-debt');
-        e.target.reset();
-      }
-
-      toggleDebtControl(id) {
-        this.debts = this.debts.map(d => d.id === id ? { ...d, controlled: !d.controlled } : d);
-        localStorage.setItem('huud_debts_v4', JSON.stringify(this.debts));
-        this.renderDebts();
-      }
-
-      renderTasks() {
-        const c = document.getElementById('cmd-tasks-container');
-        if (!c) return;
-        c.innerHTML = this.tasks.map(t => `
-          <div class="check-dark-item ${t.done ? 'done' : ''}" onclick="app.toggleTask(${t.id})">
-            <div class="check-box-custom">${t.done ? '✓' : ''}</div>
-            <span style="font-size:0.85rem; font-weight:600;">${t.text}</span>
-          </div>
-        `).join('');
-      }
-
-      toggleTask(id) {
-        this.tasks = this.tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
-        localStorage.setItem('huud_tasks_v4', JSON.stringify(this.tasks));
-        this.renderTasks();
-        this.updateHUD();
-      }
-
-      updateHUD() {
-        const total = this.tasks.length;
-        const done = this.tasks.filter(t => t.done).length;
-        const pct = Math.round((done / total) * 100);
-
-        document.getElementById('hud-exec-rate').innerText = pct + '%';
-        const circle = document.getElementById('hud-circle');
-        if (circle) {
-          const offset = 440 - (440 * (pct / 100));
-          circle.style.strokeDashoffset = offset;
-        }
-      }
-
-      renderDiagnosticAccordion() {
-        const c = document.getElementById('diagnostic-blocks-accordion');
-        if (!c) return;
-        c.innerHTML = diagnosticData.map((d, index) => `
-          <div class="diag-block-card">
-            <div class="diag-block-header" onclick="app.toggleAccordion(${index})">
-              <span>${d.block}</span>
-              <span id="diag-arrow-${index}">+</span>
-            </div>
-            <div class="diag-block-body" id="diag-body-${index}">
-              ${d.content}
-            </div>
-          </div>
-        `).join('');
-      }
-
-      toggleAccordion(index) {
-        const body = document.getElementById(`diag-body-${index}`);
-        const arrow = document.getElementById(`diag-arrow-${index}`);
-        if (body.classList.contains('open')) {
-          body.classList.remove('open');
-          arrow.innerText = '+';
-        } else {
-          body.classList.add('open');
-          arrow.innerText = '−';
-        }
-      }
-
-      startTimer() {
-        const timerEl = document.getElementById('cmd-timer');
-        setInterval(() => {
-          const now = new Date();
-          const hrs = String(23 - now.getHours()).padStart(2, '0');
-          const mins = String(59 - now.getMinutes()).padStart(2, '0');
-          const secs = String(59 - now.getSeconds()).padStart(2, '0');
-          if (timerEl) timerEl.innerText = `${hrs} : ${mins} : ${secs}`;
-        }, 1000);
-      }
-
-      openCommander() { document.getElementById('commander-mode').classList.add('active'); }
-      closeCommander() { document.getElementById('commander-mode').classList.remove('active'); }
-      openModal(id) { document.getElementById(id).classList.add('active'); }
-      closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-      completeDay() {
-        alert("EVIDÊNCIA GRAVADA. Dia concluído com execução.");
-        this.closeCommander();
       }
     }
 
