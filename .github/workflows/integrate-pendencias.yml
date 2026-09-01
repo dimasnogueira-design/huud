@@ -1,1 +1,33 @@
-x
+name: HUUD — Integrar camadas de realidade
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integrar camadas no index
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          scripts=['huud-pendencias.js','huud-pendencias-fix.js','huud-diagnostico-estruturado.js','huud-realidade-v2.js','huud-home-f1-v3.js','huud-home-v4.js','huud-tech-curriculum-v2.js','huud-mar-verde-agenda.js','huud-home-correction-v1.js','huud-command-center-v2.js']
+          for f in scripts:
+              tag=f'<script src="{f}"></script>'
+              if tag not in s:
+                  s += '\n'+tag
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit integrado
+        shell: bash
+        run: |
+          git config user.name 'HUUD Bot'
+          git config user.email 'actions@github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'HUUD — integrar Command Center V2'
+          git push
