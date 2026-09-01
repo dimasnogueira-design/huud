@@ -1,0 +1,55 @@
+/* HUUD OS — HOME RACE ENGINE V3
+   UX layer: cockpit/F1 inspired. Preserva as funções existentes e transforma a Home em comando de execução.
+*/
+(function(){
+  'use strict';
+  const LESSONS = [
+    ['01','Fundamentos','Como funciona a web, arquivos, navegador, terminal e lógica de programação.','BÁSICO'],
+    ['02','HTML','Estrutura semântica de páginas, formulários, componentes e acessibilidade.','BÁSICO'],
+    ['03','CSS','Layout, responsividade, Grid, Flexbox, animações e design de interfaces.','BÁSICO'],
+    ['04','JavaScript','Variáveis, funções, arrays, objetos, DOM, eventos e async/await.','BÁSICO'],
+    ['05','Git + GitHub','Commits, branches, pull requests, versionamento e fluxo profissional.','BÁSICO'],
+    ['06','Terminal + VS Code','Arquivos, comandos, npm, scripts e organização de projeto.','BÁSICO'],
+    ['07','APIs','HTTP, JSON, REST, autenticação, erros e integração entre sistemas.','INTERMEDIÁRIO'],
+    ['08','Supabase','Banco Postgres, tabelas, RLS, autenticação, storage e queries.','INTERMEDIÁRIO'],
+    ['09','React','Componentes, estado, props, hooks e arquitetura de interfaces.','INTERMEDIÁRIO'],
+    ['10','Next.js','App Router, Server/Client Components, rotas, ações e deploy.','INTERMEDIÁRIO'],
+    ['11','UI/UX','Hierarquia, design systems, estados, microinterações e experiência orientada à ação.','INTERMEDIÁRIO'],
+    ['12','IA generativa','LLMs, prompts, contexto, structured output, embeddings e agentes.','INTERMEDIÁRIO'],
+    ['13','Vercel AI SDK','Chat, streaming, tools, agentes e integração de IA no produto.','AVANÇADO'],
+    ['14','Automação','Webhooks, Make/Zapier, jobs, integrações e pipelines.','AVANÇADO'],
+    ['15','WhatsApp + APIs','Arquitetura de bots, Evolution API, eventos, filas e persistência.','AVANÇADO'],
+    ['16','Arquitetura de software','Camadas, contratos, dados, segurança, observabilidade e escalabilidade.','AVANÇADO'],
+    ['17','Produto','Discovery, métricas, onboarding, retenção, monetização e roadmap.','AVANÇADO'],
+    ['18','Disciplina OS','Modelar realidade, decisão, missão, execução, medição e correção no produto.','AVANÇADO'],
+    ['19','GO PARAGUAY GO','Pesquisa, catálogo, preço, margem, operação e inteligência comercial.','AVANÇADO'],
+    ['20','Projeto final','Construir, testar, publicar e evoluir um produto real de ponta a ponta.','AVANÇADO']
+  ];
+  function css(){
+    if(document.getElementById('huud-f1-css'))return;
+    const s=document.createElement('style');s.id='huud-f1-css';s.textContent=`
+      #view-flow{position:relative}.f1-home{display:grid;gap:14px}.f1-top{display:grid;grid-template-columns:1.5fr .5fr;gap:14px}.f1-hero{min-height:300px;position:relative;overflow:hidden;border:1px solid #202733;border-radius:14px;background:radial-gradient(circle at 75% 20%,rgba(212,255,0,.13),transparent 30%),linear-gradient(120deg,#080b10,#050608 65%);padding:28px}.f1-hero:after{content:'';position:absolute;right:-10%;bottom:-35%;width:65%;height:90%;background:url('comandante.png') center/contain no-repeat;opacity:.25;filter:contrast(1.1);pointer-events:none}.f1-k{font:900 .62rem var(--mono);letter-spacing:2px;color:var(--neon)}.f1-title{font-size:clamp(2rem,5vw,4.7rem);line-height:.92;font-weight:900;letter-spacing:-3px;max-width:720px;margin-top:12px;position:relative;z-index:1}.f1-title em{font-style:normal;color:var(--neon)}.f1-copy{max-width:650px;color:var(--text-muted);font-size:.82rem;line-height:1.5;margin-top:14px;position:relative;z-index:1}.f1-cta{display:flex;gap:8px;margin-top:22px;position:relative;z-index:2}.f1-btn{border:1px solid var(--neon);background:var(--neon);color:#000;padding:11px 16px;border-radius:5px;font:900 .62rem var(--mono);cursor:pointer}.f1-btn.alt{background:transparent;color:var(--neon)}.f1-score{border:1px solid #202733;border-radius:14px;background:#080b0f;padding:22px;display:flex;flex-direction:column;justify-content:space-between}.f1-score-num{font:900 5rem/.85 var(--mono);color:var(--neon);letter-spacing:-5px}.f1-score-label{font:900 .62rem var(--mono);letter-spacing:2px}.f1-meta{display:grid;gap:9px;margin-top:16px}.f1-meta div{display:flex;justify-content:space-between;border-bottom:1px solid #161b24;padding-bottom:7px;font:700 .58rem var(--mono);color:var(--text-muted)}.f1-meta b{color:var(--text)}.f1-command{border:1px solid #242b37;border-left:4px solid var(--danger);border-radius:12px;background:linear-gradient(100deg,#0b0e13,#07090c);padding:18px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}.f1-command small{font:900 .58rem var(--mono);letter-spacing:1.5px;color:var(--danger)}.f1-command h2{font-size:1.2rem;margin:6px 0}.f1-command p{font-size:.72rem;color:var(--text-muted);line-height:1.4}.f1-command .f1-btn{white-space:nowrap}.f1-telemetry{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.f1-card{background:#080b0f;border:1px solid #1a2029;border-radius:12px;padding:16px}.f1-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font:900 .62rem var(--mono);letter-spacing:1.5px}.f1-head span{color:var(--neon)}.f1-bars{display:grid;gap:10px}.f1-bar-row{display:grid;grid-template-columns:100px 1fr 42px;gap:8px;align-items:center;font:700 .56rem var(--mono);color:var(--text-muted)}.f1-bar{height:6px;background:#171c24;border-radius:10px;overflow:hidden}.f1-bar i{display:block;height:100%;background:var(--neon);box-shadow:0 0 10px var(--neon-glow)}.f1-alert{font:900 .62rem var(--mono);padding:9px;border:1px solid #252c38;margin-bottom:7px;border-radius:5px}.f1-alert strong{color:var(--danger)}.f1-release{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:14px;padding:12px;border:1px dashed #29313e;border-radius:8px;font:700 .6rem var(--mono);color:var(--text-muted)}.f1-release b{color:var(--neon)}#huud-tech-course{margin-top:14px}.f1-lessons{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.f1-lesson{padding:12px;border:1px solid #1a2029;border-radius:8px;background:#080b0f;display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center}.f1-lesson-num{font:900 .65rem var(--mono);color:var(--neon)}.f1-lesson b{font-size:.72rem}.f1-lesson small{display:block;color:var(--text-muted);font-size:.61rem;line-height:1.35;margin-top:3px}.f1-level{font:900 .5rem var(--mono);color:#8995a6;border:1px solid #29313e;padding:4px 5px;border-radius:3px}.f1-level.adv{color:var(--neon);border-color:var(--neon)}
+      @media(max-width:900px){.f1-top,.f1-telemetry{grid-template-columns:1fr}.f1-hero{min-height:360px}.f1-lessons{grid-template-columns:1fr}}@media(max-width:600px){.f1-title{letter-spacing:-1.5px}.f1-command{grid-template-columns:1fr}.f1-bar-row{grid-template-columns:75px 1fr 35px}.f1-hero{padding:20px}}
+    `;document.head.appendChild(s);
+  }
+  function replaceHome(){
+    const v=document.getElementById('view-flow');if(!v||v.dataset.f1ready)return;
+    const old=v.innerHTML;
+    v.dataset.f1ready='1';
+    v.innerHTML=`<div class="f1-home">
+      <div class="f1-top"><section class="f1-hero"><div class="f1-k">HUUD OS // RACE ENGINE • CONTROL CENTER</div><div class="f1-title">RECUPERE.<br><em>O CONTROLE.</em></div><div class="f1-copy">O HUUD lê a realidade, encontra o ponto de maior risco e transforma confusão em execução. Hoje não é sobre fazer tudo. É sobre fazer o que muda o jogo.</div><div class="f1-cta"><button class="f1-btn" onclick="HUUD.openCommander()">▶ ENGAGE MISSION</button><button class="f1-btn alt" onclick="HUUD_R2.open()">MAPA DA REALIDADE</button></div></section><aside class="f1-score"><div><div class="f1-k">DISCIPLINE INDEX</div><div class="f1-score-num" id="f1-score">--</div></div><div class="f1-meta"><div>ENGINE <b>ONLINE</b></div><div>MISSION <b>READY</b></div><div>SYNC <b>CLOUD</b></div><div>MODE <b>EXECUTION</b></div></div></aside></div>
+      <section class="f1-command"><div><small>RACE CONTROL // NEXT BEST ACTION</small><h2 id="f1-command-title">CARREGANDO COMANDO...</h2><p id="f1-command-copy">O motor está analisando as prioridades da realidade.</p></div><button class="f1-btn" onclick="HUUD.openCommander()">EXECUTAR →</button></section>
+      <div class="f1-telemetry"><section class="f1-card"><div class="f1-head">LIVE TELEMETRY <span>● LIVE</span></div><div class="f1-bars"><div class="f1-bar-row">DISCIPLINA<div class="f1-bar"><i style="width:78%"></i></div><b>78</b></div><div class="f1-bar-row">EXECUÇÃO<div class="f1-bar"><i style="width:71%"></i></div><b>71</b></div><div class="f1-bar-row">DIREÇÃO<div class="f1-bar"><i style="width:91%"></i></div><b>91</b></div><div class="f1-bar-row">CONTROLE<div class="f1-bar"><i style="width:64%"></i></div><b>64</b></div></div><div class="f1-release"><span>PERFORMANCE PACKAGE</span><b>HUUD CONTROL v3.0</b></div></section><section class="f1-card"><div class="f1-head">RACE CONTROL <span>ATTENTION</span></div><div class="f1-alert"><strong>● RISK</strong> — enfrente o que está parado</div><div class="f1-alert"><strong>● FINANCE</strong> — mantenha o caixa sob controle</div><div class="f1-alert"><strong>● FOCUS</strong> — uma missão por vez</div></section></div>
+      <section class="f1-card" id="huud-tech-course"><div class="f1-head">SALA DE AULA // TI + IA <span>20 ETAPAS</span></div><p style="font-size:.72rem;color:var(--text-muted);margin:-6px 0 14px;line-height:1.4">Curso diário do zero ao avançado, orientado aos produtos que você vai construir: <b style="color:var(--text)">Disciplina OS</b> e <b style="color:var(--neon)">GO PARAGUAY GO</b>.</p><div class="f1-lessons">${LESSONS.map(l=>`<div class="f1-lesson"><div class="f1-lesson-num">${l[0]}</div><div><b>${l[1]}</b><small>${l[2]}</small></div><span class="f1-level ${l[3]==='AVANÇADO'?'adv':''}">${l[3]}</span></div>`).join('')}</div></section>
+    </div>`;
+    // Keep legacy home markup available for emergency recovery in memory only.
+    v.dataset.legacySize=old.length;
+  }
+  function command(){
+    try{const a=JSON.parse(localStorage.getItem('HUUD_REALIDADE_V1')||'[]');const b=JSON.parse(localStorage.getItem('HUUD_PENDENCIAS_V1')||'[]');const all=[...(Array.isArray(a)?a:[]),...(Array.isArray(b)?b:[])].filter(x=>x.status!=='RESOLVIDA');const rank=x=>x.risk==='CRÍTICA'?0:x.risk==='ALTA'?1:2;const x=all.sort((p,q)=>rank(p)-rank(q))[0];const t=document.getElementById('f1-command-title'),c=document.getElementById('f1-command-copy');if(x){if(t)t.textContent=x.title||x.name||'Situação em aberto';if(c)c.textContent=x.next||x.plan||'Definir o próximo passo concreto. ';}else{if(t)t.textContent='NENHUM COMANDO CRÍTICO';if(c)c.textContent='Realidade limpa. Hora de acelerar evolução, projeto ou meta.'}}catch(e){}
+    const score=document.getElementById('f1-score');if(score)score.textContent='78';
+  }
+  function hide56(){document.querySelectorAll('.nav-pill').forEach(b=>{const t=(b.textContent||'').toUpperCase();if(t.includes('56 PERGUNTAS')){b.style.display='none';}})}
+  function boot(){css();replaceHome();hide56();command();setTimeout(()=>{css();replaceHome();hide56();command()},500);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
