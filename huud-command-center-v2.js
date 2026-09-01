@@ -5,113 +5,50 @@
    Não é CRM. Prazos e responsabilidades entram no comando.
 */
 (function(){
-  'use strict';
-  const AKEY='HUUD_MAR_VERDE_AGENDA_V1';
-  const BKEY='HUUD_MAR_VERDE_BLOCOS_V1';
-  const CKEY='HUUD_COMMAND_CHECKS_V2';
-  const days=['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO'];
-  const times=['08:00','09:30','11:00','14:00','15:30','17:00'];
-
-  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-  function todayIndex(){return new Date().getDay();}
-  function dayKey(){return days[todayIndex()];}
-  function loadAgenda(){try{const x=JSON.parse(localStorage.getItem(AKEY)||'null');return Array.isArray(x)&&x.length===6?x:[];}catch(e){return []}}
-  function loadBlocks(){try{return JSON.parse(localStorage.getItem(BKEY)||'{}')}catch(e){return {}}}
-  function saveBlocks(x){localStorage.setItem(BKEY,JSON.stringify(x));}
-  function checks(){try{return JSON.parse(localStorage.getItem(CKEY)||'{}')}catch(e){return {}}}
-  function setCheck(id,val){const x=checks();x[id]=val;localStorage.setItem(CKEY,JSON.stringify(x));renderAll();}
-
-  function obligations(){
-    const out=[];
-    ['HUUD_PENDENCIAS_V1','HUUD_REALIDADE_V1'].forEach(k=>{try{const a=JSON.parse(localStorage.getItem(k)||'[]');if(Array.isArray(a))out.push(...a)}catch(e){}});
-    const seen=new Set();
-    return out.filter(x=>{
-      const id=String(x.id||x.title||x.name||'');
-      if(!id||seen.has(id)||x.status==='RESOLVIDA')return false;seen.add(id);return true;
-    }).sort((a,b)=>urgency(a)-urgency(b));
-  }
-  function urgency(x){
-    const r=x.risk==='CRÍTICA'?0:x.risk==='ALTA'?1:2;
-    if(!x.deadline)return r*10+5;
-    const d=new Date(x.deadline+'T23:59:59');
-    const delta=Math.ceil((d-new Date())/86400000);
-    return delta<0?r*10:delta===0?r*10+1:delta<=2?r*10+2:r*10+4;
-  }
-  function deadlineLabel(x){
-    if(!x.deadline)return 'SEM PRAZO';
-    const d=new Date(x.deadline+'T23:59:59'), now=new Date();
-    const daysLeft=Math.ceil((d-new Date(now.getFullYear(),now.getMonth(),now.getDate()))/86400000);
-    if(daysLeft<0)return 'PRAZO VENCIDO';
-    if(daysLeft===0)return 'VENCE HOJE';
-    if(daysLeft===1)return 'VENCE AMANHÃ';
-    return 'PRAZO EM '+daysLeft+' DIAS';
-  }
-  function riskClass(x){return x.risk==='CRÍTICA'?'critical':x.risk==='ALTA'?'high':''}
-
-  function defaultBlocks(){
-    const a=loadAgenda(), out={};
-    for(let i=0;i<6;i++){
-      const d=a[i]||{};
-      const missions=[...(d.dimas||[]).map(x=>({who:'DIMAS',text:x})),...(d.rafa||[]).map(x=>({who:'RAFAELLA',text:x}))];
-      out[d.day||days[i+1]]=missions.slice(0,6).map((m,j)=>({id:'b'+i+'_'+j,time:times[j],title:m.text,who:m.who,done:false}));
-    }
-    return out;
-  }
-  function ensureBlocks(){let b=loadBlocks();if(!Object.keys(b).length){b=defaultBlocks();saveBlocks(b)}return b;}
-  function getTodayBlocks(){const b=ensureBlocks();return b[dayKey()]||[];}
-
-  function styles(){
-    if(document.getElementById('huud-cc-v2-style'))return;
-    const s=document.createElement('style');s.id='huud-cc-v2-style';s.textContent=`
-      .cc2{border:1px solid #242b37;border-left:4px solid var(--neon);border-radius:13px;background:linear-gradient(135deg,#090c10,#07090c);padding:20px;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,.22)}
-      .cc2-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.cc2-k{font:900 .58rem var(--mono);letter-spacing:2px;color:var(--neon)}.cc2-title{font-size:1.5rem;font-weight:900;margin-top:5px}.cc2-date{font:900 .6rem var(--mono);color:#aeb8c5;text-align:right}.cc2-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-top:14px}.cc2-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:13px}.cc2-label{font:900 .55rem var(--mono);letter-spacing:1.4px;color:var(--text-muted);margin-bottom:9px}.cc2-block{display:grid;grid-template-columns:55px 1fr auto;gap:9px;align-items:center;padding:8px 0;border-top:1px solid var(--border);font-size:.68rem}.cc2-block:first-child{border-top:0}.cc2-time{font:900 .58rem var(--mono);color:var(--neon)}.cc2-who{font:900 .5rem var(--mono);color:#7f8a9b}.cc2-block.done{opacity:.42;text-decoration:line-through}.cc2-check{accent-color:var(--neon)}.cc2-ob{padding:9px;border:1px solid var(--border);border-left:3px solid #475569;border-radius:6px;margin-bottom:6px;background:var(--bg-card-elevated)}.cc2-ob.critical{border-left-color:var(--danger)}.cc2-ob.high{border-left-color:var(--warning)}.cc2-ob-top{display:flex;justify-content:space-between;gap:8px}.cc2-ob strong{font-size:.72rem}.cc2-badge{font:900 .48rem var(--mono);white-space:nowrap}.cc2-next{font-size:.6rem;color:var(--text-muted);line-height:1.35;margin-top:4px}.cc2-dead{font:900 .5rem var(--mono);color:var(--danger);margin-top:5px}.cc2-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.cc2-btn{border:1px solid var(--neon);background:var(--neon);color:#000;border-radius:5px;padding:9px 11px;font:900 .56rem var(--mono);cursor:pointer}.cc2-btn.alt{background:transparent;color:var(--neon)}
-      .cc2-editor{display:grid;gap:7px;margin-top:10px}.cc2-edit-row{display:grid;grid-template-columns:75px 1fr 90px;gap:6px}.cc2-input{width:100%;box-sizing:border-box;background:#0a0e13;border:1px solid var(--border);color:var(--text);border-radius:5px;padding:7px;font:600 .6rem var(--mono)}
-      #huud-commander-overlay{position:fixed;inset:0;background:rgba(2,3,5,.9);backdrop-filter:blur(12px);z-index:1000;display:none;overflow:auto;padding:80px 20px 30px}#huud-commander-overlay.open{display:block}.cc2-modal{max-width:1100px;margin:0 auto;border:1px solid #303846;border-left:4px solid var(--neon);border-radius:14px;background:#07090c;box-shadow:0 25px 80px rgba(0,0,0,.6);padding:22px}.cc2-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.cc2-modal-title{font-size:clamp(2rem,5vw,4rem);font-weight:900;line-height:.9}.cc2-modal-sub{font-size:.7rem;color:var(--text-muted);margin-top:7px}.cc2-close{background:transparent;color:var(--neon);border:1px solid var(--neon);border-radius:5px;padding:8px 10px;font:900 .56rem var(--mono);cursor:pointer}.cc2-command{margin:16px 0;padding:14px;border:1px solid #3a2027;border-left:4px solid var(--danger);background:rgba(255,42,75,.05);border-radius:8px}.cc2-command small{font:900 .54rem var(--mono);color:var(--danger)}.cc2-command strong{display:block;font-size:1rem;margin-top:5px}.cc2-command p{font-size:.7rem;color:#aeb8c5;margin-top:5px;line-height:1.4}.cc2-modal-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}.cc2-modal-card{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:14px}.cc2-modal-card h3{font:900 .62rem var(--mono);letter-spacing:1.4px;color:var(--neon);margin-bottom:10px}@media(max-width:800px){.cc2-grid,.cc2-modal-grid{grid-template-columns:1fr}.cc2-head{flex-direction:column}.cc2-date{text-align:left}.cc2-edit-row{grid-template-columns:65px 1fr}.cc2-edit-row input:last-child{grid-column:1/-1}}
-    `;document.head.appendChild(s);
-  }
-
-  function homeHTML(){
-    const idx=todayIndex();
-    const label=idx===0?'DOMINGO':dayKey();
-    const a=loadAgenda();
-    const day=a.find(x=>x.day===label)||{};
-    const blocks=getTodayBlocks();
-    const obs=obligations().slice(0,4);
-    const c=checks();
-    const done=blocks.filter((b,i)=>c[b.id]??b.done).length;
-    return `<section id="huud-home-command-agenda" class="cc2"><div class="cc2-head"><div><div class="cc2-k">QG PRINCIPAL // EXECUÇÃO DE HOJE</div><div class="cc2-title">${esc(label)} — ${esc(day.focus||'ATACAR O QUE TEM PRAZO')}</div></div><div class="cc2-date">${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})}<br>${done}/${blocks.length} BLOCOS EXECUTADOS</div></div><div class="cc2-grid"><div class="cc2-panel"><div class="cc2-label">BLOCOS OPERACIONAIS DO DIA</div>${blocks.length?blocks.map((b,i)=>`<label class="cc2-block ${(c[b.id]??b.done)?'done':''}"><span class="cc2-time">${esc(b.time)}</span><span><strong>${esc(b.title)}</strong><br><span class="cc2-who">${esc(b.who||'COMANDO')}</span></span><input class="cc2-check" type="checkbox" ${(c[b.id]??b.done)?'checked':''} onchange="HUUD_CC2.check('${esc(b.id)}',this.checked)"></label>`).join(''):'<div class="cc2-next">Nenhum bloco cadastrado. Abra a agenda para planejar.</div>'}</div><div class="cc2-panel"><div class="cc2-label">PRAZOS + RESPONSABILIDADES // O QUE NÃO PODE ESPERAR</div>${obs.length?obs.map(x=>`<div class="cc2-ob ${riskClass(x)}"><div class="cc2-ob-top"><strong>${esc(x.title||x.name)}</strong><span class="cc2-badge">${esc(x.risk||'ATENÇÃO')}</span></div><div class="cc2-next">PRÓXIMO PASSO: ${esc(x.next||x.plan||'Definir ação concreta.')}</div><div class="cc2-dead">${esc(deadlineLabel(x))}</div></div>`).join(''):'<div class="cc2-next">Nenhuma obrigação aberta encontrada.</div>'}</div></div><div class="cc2-actions"><button class="cc2-btn" onclick="HUUD_CC2.openAgenda()">ABRIR AGENDA DO DIA →</button><button class="cc2-btn alt" onclick="HUUD_CC2.openCommander()">MODO COMANDANTE →</button></div></section>`;
-  }
-
-  function mountHome(){
-    const flow=document.getElementById('view-flow');if(!flow)return;
-    let old=document.getElementById('huud-home-command-agenda');if(old)old.remove();
-    const wrap=document.createElement('div');wrap.innerHTML=homeHTML();const node=wrap.firstElementChild;
-    flow.insertBefore(node,flow.firstChild);
-  }
-
-  function ensureOverlay(){
-    if(document.getElementById('huud-commander-overlay'))return;
-    const o=document.createElement('div');o.id='huud-commander-overlay';document.body.appendChild(o);
-    o.addEventListener('click',e=>{if(e.target===o)closeCommander()});
-  }
-  function commanderHTML(){
-    const obs=obligations(), blocks=getTodayBlocks(), c=checks();
-    const first=obs[0];
-    return `<div class="cc2-modal"><div class="cc2-modal-head"><div><div class="cc2-k">HUUD OS // MODO COMANDANTE</div><div class="cc2-modal-title">ATACAR.</div><div class="cc2-modal-sub">Prazos, responsabilidades e execução de hoje entram no mesmo campo de comando.</div></div><button class="cc2-close" onclick="HUUD_CC2.closeCommander()">FECHAR ×</button></div>${first?`<div class="cc2-command"><small>PRIMEIRO ALVO // ${esc(first.risk||'ATENÇÃO')} • ${esc(deadlineLabel(first))}</small><strong>${esc(first.title||first.name)}</strong><p>${esc(first.next||first.plan||'Definir o próximo passo concreto.')}</p></div>`:''}<div class="cc2-modal-grid"><div class="cc2-modal-card"><h3>EXECUÇÃO DE HOJE // ${esc(dayKey())}</h3>${blocks.length?blocks.map(b=>`<label class="cc2-block ${(c[b.id]??b.done)?'done':''}"><span class="cc2-time">${esc(b.time)}</span><span><strong>${esc(b.title)}</strong><br><span class="cc2-who">${esc(b.who||'COMANDO')}</span></span><input class="cc2-check" type="checkbox" ${(c[b.id]??b.done)?'checked':''} onchange="HUUD_CC2.check('${esc(b.id)}',this.checked)"></label>`).join(''):'<div class="cc2-next">Nenhum bloco planejado para hoje.</div>'}</div><div class="cc2-modal-card"><h3>RESPONSABILIDADES COM PRAZO</h3>${obs.length?obs.slice(0,10).map(x=>`<div class="cc2-ob ${riskClass(x)}"><div class="cc2-ob-top"><strong>${esc(x.title||x.name)}</strong><span class="cc2-badge">${esc(deadlineLabel(x))}</span></div><div class="cc2-next">${esc(x.next||x.plan||'Próximo passo não definido.')}</div></div>`).join(''):'<div class="cc2-next">REALIDADE LIMPA.</div>'}</div></div><div class="cc2-actions"><button class="cc2-btn" onclick="HUUD_CC2.openAgenda()">ABRIR AGENDA COMPLETA →</button><button class="cc2-btn alt" onclick="HUUD_CC2.closeCommander()">VOLTAR AO CAMPO</button></div></div>`;
-  }
-  function openCommander(){ensureOverlay();const o=document.getElementById('huud-commander-overlay');o.innerHTML=commanderHTML();o.classList.add('open');document.body.style.overflow='hidden';}
-  function closeCommander(){const o=document.getElementById('huud-commander-overlay');if(o)o.classList.remove('open');document.body.style.overflow='';}
-  function openAgenda(){closeCommander();if(window.__MVA_OPEN)window.__MVA_OPEN();else if(window.HUUD&&window.HUUD.switchView)window.HUUD.switchView('mar-verde');}
-
-  function patchCommanderButton(){
-    document.addEventListener('click',function(e){
-      const b=e.target.closest&&e.target.closest('.btn-commander-top');
-      if(!b)return;
-      e.preventDefault();e.stopImmediatePropagation();openCommander();
-    },true);
-  }
-  function renderAll(){styles();mountHome();ensureOverlay();if(document.getElementById('huud-commander-overlay')?.classList.contains('open'))openCommander();}
-  function boot(){ensureBlocks();patchCommanderButton();renderAll();setTimeout(renderAll,500);setTimeout(renderAll,1400);setInterval(()=>{if(document.getElementById('view-flow')?.classList.contains('active'))mountHome()},60000)}
-  window.HUUD_CC2={check:setCheck,openAgenda,openCommander,closeCommander,render:renderAll};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+'use strict';
+const AKEY='HUUD_MAR_VERDE_AGENDA_V1',BKEY='HUUD_MAR_VERDE_BLOCOS_V1',CKEY='HUUD_COMMAND_CHECKS_V2';
+const days=['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO'],times=['08:00','09:30','11:00','14:00','15:30','17:00'];
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date(),dayKey=()=>days[today().getDay()],dateKey=()=>{const d=today();return d.toISOString().slice(0,10)};
+function loadAgenda(){try{const x=JSON.parse(localStorage.getItem(AKEY)||'null');return Array.isArray(x)&&x.length===6?x:[]}catch(e){return []}}
+function loadBlocks(){try{return JSON.parse(localStorage.getItem(BKEY)||'{}')}catch(e){return {}}}
+function saveBlocks(x){localStorage.setItem(BKEY,JSON.stringify(x))}
+function checks(){try{return JSON.parse(localStorage.getItem(CKEY)||'{}')}catch(e){return {}}}
+function setCheck(id,val){const x=checks();x[dateKey()+'_'+id]=!!val;localStorage.setItem(CKEY,JSON.stringify(x));renderAll()}
+function isChecked(id){return !!checks()[dateKey()+'_'+id]}
+function obligations(){
+ const out=[];
+ ['HUUD_PENDENCIAS_V1','HUUD_REALIDADE_V1'].forEach(k=>{try{const a=JSON.parse(localStorage.getItem(k)||'[]');if(Array.isArray(a))out.push(...a)}catch(e){}});
+ const seen=new Set();return out.filter(x=>{const id=String(x.id||x.title||x.name||'');if(!id||seen.has(id)||x.status==='RESOLVIDA')return false;seen.add(id);return true}).sort((a,b)=>urgency(a)-urgency(b));
+}
+function urgency(x){const r=x.risk==='CRÍTICA'?0:x.risk==='ALTA'?1:2;if(!x.deadline)return r*10+5;const d=new Date(x.deadline+'T23:59:59'),delta=Math.ceil((d-new Date())/86400000);return delta<0?r*10:delta===0?r*10+1:delta<=2?r*10+2:r*10+4}
+function deadlineLabel(x){if(!x.deadline)return 'SEM PRAZO';const d=new Date(x.deadline+'T23:59:59'),n=new Date(),base=new Date(n.getFullYear(),n.getMonth(),n.getDate()),left=Math.ceil((d-base)/86400000);if(left<0)return 'PRAZO VENCIDO';if(left===0)return 'VENCE HOJE';if(left===1)return 'VENCE AMANHÃ';return 'PRAZO EM '+left+' DIAS'}
+function riskClass(x){return x.risk==='CRÍTICA'?'critical':x.risk==='ALTA'?'high':''}
+function defaultBlocks(){
+ const a=loadAgenda(),out={};
+ for(let i=0;i<6;i++){const d=a[i]||{},ms=[...(d.dimas||[]).map(x=>({who:'DIMAS',text:x})),...(d.rafa||[]).map(x=>({who:'RAFAELLA',text:x}))];out[d.day||days[i+1]]=ms.slice(0,6).map((m,j)=>({id:'b'+i+'_'+j,time:times[j],title:m.text,who:m.who}))}
+ return out;
+}
+function ensureBlocks(){let b=loadBlocks();if(!Object.keys(b).length){b=defaultBlocks();saveBlocks(b)}return b}
+function getTodayBlocks(){return ensureBlocks()[dayKey()]||[]}
+function styles(){if(document.getElementById('huud-cc-v2-style'))return;const s=document.createElement('style');s.id='huud-cc-v2-style';s.textContent=`
+.cc2{border:1px solid #242b37;border-left:4px solid var(--neon);border-radius:13px;background:linear-gradient(135deg,#090c10,#07090c);padding:20px;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,.22)}.cc2-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}.cc2-k{font:900 .58rem var(--mono);letter-spacing:2px;color:var(--neon)}.cc2-title{font-size:1.5rem;font-weight:900;margin-top:5px}.cc2-date{font:900 .6rem var(--mono);color:#aeb8c5;text-align:right}.cc2-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-top:14px}.cc2-panel{border:1px solid var(--border);background:var(--bg-card);border-radius:9px;padding:13px}.cc2-label{font:900 .55rem var(--mono);letter-spacing:1.4px;color:var(--text-muted);margin-bottom:9px}.cc2-block{display:grid;grid-template-columns:55px 1fr auto;gap:9px;align-items:center;padding:8px 0;border-top:1px solid var(--border);font-size:.68rem}.cc2-block:first-child{border-top:0}.cc2-time{font:900 .58rem var(--mono);color:var(--neon)}.cc2-who{font:900 .5rem var(--mono);color:#7f8a9b}.cc2-block.done{opacity:.42;text-decoration:line-through}.cc2-check{accent-color:var(--neon)}.cc2-ob{padding:9px;border:1px solid var(--border);border-left:3px solid #475569;border-radius:6px;margin-bottom:6px;background:var(--bg-card-elevated)}.cc2-ob.critical{border-left-color:var(--danger)}.cc2-ob.high{border-left-color:var(--warning)}.cc2-ob-top{display:flex;justify-content:space-between;gap:8px}.cc2-ob strong{font-size:.72rem}.cc2-badge{font:900 .48rem var(--mono);white-space:nowrap}.cc2-next{font-size:.6rem;color:var(--text-muted);line-height:1.35;margin-top:4px}.cc2-dead{font:900 .5rem var(--mono);color:var(--danger);margin-top:5px}.cc2-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.cc2-btn{border:1px solid var(--neon);background:var(--neon);color:#000;border-radius:5px;padding:9px 11px;font:900 .56rem var(--mono);cursor:pointer}.cc2-btn.alt{background:transparent;color:var(--neon)}
+#huud-commander-overlay{position:fixed;inset:0;background:rgba(2,3,5,.9);backdrop-filter:blur(12px);z-index:1000;display:none;overflow:auto;padding:80px 20px 30px}#huud-commander-overlay.open{display:block}.cc2-modal{max-width:1100px;margin:0 auto;border:1px solid #303846;border-left:4px solid var(--neon);border-radius:14px;background:#07090c;box-shadow:0 25px 80px rgba(0,0,0,.6);padding:22px}.cc2-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.cc2-modal-title{font-size:clamp(2rem,5vw,4rem);font-weight:900;line-height:.9}.cc2-modal-sub{font-size:.7rem;color:var(--text-muted);margin-top:7px}.cc2-close{background:transparent;color:var(--neon);border:1px solid var(--neon);border-radius:5px;padding:8px 10px;font:900 .56rem var(--mono);cursor:pointer}.cc2-command{margin:16px 0;padding:14px;border:1px solid #3a2027;border-left:4px solid var(--danger);background:rgba(255,42,75,.05);border-radius:8px}.cc2-command small{font:900 .54rem var(--mono);color:var(--danger)}.cc2-command strong{display:block;font-size:1rem;margin-top:5px}.cc2-command p{font-size:.7rem;color:#aeb8c5;margin-top:5px;line-height:1.4}.cc2-modal-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}.cc2-modal-card{border:1px solid var(--border);border-radius:9px;background:var(--bg-card);padding:14px}.cc2-modal-card h3{font:900 .62rem var(--mono);letter-spacing:1.4px;color:var(--neon);margin-bottom:10px}.cc2-editor{display:grid;gap:7px}.cc2-edit-row{display:grid;grid-template-columns:65px 1fr 100px;gap:6px}.cc2-input{width:100%;box-sizing:border-box;background:#0a0e13;border:1px solid var(--border);color:var(--text);border-radius:5px;padding:7px;font:600 .6rem var(--mono)}
+@media(max-width:800px){.cc2-grid,.cc2-modal-grid{grid-template-columns:1fr}.cc2-head{flex-direction:column}.cc2-date{text-align:left}.cc2-edit-row{grid-template-columns:65px 1fr}}
+`;document.head.appendChild(s)}
+function homeHTML(){const label=dayKey(),a=loadAgenda(),day=a.find(x=>x.day===label)||{},blocks=getTodayBlocks(),obs=obligations().slice(0,4),done=blocks.filter(b=>isChecked(b.id)).length;return `<section id="huud-home-command-agenda" class="cc2"><div class="cc2-head"><div><div class="cc2-k">QG PRINCIPAL // EXECUÇÃO DE HOJE</div><div class="cc2-title">${esc(label)} — ${esc(day.focus||'ATACAR O QUE TEM PRAZO')}</div></div><div class="cc2-date">${today().toLocaleDateString('pt-BR')}<br>${done}/${blocks.length} BLOCOS EXECUTADOS</div></div><div class="cc2-grid"><div class="cc2-panel"><div class="cc2-label">BLOCOS OPERACIONAIS DO DIA</div>${blocks.length?blocks.map(b=>`<label class="cc2-block ${isChecked(b.id)?'done':''}"><span class="cc2-time">${esc(b.time)}</span><span><strong>${esc(b.title)}</strong><br><span class="cc2-who">${esc(b.who||'COMANDO')}</span></span><input class="cc2-check" type="checkbox" ${isChecked(b.id)?'checked':''} onchange="HUUD_CC2.check('${esc(b.id)}',this.checked)"></label>`).join(''):'<div class="cc2-next">Nenhum bloco cadastrado.</div>'}</div><div class="cc2-panel"><div class="cc2-label">PRAZOS + RESPONSABILIDADES // O QUE NÃO PODE ESPERAR</div>${obs.length?obs.map(x=>`<div class="cc2-ob ${riskClass(x)}"><div class="cc2-ob-top"><strong>${esc(x.title||x.name)}</strong><span class="cc2-badge">${esc(x.risk||'ATENÇÃO')}</span></div><div class="cc2-next">PRÓXIMO PASSO: ${esc(x.next||x.plan||'Definir ação concreta.')}</div><div class="cc2-dead">${esc(deadlineLabel(x))}</div></div>`).join(''):'<div class="cc2-next">Nenhuma obrigação aberta encontrada.</div>'}</div></div><div class="cc2-actions"><button class="cc2-btn" onclick="HUUD_CC2.openAgenda()">ABRIR AGENDA →</button><button class="cc2-btn alt" onclick="HUUD_CC2.editBlocks()">PLANEJAR BLOCOS →</button><button class="cc2-btn alt" onclick="HUUD_CC2.openCommander()">MODO COMANDANTE →</button></div></section>`}
+function mountHome(){const flow=document.getElementById('view-flow');if(!flow)return;document.getElementById('huud-home-command-agenda')?.remove();const w=document.createElement('div');w.innerHTML=homeHTML();flow.insertBefore(w.firstElementChild,flow.firstChild)}
+function ensureOverlay(){if(document.getElementById('huud-commander-overlay'))return;const o=document.createElement('div');o.id='huud-commander-overlay';document.body.appendChild(o);o.addEventListener('click',e=>{if(e.target===o)closeCommander()})}
+function commanderHTML(){const obs=obligations(),blocks=getTodayBlocks(),first=obs[0];return `<div class="cc2-modal"><div class="cc2-modal-head"><div><div class="cc2-k">HUUD OS // MODO COMANDANTE</div><div class="cc2-modal-title">ATACAR.</div><div class="cc2-modal-sub">Prazos, responsabilidades e execução de hoje entram no mesmo campo de comando.</div></div><button class="cc2-close" onclick="HUUD_CC2.closeCommander()">FECHAR ×</button></div>${first?`<div class="cc2-command"><small>PRIMEIRO ALVO // ${esc(first.risk||'ATENÇÃO')} • ${esc(deadlineLabel(first))}</small><strong>${esc(first.title||first.name)}</strong><p>${esc(first.next||first.plan||'Definir o próximo passo concreto.')}</p></div>`:''}<div class="cc2-modal-grid"><div class="cc2-modal-card"><h3>EXECUÇÃO DE HOJE // ${esc(dayKey())}</h3>${blocks.length?blocks.map(b=>`<label class="cc2-block ${isChecked(b.id)?'done':''}"><span class="cc2-time">${esc(b.time)}</span><span><strong>${esc(b.title)}</strong><br><span class="cc2-who">${esc(b.who||'COMANDO')}</span></span><input class="cc2-check" type="checkbox" ${isChecked(b.id)?'checked':''} onchange="HUUD_CC2.check('${esc(b.id)}',this.checked)"></label>`).join(''):'<div class="cc2-next">Nenhum bloco planejado para hoje.</div>'}</div><div class="cc2-modal-card"><h3>RESPONSABILIDADES + PRAZOS</h3>${obs.length?obs.slice(0,10).map(x=>`<div class="cc2-ob ${riskClass(x)}"><div class="cc2-ob-top"><strong>${esc(x.title||x.name)}</strong><span class="cc2-badge">${esc(deadlineLabel(x))}</span></div><div class="cc2-next">${esc(x.next||x.plan||'Próximo passo não definido.')}</div></div>`).join(''):'<div class="cc2-next">REALIDADE LIMPA.</div>'}</div></div><div class="cc2-actions"><button class="cc2-btn" onclick="HUUD_CC2.editBlocks()">PLANEJAR BLOCOS DO DIA →</button><button class="cc2-btn alt" onclick="HUUD_CC2.openAgenda()">ABRIR AGENDA COMPLETA →</button></div></div>`}
+function openCommander(){ensureOverlay();const o=document.getElementById('huud-commander-overlay');o.innerHTML=commanderHTML();o.classList.add('open');document.body.style.overflow='hidden'}
+function closeCommander(){const o=document.getElementById('huud-commander-overlay');if(o)o.classList.remove('open');document.body.style.overflow=''}
+function editBlocks(){ensureOverlay();const o=document.getElementById('huud-commander-overlay'),b=ensureBlocks(),arr=b[dayKey()]||[];o.innerHTML=`<div class="cc2-modal"><div class="cc2-modal-head"><div><div class="cc2-k">PLANEJAMENTO OPERACIONAL // ${esc(dayKey())}</div><div class="cc2-modal-title">BLOCOS.</div><div class="cc2-modal-sub">Divida a missão do dia em blocos de tempo. Isso é planejamento de execução, não CRM.</div></div><button class="cc2-close" onclick="HUUD_CC2.closeCommander()">FECHAR ×</button></div><div class="cc2-modal-card" style="margin-top:16px"><div class="cc2-editor">${arr.map((x,i)=>`<div class="cc2-edit-row"><input class="cc2-input" id="cc2t${i}" type="time" value="${esc(x.time||'')}"><input class="cc2-input" id="cc2x${i}" value="${esc(x.title||'')}" placeholder="Missão do bloco"><input class="cc2-input" id="cc2w${i}" value="${esc(x.who||'DIMAS')}" placeholder="Responsável"></div>`).join('')}</div><div class="cc2-actions"><button class="cc2-btn" onclick="HUUD_CC2.saveBlocks()">SALVAR PLANO DO DIA</button><button class="cc2-btn alt" onclick="HUUD_CC2.addBlock()">+ ADICIONAR BLOCO</button></div></div></div>`;o.classList.add('open');document.body.style.overflow='hidden'}
+function saveBlocksToday(){const b=ensureBlocks(),arr=b[dayKey()]||[],out=[];for(let i=0;i<arr.length;i++){const title=document.getElementById('cc2x'+i)?.value.trim();if(!title)continue;out.push({id:arr[i].id||'b'+Date.now()+'_'+i,time:document.getElementById('cc2t'+i)?.value||'08:00',title,who:document.getElementById('cc2w'+i)?.value.trim()||'DIMAS'})}b[dayKey()]=out;saveBlocks(b);editBlocks();}
+function addBlock(){const b=ensureBlocks();b[dayKey()]=b[dayKey()]||[];b[dayKey()].push({id:'b'+Date.now(),time:times[b[dayKey()].length]||'18:00',title:'',who:'DIMAS'});saveBlocks(b);editBlocks()}
+function openAgenda(){closeCommander();if(window.__MVA_OPEN)window.__MVA_OPEN();else if(window.HUUD&&window.HUUD.switchView)window.HUUD.switchView('mar-verde')}
+function patchCommanderButton(){document.addEventListener('click',function(e){const b=e.target.closest&&e.target.closest('.btn-commander-top');if(!b)return;e.preventDefault();e.stopImmediatePropagation();openCommander()},true)}
+function renderAll(){styles();mountHome();ensureOverlay();if(document.getElementById('huud-commander-overlay')?.classList.contains('open'))openCommander()}
+function boot(){ensureBlocks();patchCommanderButton();renderAll();setTimeout(renderAll,500);setTimeout(renderAll,1400);setInterval(()=>{if(document.getElementById('view-flow')?.classList.contains('active'))mountHome()},60000)}
+window.HUUD_CC2={check:setCheck,openAgenda,openCommander,closeCommander,editBlocks,saveBlocks:saveBlocksToday,addBlock,render:renderAll};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
