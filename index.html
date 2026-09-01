@@ -4,6 +4,935 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HUUD — Life Command Center | Disciplina OS</title>
+  <meta name="theme-color" content="#040507">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #050608;
+      --bg-card: #0c0e12;
+      --bg-card-elevated: #13161c;
+      --border: #1b2028;
+      --border-focus: #2d3542;
+      --text: #f0f3f6;
+      --text-muted: #748092;
+      --neon: #d4ff00;
+      --neon-glow: rgba(212, 255, 0, 0.22);
+      --danger: #ff334b;
+      --danger-bg: rgba(255, 51, 75, 0.14);
+      --warning: #f59e0b;
+      --success: #00e599;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--sans); -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); padding-top: 60px; padding-bottom: 80px; min-height: 100vh; overflow-x: hidden; }
+
+    /* TOP BAR */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: rgba(5, 6, 8, 0.94); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border); display: flex; align-items: center;
+      justify-content: space-between; padding: 0 16px; z-index: 100;
+    }
+    .brand-group { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .brand-icon { width: 18px; height: 18px; border-left: 3px solid var(--neon); border-right: 3px solid var(--neon); position: relative; }
+    .brand-icon::after { content: ''; position: absolute; left: 3px; right: 3px; top: 3px; bottom: 3px; background: var(--neon); }
+    .brand-name { font-size: 0.9rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
+    .brand-name span { color: var(--neon); }
+
+    .btn-commander-top {
+      background: var(--neon); color: #000; border: none; font-size: 0.65rem;
+      font-weight: 900; font-family: var(--mono); letter-spacing: 1px; padding: 8px 14px;
+      border-radius: 4px; cursor: pointer; box-shadow: 0 0 10px var(--neon-glow);
+    }
+
+    /* SUBNAV */
+    .sub-nav {
+      display: flex; gap: 6px; overflow-x: auto; padding: 0 16px 12px 16px;
+      scrollbar-width: none; border-bottom: 1px solid var(--border);
+    }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .nav-pill {
+      background: transparent; border: none; color: var(--text-muted);
+      font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 1px;
+      padding: 6px 12px; border-radius: 20px; white-space: nowrap; cursor: pointer;
+    }
+    .nav-pill.active { background: var(--neon); color: #000; box-shadow: 0 0 12px var(--neon-glow); }
+
+    .main-wrapper { max-width: 680px; margin: 0 auto; padding: 16px; }
+    .view { display: none; animation: fadeIn 0.2s ease; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* EDITORIAL HEADERS */
+    .hero-meta { font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 6px; }
+    .hero-meta span { color: var(--neon); }
+    .hero-title { font-size: 1.55rem; font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 10px; }
+    .hero-title em { font-style: normal; color: var(--neon); }
+    .hero-body { font-size: 0.85rem; line-height: 1.5; color: var(--text-muted); margin-bottom: 16px; }
+
+    /* DASHBOARD CARD */
+    .dash-hero-card {
+      background: linear-gradient(180deg, rgba(12, 14, 18, 0.4) 0%, rgba(5, 6, 8, 0.95) 100%),
+                  url('comandante.png') center top/cover no-repeat;
+      border: 1px solid var(--border); border-radius: 12px; padding: 22px 16px;
+      margin-bottom: 16px; position: relative;
+    }
+    .dash-hero-card::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--neon); }
+
+    .btn-action-neon {
+      background: var(--neon); color: #000; border: none; width: 100%; padding: 14px;
+      border-radius: 8px; font-weight: 900; font-size: 0.82rem; font-family: var(--mono);
+      letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center;
+      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px var(--neon-glow);
+      margin-bottom: 16px;
+    }
+
+    /* RADIAL GAUGES */
+    .gauge-hud-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px; display: flex; flex-direction: column; align-items: center; margin-bottom: 16px;
+    }
+    .radial-box { position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; }
+    .radial-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+    .circle-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+    .circle-fill {
+      fill: none; stroke: var(--neon); stroke-width: 6; stroke-linecap: round;
+      stroke-dasharray: 440; stroke-dashoffset: 130; filter: drop-shadow(0 0 6px var(--neon));
+      transition: stroke-dashoffset 0.4s ease;
+    }
+    .radial-num { font-size: 2.2rem; font-weight: 900; font-family: var(--mono); color: var(--text); }
+    .radial-sub { font-size: 0.62rem; font-family: var(--mono); color: var(--text-muted); }
+
+    .hud-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; width: 100%;
+      margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; text-align: center;
+    }
+    .hud-stat-val { font-size: 1.05rem; font-weight: 900; font-family: var(--mono); }
+    .hud-stat-lbl { font-size: 0.58rem; font-family: var(--mono); color: var(--text-muted); margin-top: 2px; }
+
+    /* TIMELINE CARDS */
+    .timeline-chain { display: flex; flex-direction: column; gap: 12px; position: relative; }
+    .timeline-chain::before {
+      content: ''; position: absolute; left: 18px; top: 16px; bottom: 16px; width: 2px;
+      background: var(--border); z-index: 1;
+    }
+    .timeline-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px; position: relative; margin-left: 40px; cursor: pointer; transition: border-color 0.2s;
+    }
+    .timeline-card:hover { border-color: var(--border-focus); }
+    .timeline-card.active-priority {
+      border-color: rgba(212, 255, 0, 0.4);
+      background: linear-gradient(180deg, var(--bg-card-elevated) 0%, var(--bg-card) 100%);
+    }
+    .node-badge {
+      position: absolute; left: -40px; top: 16px; width: 24px; height: 24px;
+      border-radius: 50%; background: var(--bg-card); border: 2px solid var(--border);
+      color: var(--text-muted); font-size: 0.65rem; font-family: var(--mono); font-weight: 800;
+      display: flex; align-items: center; justify-content: center; z-index: 2;
+    }
+    .node-badge.active { border-color: var(--neon); color: var(--neon); background: #000; box-shadow: 0 0 8px var(--neon-glow); }
+
+    .tag-priority {
+      font-size: 0.58rem; font-family: var(--mono); font-weight: 800; letter-spacing: 1px;
+      padding: 3px 6px; border-radius: 4px; background: var(--neon); color: #000;
+      display: inline-block; margin-bottom: 8px;
+    }
+    .card-task-title { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; }
+    .card-task-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
+
+    /* WORKSPACES / TELAS DEDICADAS */
+    .workspace-header-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .stat-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+    .stat-val-danger { font-size: 1.25rem; font-weight: 900; font-family: var(--mono); color: var(--danger); }
+    .stat-val-neon { font-size: 1.25rem; font-weight: 900; font-family: var(--mono); color: var(--neon); }
+
+    .item-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .item-top { display: flex; justify-content: space-between; align-items: center; }
+    .item-title { font-weight: 800; font-size: 0.9rem; }
+    .item-val { font-family: var(--mono); font-weight: 800; color: var(--danger); }
+    .badge-status { font-family: var(--mono); font-size: 0.58rem; font-weight: 800; padding: 3px 6px; border-radius: 4px; }
+    .badge-critica { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
+    .badge-alta { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+    .badge-done { background: rgba(0, 229, 153, 0.15); color: var(--success); border: 1px solid var(--success); }
+
+    /* MODO COMANDANTE - INTEGRAL & IMPACTANTE */
+    .commander-full-screen {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: #000; z-index: 500; overflow-y: auto; display: none;
+    }
+    .commander-full-screen.active { display: block; }
+    
+    .commander-portrait-wrapper {
+      position: relative; width: 100%; min-height: 520px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 65%, #050608 100%),
+                  url('comandante.png') center top/cover no-repeat;
+      display: flex; flex-direction: column; justify-content: space-between; padding: 20px 16px 24px 16px;
+    }
+    .commander-top-actions { display: flex; justify-content: space-between; align-items: center; }
+    .cmd-badge {
+      background: rgba(0,0,0,0.8); border: 1px solid var(--neon); color: var(--neon);
+      font-family: var(--mono); font-size: 0.65rem; font-weight: 800; padding: 6px 10px; border-radius: 4px;
+      letter-spacing: 1.5px;
+    }
+    .btn-exit-cmd {
+      background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: var(--text-muted);
+      font-family: var(--mono); font-size: 0.65rem; padding: 6px 12px; border-radius: 4px; cursor: pointer;
+    }
+
+    .commander-hero-text { text-align: center; }
+    .commander-quote {
+      font-size: 1.05rem; font-weight: 900; color: #fff; line-height: 1.35;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9); margin-bottom: 8px;
+    }
+    .commander-quote em { font-style: normal; color: var(--neon); }
+    .timer-giant {
+      font-size: 2.6rem; font-weight: 900; font-family: var(--mono); color: #fff;
+      letter-spacing: 3px; text-shadow: 0 0 20px rgba(212,255,0,0.3);
+    }
+    .timer-sub { font-size: 0.6rem; font-family: var(--mono); color: var(--text-muted); letter-spacing: 1px; }
+
+    .commander-content-area {
+      padding: 0 16px 40px 16px; max-width: 680px; margin: -20px auto 0 auto; position: relative; z-index: 2;
+    }
+    .check-dark-item {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; cursor: pointer;
+    }
+    .check-dark-item.done { opacity: 0.4; border-color: transparent; }
+    .check-dark-item.done span { text-decoration: line-through; }
+    .check-box-custom {
+      width: 20px; height: 20px; border: 2px solid var(--border-focus); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .check-dark-item.done .check-box-custom { background: var(--neon); border-color: var(--neon); color: #000; }
+
+    /* LESSONS / TI TECH MODULE */
+    .lesson-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px; margin-bottom: 12px;
+    }
+    .code-snippet {
+      background: #000; border: 1px solid var(--border); border-radius: 6px;
+      padding: 10px; font-family: var(--mono); font-size: 0.75rem; color: var(--neon);
+      margin: 8px 0; overflow-x: auto;
+    }
+
+    /* INPUTS & MODAIS */
+    .input-dark {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 12px; color: var(--text); font-size: 0.85rem; margin: 6px 0 12px 0; outline: none;
+    }
+    .input-dark:focus { border-color: var(--neon); }
+
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
+      background: rgba(5, 6, 8, 0.95); backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+      align-items: center; z-index: 100;
+    }
+    .nav-btn {
+      background: transparent; border: none; color: var(--text-muted);
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 0.58rem; font-family: var(--mono); font-weight: 700; cursor: pointer; width: 20%;
+    }
+    .nav-btn.active { color: var(--neon); }
+    .nav-btn svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85);
+      z-index: 600; display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal.active { display: flex; }
+    .modal-box {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      width: 100%; max-width: 480px; padding: 20px;
+    }
+
+    /* ACCORDION 56 PERGUNTAS */
+    .diag-block-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+    .diag-block-header { padding: 12px 16px; font-weight: 800; font-size: 0.82rem; font-family: var(--mono); display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--bg-card-elevated); }
+    .diag-block-body { padding: 14px; display: none; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); border-top: 1px solid var(--border); }
+    .diag-block-body.open { display: block; }
+    .diag-q { font-weight: 700; color: var(--text); margin-top: 8px; }
+    .diag-a { color: var(--neon); margin-bottom: 8px; font-style: italic; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="brand-group" onclick="app.switchView('flow')">
+      <div class="brand-icon"></div>
+      <div class="brand-name">DISCIPLINA <span>OS</span></div>
+    </div>
+    <button class="btn-commander-top" onclick="app.openCommander()">MODO COMANDANTE</button>
+  </header>
+
+  <!-- SUBNAV PILLS -->
+  <nav class="sub-nav">
+    <button class="nav-pill active" onclick="app.switchView('flow')">FLUXO</button>
+    <button class="nav-pill" onclick="app.switchView('debts')">DÍVIDAS & CREDORES</button>
+    <button class="nav-pill" onclick="app.switchView('land')">TERRENO & CAIXA</button>
+    <button class="nav-pill" onclick="app.switchView('tech')">SALA DE AULA TI/IA</button>
+    <button class="nav-pill" onclick="app.switchView('py')">GO PARAGUAY GO</button>
+    <button class="nav-pill" onclick="app.switchView('diag')">56 PERGUNTAS</button>
+  </nav>
+
+  <!-- CONTAINER -->
+  <main class="main-wrapper">
+
+    <!-- 1. FLUXO GERAL -->
+    <section id="view-flow" class="view active">
+      
+      <div class="dash-hero-card">
+        <div style="font-family:var(--mono); font-size:0.62rem; color:var(--neon); letter-spacing:2px; font-weight:800; margin-bottom:6px;">CASO 001 • COMANDANTE DIMAS</div>
+        <h2 style="font-size:1.3rem; font-weight:900; line-height:1.2; margin-bottom:6px;">Você não precisa vencer tudo hoje. <em>Precisa recuperar o próximo comando.</em></h2>
+        <p style="font-size:0.78rem; color:#cbd5e1; line-height:1.4;">
+          “Ele foi um cara que fez o que tinha que ser feito e deu certo. Seu legado foi escrito.”
+        </p>
+      </div>
+
+      <!-- RADIAL HUD -->
+      <div class="gauge-hud-card">
+        <div class="radial-box">
+          <svg class="radial-svg" viewBox="0 0 160 160">
+            <circle class="circle-bg" cx="80" cy="80" r="70" />
+            <circle class="circle-fill" id="hud-circle" cx="80" cy="80" r="70" />
+          </svg>
+          <div style="text-align:center; z-index:2;">
+            <div class="radial-num" id="hud-days-count">01</div>
+            <div class="radial-sub">DE 90 DIAS</div>
+          </div>
+        </div>
+        <div class="hud-row">
+          <div><div class="hud-stat-val" id="hud-exec-rate">50%</div><div class="hud-stat-lbl">EXECUÇÃO HOJE</div></div>
+          <div><div class="hud-stat-val">R$ 10K</div><div class="hud-stat-lbl">URGÊNCIA DIA 3</div></div>
+          <div><div class="hud-stat-val" id="hud-tech-hours">42h</div><div class="hud-stat-lbl">ESTUDO TI/IA</div></div>
+        </div>
+      </div>
+
+      <button class="btn-action-neon" onclick="app.openCommander()">ENTRAR NO MODO COMANDANTE →</button>
+
+      <!-- FRENTES OPERACIONAIS COM ACESSO DIRETO -->
+      <div style="display:flex; justify-content:space-between; font-family:var(--mono); font-size:0.7rem; color:var(--text-muted); margin:20px 0 10px 0;">
+        <span>FRENTES DE EXECUÇÃO INDEPENDENTES</span>
+        <span style="color:var(--neon)">4 SALAS</span>
+      </div>
+
+      <div class="timeline-chain">
+        <div class="timeline-card active-priority" onclick="app.switchView('debts')">
+          <div class="node-badge active">01</div>
+          <span class="tag-priority">SALA DE GUERRA</span>
+          <h3 class="card-task-title">Gestão de Dívidas & Credores (R$ 10.000)</h3>
+          <p class="card-task-desc">Planilha detalhada de credores, cálculo de juros e baixa individual de passivos.</p>
+          <div style="font-family:var(--mono); font-size:0.72rem; color:var(--neon);">ABRIR SALA DE DÍVIDAS →</div>
+        </div>
+
+        <div class="timeline-card" onclick="app.switchView('land')">
+          <div class="node-badge">02</div>
+          <span class="tag-priority" style="background:#2c3545; color:#fff;">LIQUIDEZ RÁPIDA</span>
+          <h3 class="card-task-title">Venda do Terreno (R$ 1.500 Taxa) & Mar Verde</h3>
+          <p class="card-task-desc">Checklist de cartório, liberação do comprador e caixa de saída.</p>
+          <div style="font-family:var(--mono); font-size:0.72rem; color:var(--neon);">ABRIR OPERAÇÃO TERRENO →</div>
+        </div>
+
+        <div class="timeline-card" onclick="app.switchView('tech')">
+          <div class="node-badge">03</div>
+          <span class="tag-priority" style="background:#2c3545; color:#fff;">NOVA PROFISSÃO</span>
+          <h3 class="card-task-title">Sala de Aula TI + IA (2h/dia)</h3>
+          <p class="card-task-desc">Aulas práticas de programação, ferramentas com IA e registro diário de código.</p>
+          <div style="font-family:var(--mono); font-size:0.72rem; color:var(--neon);">ABRIR TERMINAL DE AULAS →</div>
+        </div>
+
+        <div class="timeline-card" onclick="app.switchView('py')">
+          <div class="node-badge">04</div>
+          <span class="tag-priority" style="background:#2c3545; color:#fff;">ROTA 90 DIAS</span>
+          <h3 class="card-task-title">GO Paraguay GO (Fase 1: Documentos & Certidões)</h3>
+          <p class="card-task-desc">Checklist completo de certidões, apostilamento e caixa para partida.</p>
+          <div style="font-family:var(--mono); font-size:0.72rem; color:var(--neon);">ABRIR QG PARAGUAI →</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. WORKSPACE: DÍVIDAS & CREDORES -->
+    <section id="view-debts" class="view">
+      <div class="hero-meta">SALA 01 • <span>GESTOR DE PASSIVOS</span></div>
+      <h2 class="hero-title">Mapa de <em>Dívidas & Credores</em>.</h2>
+      <p class="hero-body">Negociação fria e realista. O plano Paraguai carrega as obrigações para quitá-las, sem fuga.</p>
+
+      <div class="workspace-header-stats">
+        <div class="stat-box">
+          <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">PASSIVO TOTAL REGISTRADO</div>
+          <div class="stat-val-danger" id="debt-total-val">R$ 0,00</div>
+        </div>
+        <div class="stat-box">
+          <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">RENEGOCIADO / QUITADO</div>
+          <div class="stat-val-neon" id="debt-controlled-val">R$ 0,00</div>
+        </div>
+      </div>
+
+      <button class="btn-action-neon" onclick="app.openModal('modal-add-debt')">+ CADASTRAR NOVO CREDOR / CONTA</button>
+
+      <div style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted); margin:16px 0 8px 0;">QUADRO DE CREDORES</div>
+      <div id="debts-list-container"></div>
+    </section>
+
+    <!-- 3. WORKSPACE: TERRENO & MAR VERDE -->
+    <section id="view-land" class="view">
+      <div class="hero-meta">SALA 02 • <span>LIQUIDEZ RÁPIDA & PONTE</span></div>
+      <h2 class="hero-title">Operação <em>Terreno & Caixa</em>.</h2>
+      <p class="hero-body">Destravar a venda do terreno para colocar dinheiro limpo na mão e usar a Mar Verde como ponte de saída.</p>
+
+      <div class="stat-box" style="margin-bottom:16px;">
+        <div style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted);">STATUS DA VENDA DO TERRENO</div>
+        <div class="stat-val-neon" style="color:var(--warning)">AGUARDANDO TAXA DE R$ 1.500</div>
+      </div>
+
+      <div style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted); margin-bottom:8px;">CHECKLIST DE CONCLUSÃO DA VENDA</div>
+      <div id="land-checklist-container"></div>
+    </section>
+
+    <!-- 4. WORKSPACE: SALA DE AULA TI + IA -->
+    <section id="view-tech" class="view">
+      <div class="hero-meta">SALA 03 • <span>HABILIDADE GLOBAL & RENDA</span></div>
+      <h2 class="hero-title">Terminal de <em>TI & IA</em>.</h2>
+      <p class="hero-body">2 horas inegociáveis de código e tela por dia. Voltar para o computador e construir produtos reais.</p>
+
+      <div class="workspace-header-stats">
+        <div class="stat-box">
+          <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">HORAS ACUMULADAS</div>
+          <div class="stat-val-neon" id="tech-hours-display">42h</div>
+        </div>
+        <div class="stat-box">
+          <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">AULAS CONCLUÍDAS</div>
+          <div class="stat-val-neon" id="tech-lessons-display">3 / 6</div>
+        </div>
+      </div>
+
+      <button class="btn-action-neon" onclick="app.logTechHours()">+ REGISTRAR 2 HORAS DE ESTUDO HOJE</button>
+
+      <div style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted); margin:16px 0 8px 0;">TRILHA PRÁTICA PARA INICIAR</div>
+      
+      <div class="lesson-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-family:var(--mono); font-size:0.65rem; color:var(--neon); font-weight:800;">MÓDULO 01 • BÁSICO</span>
+          <span class="badge-status badge-done">CONCLUÍDO ✓</span>
+        </div>
+        <h4 style="font-size:0.95rem; font-weight:800; margin:6px 0;">1. Estrutura Web (HTML5 & CSS3)</h4>
+        <p style="font-size:0.8rem; color:var(--text-muted)">Como criar layouts rápidos, botões, formulários e interfaces táticas.</p>
+      </div>
+
+      <div class="lesson-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-family:var(--mono); font-size:0.65rem; color:var(--neon); font-weight:800;">MÓDULO 02 • LÓGICA</span>
+          <span class="badge-status badge-alta">EM ANDAMENTO</span>
+        </div>
+        <h4 style="font-size:0.95rem; font-weight:800; margin:6px 0;">2. JavaScript & Armazenamento Local</h4>
+        <p style="font-size:0.8rem; color:var(--text-muted)">Manipulação de dados com `localStorage`, arrays e funções de cálculo de dívidas.</p>
+        <div class="code-snippet">// Exemplo prático de cálculo:
+const totalDividas = dividas.reduce((acc, d) => acc + d.valor, 0);</div>
+      </div>
+
+      <div class="lesson-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-family:var(--mono); font-size:0.65rem; color:var(--neon); font-weight:800;">MÓDULO 03 • IA</span>
+          <span class="badge-status badge-critica">PRÓXIMO</span>
+        </div>
+        <h4 style="font-size:0.95rem; font-weight:800; margin:6px 0;">3. Agentes de IA & Automações</h4>
+        <p style="font-size:0.8rem; color:var(--text-muted)">Criação de scripts que conectam APIs de IA para gerar ferramentas vendáveis.</p>
+      </div>
+    </section>
+
+    <!-- 5. WORKSPACE: GO PARAGUAY GO -->
+    <section id="view-py" class="view">
+      <div class="hero-meta">SALA 04 • <span>TRANSIÇÃO 90 DIAS</span></div>
+      <h2 class="hero-title">QG <em>GO Paraguay GO</em>.</h2>
+      <p class="hero-body">Checklist documental e cronograma tático para viver com liberdade e custo reduzido.</p>
+
+      <div style="font-size:0.7rem; font-family:var(--mono); color:var(--text-muted); margin-bottom:8px;">CHECKLIST DOCUMENTAL FASE 1 (BRASIL)</div>
+      <div id="py-checklist-container"></div>
+    </section>
+
+    <!-- 6. DIAGNÓSTICO: 56 PERGUNTAS -->
+    <section id="view-diag" class="view">
+      <div class="hero-meta">AUDITORIA • <span>AS 56 PERGUNTAS</span></div>
+      <h2 class="hero-title">O Diagnóstico <em>Real</em>.</h2>
+      <p class="hero-body">O raio-x completo que você colocou na mesa para romper com a paralisia.</p>
+
+      <div id="diagnostic-blocks-accordion"></div>
+
+      <!-- BOTÃO DE BACKUP / BANCO DE DADOS LOCAL -->
+      <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:16px;">
+        <span style="font-family:var(--mono); font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:8px;">BANCO DE DADOS NO SEU NOTEBOOK</span>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <button class="btn-action-neon" style="padding:10px; font-size:0.7rem;" onclick="app.exportBackup()">EXPORTAR BACKUP (JSON)</button>
+          <button class="btn-action-neon" style="padding:10px; font-size:0.7rem; background:#1b2028; color:#fff;" onclick="document.getElementById('import-file').click()">IMPORTAR BACKUP</button>
+        </div>
+        <input type="file" id="import-file" style="display:none" onchange="app.importBackup(event)">
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODO COMANDANTE: TELA CHEIA, RETRATO INTEGRAL & IMPACTANTE -->
+  <div id="commander-mode" class="commander-full-screen">
+    
+    <div class="commander-portrait-wrapper">
+      <div class="commander-top-actions">
+        <div class="cmd-badge">● MODO COMANDANTE ATIVO</div>
+        <button class="btn-exit-cmd" onclick="app.closeCommander()">SAIR DO MODO ✕</button>
+      </div>
+
+      <div class="commander-hero-text">
+        <div class="commander-quote">
+          “Você já sabe o que precisa fazer. <em>Agora execute.</em>”
+        </div>
+        <div class="timer-giant" id="cmd-timer">10 : 50 : 21</div>
+        <div class="timer-sub">TEMPO RESTANTE HOJE • SEM NEGOCIAÇÃO</div>
+      </div>
+    </div>
+
+    <div class="commander-content-area">
+      <div style="font-family:var(--mono); font-size:0.75rem; color:var(--neon); font-weight:800; margin-bottom:12px; letter-spacing:1.5px;">
+        CHECKLIST INEGOCIÁVEL DO DIA:
+      </div>
+      
+      <div id="cmd-tasks-container"></div>
+
+      <button class="btn-action-neon" style="margin-top:16px; padding:18px;" onclick="app.completeDay()">
+        CONCLUIR MISSÕES DO DIA • GRAVAR EVIDÊNCIA
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: CADASTRAR DÍVIDA -->
+  <div id="modal-add-debt" class="modal">
+    <div class="modal-box">
+      <h3 style="font-size:1rem; font-weight:900; color:var(--neon); margin-bottom:12px;">CADASTRAR CREDOR / PASSIVO</h3>
+      <form onsubmit="app.addDebt(event)">
+        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">NOME DO CREDOR / CONTA</label>
+        <input type="text" id="debt-name" class="input-dark" required placeholder="Ex: Emergência Dia 3 / Banco / Cartão">
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <div>
+            <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">VALOR (R$)</label>
+            <input type="number" id="debt-amount" class="input-dark" required placeholder="Ex: 10000">
+          </div>
+          <div>
+            <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PRAZO</label>
+            <input type="text" id="debt-deadline" class="input-dark" placeholder="Ex: Dia 3">
+          </div>
+        </div>
+
+        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">GRAU DE URGÊNCIA</label>
+        <select id="debt-urgency" class="input-dark">
+          <option value="CRÍTICA">CRÍTICA (Risco imediato / Dia 3)</option>
+          <option value="ALTA">ALTA (Restrição operacional)</option>
+          <option value="NEGOCIÁVEL">NEGOCIÁVEL (Pode aguardar entrada)</option>
+        </select>
+
+        <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PROPOSTA DE ACORDO / PLANO</label>
+        <input type="text" id="debt-plan" class="input-dark" placeholder="Ex: Negociar com comissão do terreno">
+
+        <button type="submit" class="btn-action-neon" style="margin-bottom:8px;">SALVAR CREDOR</button>
+        <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none;" onclick="app.closeModal('modal-add-debt')">CANCELAR</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-bar">
+    <button class="nav-btn active" onclick="app.switchView('flow')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>HOJE</span>
+    </button>
+    <button class="nav-btn" onclick="app.switchView('debts')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>DÍVIDAS</span>
+    </button>
+    <button class="nav-btn" onclick="app.switchView('tech')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span>TI / IA</span>
+    </button>
+    <button class="nav-btn" onclick="app.switchView('py')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span>PARAGUAY</span>
+    </button>
+    <button class="nav-btn" onclick="app.switchView('diag')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+      <span>56 PERGUNTAS</span>
+    </button>
+  </nav>
+
+  <!-- JAVASCRIPT ENGINE & BANCO LOCAL -->
+  <script>
+    const defaultDebts = [
+      { id: 1, name: "Urgência Dia 3", amount: 10000, deadline: "Dia 3", urgency: "CRÍTICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
+      { id: 2, name: "Taxa Venda do Terreno", amount: 1500, deadline: "Imediato", urgency: "ALTA", plan: "Pagar para liberar dinheiro da venda", controlled: false },
+      { id: 3, name: "Sistemas & Obrigações Mar Verde", amount: 4500, deadline: "Mês atual", urgency: "NEGOCIÁVEL", plan: "Cortar o desnecessário e congelar contratos", controlled: true }
+    ];
+
+    const defaultTasks = [
+      { id: 1, text: "Encarar a urgência dos R$ 10.000 do dia 3 com credores", done: true },
+      { id: 2, text: "2 horas inegociáveis de estudo e código em TI + IA", done: true },
+      { id: 3, text: "Agilizar fechamento da venda do terreno (R$ 1.500 taxa)", done: false },
+      { id: 4, text: "Separar certidões para a Fase 1 (GO Paraguay GO)", done: false }
+    ];
+
+    const defaultLandChecklist = [
+      { id: 1, text: "Levantar R$ 1.500 para pagamento da taxa de transferência", done: false },
+      { id: 2, text: "Conferir documentação final com o comprador do terreno", done: true },
+      { id: 3, text: "Agendar assinatura em cartório para liberação dos recursos", done: false },
+      { id: 4, text: "Destinar valor da venda diretamente para amortizar dívida crítica", done: false }
+    ];
+
+    const defaultPyChecklist = [
+      { id: 1, text: "Certidão de Nascimento/Casamento atualizada e legalizada", done: true },
+      { id: 2, text: "Certidão de Antecedentes Criminais da Polícia Federal", done: true },
+      { id: 3, text: "Apostilamento de Haia em cartório nos documentos essenciais", done: false },
+      { id: 4, text: "Montagem do Caixa de Sobrevivência inicial (Fase 1)", done: false }
+    ];
+
+    const diagnosticData = [
+      {
+        block: "1. REALIDADE — O que é verdade?",
+        content: `
+          <div class="diag-q">Situação financeira e rotina:</div>
+          <div class="diag-a">Pressão alta com dívidas e duas crianças. A empresa Mar Verde não gera mais tração. Necessidade de parar de esperar as coisas caírem do céu.</div>
+          <div class="diag-q">O que está funcionando?</div>
+          <div class="diag-a">Apenas a academia. O resto precisa de comando imediato.</div>
+        `
+      },
+      {
+        block: "2. EU — Quem estou me tornando?",
+        content: `
+          <div class="diag-q">Quem eu era antes?</div>
+          <div class="diag-a">Um cara organizado, inteligente, que venceu o crack e a dependência química, sabe criar e trabalhar.</div>
+          <div class="diag-q">O que eu faria sem medo de julgamentos?</div>
+          <div class="diag-a">Voltaria para o computador para criar projetos e estudar TI/IA ouvindo metal.</div>
+        `
+      },
+      {
+        block: "3. RELACIONAMENTO — Viper",
+        content: `
+          <div class="diag-q">Diretriz adotada:</div>
+          <div class="diag-a">Não romper no meio do caos, mas não paralisar meu plano dependendo das atitudes dela. Cada um carrega a própria mochila.</div>
+        `
+      },
+      {
+        block: "4. OPORTUNIDADES — Para onde aponta?",
+        content: `
+          <div class="diag-q">Vetor principal nos próximos 12 meses:</div>
+          <div class="diag-a">Área de TI + IA, desenvolvimento do Disciplina OS e monetização de negócios digitais. Imobiliária apenas como ponte.</div>
+        `
+      },
+      {
+        block: "5. PARAGUAI — Fuga ou Movimento?",
+        content: `
+          <div class="diag-q">É fuga?</div>
+          <div class="diag-a">Não. É criação de oportunidade, redução de custo de vida e novo ambiente. As dívidas continuam para serem quitadas.</div>
+        `
+      },
+      {
+        block: "6. MEDO — O que realmente trava?",
+        content: `
+          <div class="diag-q">Maior medo:</div>
+          <div class="diag-a">Meu maior medo é NÃO TENTAR e continuar parado por mais um ano.</div>
+        `
+      },
+      {
+        block: "7. RESPONSABILIDADE — Extreme Ownership",
+        content: `
+          <div class="diag-q">O que está sob controle?</div>
+          <div class="diag-a">Minhas próximas ações, meu trabalho, meu estudo de código e minhas negociações. Honrar sem carregar.</div>
+        `
+      },
+      {
+        block: "8. A ESTÁTUA — O Legado",
+        content: `
+          <div class="diag-q">O que estará escrito aos 80 anos?</div>
+          <div class="diag-a">“Ele foi um cara que fez o que tinha que ser feito e deu certo. Seu legado foi escrito.”</div>
+        `
+      }
+    ];
+
+    class HuudSystem {
+      constructor() {
+        this.debts = JSON.parse(localStorage.getItem('huud_debts_v5')) || defaultDebts;
+        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v5')) || defaultTasks;
+        this.landChecklist = JSON.parse(localStorage.getItem('huud_land_v5')) || defaultLandChecklist;
+        this.pyChecklist = JSON.parse(localStorage.getItem('huud_py_v5')) || defaultPyChecklist;
+        this.techHours = Number(localStorage.getItem('huud_tech_hours')) || 42;
+        this.init();
+      }
+
+      init() {
+        this.renderDebts();
+        this.renderTasks();
+        this.renderLandChecklist();
+        this.renderPyChecklist();
+        this.renderDiagnosticAccordion();
+        this.updateHUD();
+        this.startTimer();
+      }
+
+      switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+        const target = document.getElementById('view-' + viewId);
+        if (target) target.classList.add('active');
+
+        const pills = Array.from(document.querySelectorAll('.nav-pill'));
+        const activePill = pills.find(p => p.getAttribute('onclick').includes(viewId));
+        if (activePill) activePill.classList.add('active');
+
+        window.scrollTo(0, 0);
+      }
+
+      renderDebts() {
+        const c = document.getElementById('debts-list-container');
+        if (!c) return;
+
+        let total = 0;
+        let controlled = 0;
+
+        c.innerHTML = this.debts.map(d => {
+          total += Number(d.amount);
+          if (d.controlled) controlled += Number(d.amount);
+
+          const badgeClass = d.controlled ? 'badge-done' : (d.urgency === 'CRÍTICA' ? 'badge-critica' : 'badge-alta');
+          const badgeText = d.controlled ? 'RENEGOCIADO / QUITADO ✓' : `${d.urgency} • ${d.deadline || 'S/ Prazo'}`;
+
+          return `
+            <div class="item-card">
+              <div class="item-top">
+                <span class="item-title">${d.name}</span>
+                <span class="item-val">R$ ${Number(d.amount).toLocaleString('pt-BR')}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                <span class="badge-status ${badgeClass}">${badgeText}</span>
+                <button style="background:transparent; border:none; color:var(--neon); font-size:0.7rem; font-family:var(--mono); cursor:pointer;" onclick="app.toggleDebtControl(${d.id})">
+                  ${d.controlled ? 'Marcar Pendente' : 'Dar Baixa / Acordo ✓'}
+                </button>
+              </div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+                <strong>Plano:</strong> ${d.plan}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        document.getElementById('debt-total-val').innerText = `R$ ${total.toLocaleString('pt-BR')}`;
+        document.getElementById('debt-controlled-val').innerText = `R$ ${controlled.toLocaleString('pt-BR')}`;
+      }
+
+      addDebt(e) {
+        e.preventDefault();
+        const newDebt = {
+          id: Date.now(),
+          name: document.getElementById('debt-name').value,
+          amount: document.getElementById('debt-amount').value,
+          deadline: document.getElementById('debt-deadline').value || "A definir",
+          urgency: document.getElementById('debt-urgency').value,
+          plan: document.getElementById('debt-plan').value || "Em negociação",
+          controlled: false
+        };
+        this.debts.push(newDebt);
+        localStorage.setItem('huud_debts_v5', JSON.stringify(this.debts));
+        this.renderDebts();
+        this.closeModal('modal-add-debt');
+        e.target.reset();
+      }
+
+      toggleDebtControl(id) {
+        this.debts = this.debts.map(d => d.id === id ? { ...d, controlled: !d.controlled } : d);
+        localStorage.setItem('huud_debts_v5', JSON.stringify(this.debts));
+        this.renderDebts();
+      }
+
+      renderTasks() {
+        const c = document.getElementById('cmd-tasks-container');
+        if (!c) return;
+        c.innerHTML = this.tasks.map(t => `
+          <div class="check-dark-item ${t.done ? 'done' : ''}" onclick="app.toggleTask(${t.id})">
+            <div class="check-box-custom">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem; font-weight:600;">${t.text}</span>
+          </div>
+        `).join('');
+      }
+
+      toggleTask(id) {
+        this.tasks = this.tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        localStorage.setItem('huud_tasks_v5', JSON.stringify(this.tasks));
+        this.renderTasks();
+        this.updateHUD();
+      }
+
+      renderLandChecklist() {
+        const c = document.getElementById('land-checklist-container');
+        if (!c) return;
+        c.innerHTML = this.landChecklist.map(t => `
+          <div class="check-dark-item ${t.done ? 'done' : ''}" onclick="app.toggleLandTask(${t.id})">
+            <div class="check-box-custom">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem; font-weight:600;">${t.text}</span>
+          </div>
+        `).join('');
+      }
+
+      toggleLandTask(id) {
+        this.landChecklist = this.landChecklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        localStorage.setItem('huud_land_v5', JSON.stringify(this.landChecklist));
+        this.renderLandChecklist();
+      }
+
+      renderPyChecklist() {
+        const c = document.getElementById('py-checklist-container');
+        if (!c) return;
+        c.innerHTML = this.pyChecklist.map(t => `
+          <div class="check-dark-item ${t.done ? 'done' : ''}" onclick="app.togglePyTask(${t.id})">
+            <div class="check-box-custom">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem; font-weight:600;">${t.text}</span>
+          </div>
+        `).join('');
+      }
+
+      togglePyTask(id) {
+        this.pyChecklist = this.pyChecklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        localStorage.setItem('huud_py_v5', JSON.stringify(this.pyChecklist));
+        this.renderPyChecklist();
+      }
+
+      logTechHours() {
+        this.techHours += 2;
+        localStorage.setItem('huud_tech_hours', this.techHours);
+        document.getElementById('tech-hours-display').innerText = `${this.techHours}h`;
+        document.getElementById('hud-tech-hours').innerText = `${this.techHours}h`;
+        alert("2 HORAS DE CÓDIGO REGISTRADAS. Mantenha a disciplina inegociável.");
+      }
+
+      updateHUD() {
+        const total = this.tasks.length;
+        const done = this.tasks.filter(t => t.done).length;
+        const pct = Math.round((done / total) * 100);
+
+        document.getElementById('hud-exec-rate').innerText = pct + '%';
+        const circle = document.getElementById('hud-circle');
+        if (circle) {
+          const offset = 440 - (440 * (pct / 100));
+          circle.style.strokeDashoffset = offset;
+        }
+      }
+
+      renderDiagnosticAccordion() {
+        const c = document.getElementById('diagnostic-blocks-accordion');
+        if (!c) return;
+        c.innerHTML = diagnosticData.map((d, index) => `
+          <div class="diag-block-card">
+            <div class="diag-block-header" onclick="app.toggleAccordion(${index})">
+              <span>${d.block}</span>
+              <span id="diag-arrow-${index}">+</span>
+            </div>
+            <div class="diag-block-body" id="diag-body-${index}">
+              ${d.content}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      toggleAccordion(index) {
+        const body = document.getElementById(`diag-body-${index}`);
+        const arrow = document.getElementById(`diag-arrow-${index}`);
+        if (body.classList.contains('open')) {
+          body.classList.remove('open');
+          arrow.innerText = '+';
+        } else {
+          body.classList.add('open');
+          arrow.innerText = '−';
+        }
+      }
+
+      startTimer() {
+        const timerEl = document.getElementById('cmd-timer');
+        setInterval(() => {
+          const now = new Date();
+          const hrs = String(23 - now.getHours()).padStart(2, '0');
+          const mins = String(59 - now.getMinutes()).padStart(2, '0');
+          const secs = String(59 - now.getSeconds()).padStart(2, '0');
+          if (timerEl) timerEl.innerText = `${hrs} : ${mins} : ${secs}`;
+        }, 1000);
+      }
+
+      openCommander() { document.getElementById('commander-mode').classList.add('active'); }
+      closeCommander() { document.getElementById('commander-mode').classList.remove('active'); }
+      openModal(id) { document.getElementById(id).classList.add('active'); }
+      closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+      completeDay() {
+        alert("EVIDÊNCIA GRAVADA. Dia concluído com execução.");
+        this.closeCommander();
+      }
+
+      exportBackup() {
+        const data = {
+          debts: this.debts,
+          tasks: this.tasks,
+          landChecklist: this.landChecklist,
+          pyChecklist: this.pyChecklist,
+          techHours: this.techHours,
+          exportedAt: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `HUUD_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+      }
+
+      importBackup(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (data.debts) localStorage.setItem('huud_debts_v5', JSON.stringify(data.debts));
+            if (data.tasks) localStorage.setItem('huud_tasks_v5', JSON.stringify(data.tasks));
+            if (data.landChecklist) localStorage.setItem('huud_land_v5', JSON.stringify(data.landChecklist));
+            if (data.pyChecklist) localStorage.setItem('huud_py_v5', JSON.stringify(data.pyChecklist));
+            if (data.techHours) localStorage.setItem('huud_tech_hours', data.techHours);
+            alert("BANCO DE DADOS RESTAURADO COM SUCESSO!");
+            location.reload();
+          } catch (err) {
+            alert("Arquivo de backup inválido.");
+          }
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    let app;
+    window.addEventListener('DOMContentLoaded', () => { app = new HuudSystem(); });
+  </script>
+</body>
+</html>!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HUUD — Life Command Center | Disciplina OS</title>
   <meta name="theme-color" content="#060709">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
