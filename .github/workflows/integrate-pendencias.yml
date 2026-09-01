@@ -1,4 +1,4 @@
-name: HUUD — Integrar camada de realidade
+name: HUUD — Integrar camadas de realidade
 
 on:
   push:
@@ -21,7 +21,11 @@ jobs:
           from pathlib import Path
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
-          markers = ['<script src="huud-pendencias.js"></script>', '<script src="huud-pendencias-fix.js"></script>']
+          markers = [
+              '<script src="huud-pendencias.js"></script>',
+              '<script src="huud-pendencias-fix.js"></script>',
+              '<script src="huud-diagnostico-estruturado.js"></script>'
+          ]
           needle = '</body>'
           if needle not in text:
               raise SystemExit('Não encontrei </body> no index.html')
@@ -47,5 +51,5 @@ jobs:
           git config user.name 'HUUD Bot'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'Integrate Sala 00 navigation fix'
+          git commit -m 'Integrate structured reality layer'
           git push
