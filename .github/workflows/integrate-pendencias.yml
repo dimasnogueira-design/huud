@@ -1,69 +1,33 @@
 name: HUUD — Integrar camadas de realidade
-
 on:
   push:
     branches: [main]
-
 permissions:
   contents: write
-
 jobs:
   integrate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Integrar camadas HUUD
+      - uses: actions/checkout@v4
+      - name: Integrar camadas no index
         shell: bash
         run: |
-          python3 - <<'PY'
+          python - <<'PY'
           from pathlib import Path
-          p = Path('index.html')
-          text = p.read_text(encoding='utf-8')
-
-          old = '<script src="huud-mar-verde-pipeline.js"></script>'
-          text = text.replace(old + '\n', '').replace(old, '')
-
-          markers = [
-              '<script src="huud-pendencias.js"></script>',
-              '<script src="huud-pendencias-fix.js"></script>',
-              '<script src="huud-diagnostico-estruturado.js"></script>',
-              '<script src="huud-realidade-v2.js"></script>',
-              '<script src="huud-home-f1-v3.js"></script>',
-              '<script src="huud-home-v4.js"></script>',
-              '<script src="huud-tech-curriculum-v2.js"></script>',
-              '<script src="huud-mar-verde-agenda.js"></script>',
-              '<script src="huud-home-correction-v1.js"></script>',
-              '<script src="huud-command-center-v2.js"></script>'
-          ]
-
-          needle = '</body>'
-          if needle not in text:
-              raise SystemExit('Não encontrei </body> no index.html')
-
-          changed = old in text
-          for marker in markers:
-              if marker not in text:
-                  text = text.replace(needle, marker + '\n' + needle, 1)
-                  changed = True
-
-          if changed:
-              p.write_text(text, encoding='utf-8')
-              print('Camadas HUUD integradas. Command Center V2 adicionado.')
-          else:
-              print('Camadas já integradas.')
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          scripts=['huud-pendencias.js','huud-pendencias-fix.js','huud-diagnostico-estruturado.js','huud-realidade-v2.js','huud-home-f1-v3.js','huud-home-v4.js','huud-tech-curriculum-v2.js','huud-mar-verde-agenda.js','huud-home-correction-v1.js','huud-command-center-v2.js']
+          for f in scripts:
+              tag=f'<script src="{f}"></script>'
+              if tag not in s:
+                  s += '\n'+tag
+          p.write_text(s,encoding='utf-8')
           PY
-
-      - name: Commit da integração
+      - name: Commit integrado
         shell: bash
         run: |
-          if git diff --quiet; then
-            echo 'Nenhuma alteração necessária.'
-            exit 0
-          fi
           git config user.name 'HUUD Bot'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email 'actions@github.com'
           git add index.html
-          git commit -m 'Integrate HUUD command center v2'
+          git diff --cached --quiet || git commit -m 'HUUD — integrar Command Center V2'
           git push
