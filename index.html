@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HUUD — Command Center Militar | Disciplina OS</title>
   <meta name="theme-color" content="#030406">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -59,7 +61,9 @@
       background: var(--neon); color: #000; border: none; font-size: 0.68rem;
       font-weight: 900; font-family: var(--mono); letter-spacing: 1.5px; padding: 9px 16px;
       border-radius: 4px; cursor: pointer; box-shadow: 0 0 14px var(--neon-glow);
+      transition: transform 0.15s ease;
     }
+    .btn-commander-top:active { transform: scale(0.96); }
 
     /* SUBNAV PILLS */
     .sub-nav {
@@ -82,7 +86,7 @@
     .view.active { display: block; animation: fadeIn 0.25s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* COMMAND HERO BANNER */
+    /* COMMAND HERO BANNER - FULL WIDTH */
     .hero-command-card {
       background: linear-gradient(90deg, rgba(10, 13, 18, 0.98) 0%, rgba(10, 13, 18, 0.85) 50%, rgba(10, 13, 18, 0.3) 100%),
                   url('comandante.png') right center/contain no-repeat;
@@ -128,7 +132,7 @@
     .tactical-module-card:hover { border-color: var(--border-focus); }
     .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .card-tag { font-family: var(--mono); font-size: 0.65rem; font-weight: 800; color: var(--neon); letter-spacing: 1.5px; }
-    .card-action-link { font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted); cursor: pointer; }
+    .card-action-link { font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted); cursor: pointer; text-decoration: none; }
     .card-action-link:hover { color: var(--neon); }
 
     /* RADAR SONAR ANIMADO */
@@ -187,7 +191,7 @@
       justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
     }
 
-    /* FILTROS E TABELAS */
+    /* FILTROS E TABELAS NAS SUBTELAS */
     .filter-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px; scrollbar-width: none; }
     .filter-btn {
       background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);
@@ -225,7 +229,7 @@
     .badge-recurrent { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid #8b5cf6; }
     .badge-done { background: rgba(0, 229, 153, 0.15); color: var(--success); border: 1px solid var(--success); }
 
-    /* MODO COMANDANTE */
+    /* MODO COMANDANTE - INTEGRAL & CINEMATOGRÁFICO */
     .commander-full-screen {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: #000; z-index: 500; overflow-y: auto; display: none;
@@ -309,7 +313,7 @@
 
   <!-- TOP BAR MILITAR -->
   <header class="top-bar">
-    <div class="brand-group" onclick="switchView('flow')">
+    <div class="brand-group" onclick="app.switchView('flow')">
       <div class="brand-icon"></div>
       <div class="brand-name">DISCIPLINA <span>OS</span></div>
     </div>
@@ -317,27 +321,27 @@
       <div class="sync-status" id="cloud-sync-status">
         <span class="sync-dot"></span> CLOUD ONLINE
       </div>
-      <button class="btn-commander-top" onclick="openCommander()">COMANDANTE</button>
+      <button class="btn-commander-top" onclick="app.openCommander()">COMANDANTE</button>
     </div>
   </header>
 
   <!-- SUBNAV PILLS -->
   <nav class="sub-nav">
-    <button class="nav-pill active" onclick="switchView('flow')">QG PRINCIPAL</button>
-    <button class="nav-pill" onclick="switchView('debts')">FINANÇAS & DÍVIDAS</button>
-    <button class="nav-pill" onclick="switchView('land')">TERRENO & MAR VERDE</button>
-    <button class="nav-pill" onclick="switchView('tech')">SALA DE AULA TI/IA</button>
-    <button class="nav-pill" onclick="switchView('py')">GO PARAGUAY GO</button>
-    <button class="nav-pill" onclick="switchView('diag')">56 PERGUNTAS</button>
+    <button class="nav-pill active" onclick="app.switchView('flow')">QG PRINCIPAL</button>
+    <button class="nav-pill" onclick="app.switchView('debts')">FINANÇAS & DÍVIDAS</button>
+    <button class="nav-pill" onclick="app.switchView('land')">TERRENO & MAR VERDE</button>
+    <button class="nav-pill" onclick="app.switchView('tech')">SALA DE AULA TI/IA</button>
+    <button class="nav-pill" onclick="app.switchView('py')">GO PARAGUAY GO</button>
+    <button class="nav-pill" onclick="app.switchView('diag')">56 PERGUNTAS</button>
   </nav>
 
   <!-- CONTAINER FLUIDO -->
   <main class="main-fluid-wrapper">
 
-    <!-- 1. QG PRINCIPAL -->
+    <!-- 1. QG PRINCIPAL (HOME MODERNA E FLUIDA) -->
     <section id="view-flow" class="view active">
       
-      <!-- HERO HEADER COM FOTO DE PERFIL -->
+      <!-- HERO HEADER COM FOTO DE PERFIL & COMANDO -->
       <div class="hero-command-card">
         <div class="commander-profile-box">
           <img class="user-avatar-main" src="perfil.png" onerror="this.src='comandante.png'" alt="Comandante Dimas">
@@ -348,19 +352,19 @@
           </div>
         </div>
 
-        <button class="btn-commander-top" style="padding:12px 20px; font-size:0.75rem;" onclick="openCommander()">
+        <button class="btn-commander-top" style="padding:12px 20px; font-size:0.75rem;" onclick="app.openCommander()">
           ATIVAR MODO COMANDANTE ⚡
         </button>
       </div>
 
-      <!-- GRID MODULAR RESPONSIVO -->
+      <!-- GRID MODULAR RESPONSIVO (OCUPA 100% DA TELA NO PC) -->
       <div class="dashboard-tactical-grid">
         
-        <!-- CARD 1: RADAR DE MISSOES -->
+        <!-- CARD 1: RADAR DE MISSOES & TEMPO -->
         <div class="tactical-module-card">
           <div class="card-header-row">
             <span class="card-tag">● RADAR DA OPERAÇÃO</span>
-            <span class="card-action-link" onclick="openCommander()">ENTRAR NO FRONT →</span>
+            <span class="card-action-link" onclick="app.openCommander()">ENTRAR NO FRONT →</span>
           </div>
           <div class="radar-container">
             <div class="radar-canvas-box">
@@ -382,11 +386,11 @@
           </div>
         </div>
 
-        <!-- CARD 2: MONITOR FINANCEIRO -->
+        <!-- CARD 2: MONITOR FINANCEIRO EM TEMPO REAL -->
         <div class="tactical-module-card">
           <div class="card-header-row">
             <span class="card-tag">● SALA DE GUERRA FINANCEIRA</span>
-            <span class="card-action-link" onclick="switchView('debts')">VER FLUXO COMPLETO →</span>
+            <span class="card-action-link" onclick="app.switchView('debts')">VER FLUXO COMPLETO →</span>
           </div>
           <div class="fin-metric-triple">
             <div class="fin-mini-stat">
@@ -403,16 +407,16 @@
             </div>
           </div>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-            <button class="btn-action-neon" style="padding:8px; font-size:0.65rem;" onclick="openEntryModal('DEBT')">+ DÍVIDA</button>
-            <button class="btn-action-blue" style="padding:8px; font-size:0.65rem;" onclick="openEntryModal('INFLOW')">+ ENTRADA</button>
+            <button class="btn-action-neon" style="padding:8px; font-size:0.65rem;" onclick="app.openModal('modal-add-entry', 'DEBT')">+ DÍVIDA</button>
+            <button class="btn-action-blue" style="padding:8px; font-size:0.65rem;" onclick="app.openModal('modal-add-entry', 'INFLOW')">+ ENTRADA</button>
           </div>
         </div>
 
-        <!-- CARD 3: TERRENO & LIQUIDEZ -->
+        <!-- CARD 3: OPERAÇÃO TERRENO & LIQUIDEZ -->
         <div class="tactical-module-card">
           <div class="card-header-row">
             <span class="card-tag">● OPERAÇÃO TERRENO & CAIXA</span>
-            <span class="card-action-link" onclick="switchView('land')">ABRIR CHECKLIST →</span>
+            <span class="card-action-link" onclick="app.switchView('land')">ABRIR CHECKLIST →</span>
           </div>
           <div style="font-size:0.82rem; line-height:1.4; color:var(--text-muted); margin-bottom:10px;">
             Destravar taxa de <strong>R$ 1.500</strong> para liberar a comissão e amortizar imediatamente o passivo do dia 3.
@@ -420,37 +424,37 @@
           <div id="home-land-mini-checklist"></div>
         </div>
 
-        <!-- CARD 4: TRILHA TI + IA -->
+        <!-- CARD 4: TRILHA DE TI + IA (2H/DIA) -->
         <div class="tactical-module-card">
           <div class="card-header-row">
             <span class="card-tag">● HABILIDADE GLOBAL (TI + IA)</span>
-            <span class="card-action-link" onclick="switchView('tech')">SALA DE CÓDIGO →</span>
+            <span class="card-action-link" onclick="app.switchView('tech')">SALA DE CÓDIGO →</span>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0;">
             <div>
               <div style="font-size:1.5rem; font-weight:900; font-family:var(--mono); color:var(--neon);" id="home-tech-hours">42h</div>
               <div style="font-size:0.62rem; font-family:var(--mono); color:var(--text-muted);">HORAS ACUMULADAS</div>
             </div>
-            <button class="btn-action-neon" style="width:auto; padding:8px 14px; font-size:0.65rem;" onclick="logTechHours()">+2h ESTUDO</button>
+            <button class="btn-action-neon" style="width:auto; padding:8px 14px; font-size:0.65rem;" onclick="app.logTechHours()">+2h ESTUDO</button>
           </div>
           <div style="font-size:0.75rem; color:var(--text-muted);">Foco atual: <strong>Web Fullstack + Supabase + Agentes IA</strong></div>
         </div>
 
-        <!-- CARD 5: GO PARAGUAY GO -->
+        <!-- CARD 5: GO PARAGUAY GO (FASE 1) -->
         <div class="tactical-module-card">
           <div class="card-header-row">
             <span class="card-tag">● ROTA GO PARAGUAY GO</span>
-            <span class="card-action-link" onclick="switchView('py')">QG DOCUMENTAL →</span>
+            <span class="card-action-link" onclick="app.switchView('py')">QG DOCUMENTAL →</span>
           </div>
           <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">Certidões & Documentação de Partida (Fase 1):</div>
           <div id="home-py-mini-checklist"></div>
         </div>
 
-        <!-- CARD 6: CHECKLIST DO DIA -->
+        <!-- CARD 6: CHECKLIST INEGOCIÁVEL DO DIA -->
         <div class="tactical-module-card">
           <div class="card-header-row">
             <span class="card-tag">● MISSÕES INEGOCIÁVEIS HOJE</span>
-            <span class="card-action-link" onclick="openCommander()">MODO COMANDANTE →</span>
+            <span class="card-action-link" onclick="app.openCommander()">MODO COMANDANTE →</span>
           </div>
           <div id="home-tasks-mini-list"></div>
         </div>
@@ -461,8 +465,8 @@
     <!-- 2. FINANÇAS & DÍVIDAS -->
     <section id="view-debts" class="view">
       <div class="hero-meta">SALA 01 • <span>FLUXO DE CAIXA TÁTICO</span></div>
-      <h2 class="hero-title" style="font-size:1.55rem; font-weight:900; margin-bottom:10px;">Quadro de <em style="color:var(--neon); font-style:normal;">Finanças & Dívidas</em>.</h2>
-      <p class="hero-body" style="color:var(--text-muted); margin-bottom:16px;">Separação cirúrgica de passivos por urgência, entradas a receber e despesas fixas.</p>
+      <h2 class="hero-title">Quadro de <em>Finanças & Dívidas</em>.</h2>
+      <p class="hero-body">Separação cirúrgica de passivos por urgência, entradas a receber e despesas fixas.</p>
 
       <div class="fin-metric-triple" style="margin-bottom:16px;">
         <div class="fin-mini-stat"><div class="fin-val-danger" id="fin-debts-total">R$ 0</div><div class="fin-lbl">PASSIVO PENDENTE</div></div>
@@ -471,22 +475,22 @@
       </div>
 
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
-        <button class="btn-action-neon" onclick="openEntryModal('DEBT')">+ REGISTRAR DÍVIDA</button>
-        <button class="btn-action-blue" onclick="openEntryModal('INFLOW')">+ ENTRADA A RECEBER</button>
+        <button class="btn-action-neon" onclick="app.openModal('modal-add-entry', 'DEBT')">+ REGISTRAR DÍVIDA</button>
+        <button class="btn-action-blue" onclick="app.openModal('modal-add-entry', 'INFLOW')">+ ENTRADA A RECEBER</button>
       </div>
 
-      <button class="btn-action-neon" style="background:#13161c; color:#38bdf8; border:1px solid #283243; margin-bottom:16px; padding:10px; font-size:0.72rem;" onclick="shareWithRafaela()">
+      <button class="btn-action-neon" style="background:#13161c; color:#38bdf8; border:1px solid #283243; margin-bottom:16px; padding:10px; font-size:0.72rem;" onclick="app.shareWithRafaela()">
         📲 GERAR RELATÓRIO PARA RAFAELA (WHATSAPP / COPIAR)
       </button>
 
       <div class="filter-bar">
-        <button class="filter-btn active-all" id="flt-ALL" onclick="setFilter('ALL')">TODOS</button>
-        <button class="filter-btn" id="flt-CRITICA" onclick="setFilter('CRITICA')">🔴 CRÍTICA</button>
-        <button class="filter-btn" id="flt-ALTA" onclick="setFilter('ALTA')">🟡 ALTA</button>
-        <button class="filter-btn" id="flt-NEGOCIAVEL" onclick="setFilter('NEGOCIAVEL')">⚪ NEGOCIÁVEL</button>
-        <button class="filter-btn" id="flt-INFLOW" onclick="setFilter('INFLOW')">🔵 ENTRADAS (AZUL)</button>
-        <button class="filter-btn" id="flt-RECORRENTE" onclick="setFilter('RECORRENTE')">🟣 FIXO MENSAL</button>
-        <button class="filter-btn" id="flt-DONE" onclick="setFilter('DONE')">🟢 QUITADOS</button>
+        <button class="filter-btn active-all" id="flt-ALL" onclick="app.setFilter('ALL')">TODOS</button>
+        <button class="filter-btn" id="flt-CRITICA" onclick="app.setFilter('CRITICA')">🔴 CRÍTICA (URGENTES)</button>
+        <button class="filter-btn" id="flt-ALTA" onclick="app.setFilter('ALTA')">🟡 ALTA</button>
+        <button class="filter-btn" id="flt-NEGOCIAVEL" onclick="app.setFilter('NEGOCIAVEL')">⚪ NEGOCIÁVEL</button>
+        <button class="filter-btn" id="flt-INFLOW" onclick="app.setFilter('INFLOW')">🔵 ENTRADAS (AZUL)</button>
+        <button class="filter-btn" id="flt-RECORRENTE" onclick="app.setFilter('RECORRENTE')">🟣 FIXO MENSAL</button>
+        <button class="filter-btn" id="flt-DONE" onclick="app.setFilter('DONE')">🟢 QUITADOS</button>
       </div>
 
       <div id="financial-items-container"></div>
@@ -495,17 +499,17 @@
     <!-- 3. TERRENO & MAR VERDE -->
     <section id="view-land" class="view">
       <div class="hero-meta">SALA 02 • <span>LIQUIDEZ RÁPIDA & PONTE</span></div>
-      <h2 style="font-size:1.55rem; font-weight:900; margin-bottom:10px;">Operação <em style="color:var(--neon); font-style:normal;">Terreno & Caixa</em>.</h2>
-      <p style="color:var(--text-muted); margin-bottom:16px;">Destravar a venda do terreno para colocar dinheiro limpo na mão e usar a Mar Verde como ponte.</p>
+      <h2 class="hero-title">Operação <em>Terreno & Caixa</em>.</h2>
+      <p class="hero-body">Destravar a venda do terreno para colocar dinheiro limpo na mão e usar a Mar Verde como ponte.</p>
       <div id="land-checklist-container"></div>
     </section>
 
     <!-- 4. SALA DE AULA TI + IA -->
     <section id="view-tech" class="view">
       <div class="hero-meta">SALA 03 • <span>HABILIDADE GLOBAL & RENDA</span></div>
-      <h2 style="font-size:1.55rem; font-weight:900; margin-bottom:10px;">Terminal de <em style="color:var(--neon); font-style:normal;">TI & IA</em>.</h2>
-      <p style="color:var(--text-muted); margin-bottom:16px;">2 horas inegociáveis de código e tela por dia.</p>
-      <button class="btn-action-neon" style="margin-bottom:16px;" onclick="logTechHours()">+ REGISTRAR 2 HORAS DE ESTUDO HOJE</button>
+      <h2 class="hero-title">Terminal de <em>TI & IA</em>.</h2>
+      <p class="hero-body">2 horas inegociáveis de código e tela por dia.</p>
+      <button class="btn-action-neon" style="margin-bottom:16px;" onclick="app.logTechHours()">+ REGISTRAR 2 HORAS DE ESTUDO HOJE</button>
       
       <div class="tactical-module-card" style="margin-bottom:12px;">
         <span class="card-tag">MÓDULO 01 • BÁSICO</span>
@@ -523,25 +527,25 @@
     <!-- 5. GO PARAGUAY GO -->
     <section id="view-py" class="view">
       <div class="hero-meta">SALA 04 • <span>TRANSIÇÃO 90 DIAS</span></div>
-      <h2 style="font-size:1.55rem; font-weight:900; margin-bottom:10px;">QG <em style="color:var(--neon); font-style:normal;">GO Paraguay GO</em>.</h2>
-      <p style="color:var(--text-muted); margin-bottom:16px;">Checklist documental e cronograma tático para viver com liberdade e custo reduzido.</p>
+      <h2 class="hero-title">QG <em>GO Paraguay GO</em>.</h2>
+      <p class="hero-body">Checklist documental e cronograma tático para viver com liberdade e custo reduzido.</p>
       <div id="py-checklist-container"></div>
     </section>
 
     <!-- 6. 56 PERGUNTAS -->
     <section id="view-diag" class="view">
       <div class="hero-meta">AUDITORIA • <span>AS 56 PERGUNTAS</span></div>
-      <h2 style="font-size:1.55rem; font-weight:900; margin-bottom:10px;">O Diagnóstico <em style="color:var(--neon); font-style:normal;">Real</em>.</h2>
-      <p style="color:var(--text-muted); margin-bottom:16px;">O raio-x completo que você colocou na mesa para romper com a paralisia.</p>
+      <h2 class="hero-title">O Diagnóstico <em>Real</em>.</h2>
+      <p class="hero-body">O raio-x completo que você colocou na mesa para romper com a paralisia.</p>
       <div id="diagnostic-blocks-accordion"></div>
 
       <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:16px;">
         <span style="font-family:var(--mono); font-size:0.7rem; color:var(--text-muted); display:block; margin-bottom:8px;">CÓPIA DE SEGURANÇA LOCAL (JSON)</span>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-          <button class="btn-action-neon" style="padding:10px; font-size:0.7rem;" onclick="exportBackup()">EXPORTAR BACKUP</button>
+          <button class="btn-action-neon" style="padding:10px; font-size:0.7rem;" onclick="app.exportBackup()">EXPORTAR BACKUP</button>
           <button class="btn-action-neon" style="padding:10px; font-size:0.7rem; background:#181e28; color:#fff;" onclick="document.getElementById('import-file').click()">IMPORTAR BACKUP</button>
         </div>
-        <input type="file" id="import-file" style="display:none" onchange="importBackup(event)">
+        <input type="file" id="import-file" style="display:none" onchange="app.importBackup(event)">
       </div>
     </section>
 
@@ -552,7 +556,7 @@
     <div class="commander-portrait-wrapper">
       <div class="commander-top-actions">
         <div class="cmd-badge">● MODO COMANDANTE ATIVO</div>
-        <button class="btn-exit-cmd" onclick="closeCommander()">SAIR DO MODO ✕</button>
+        <button class="btn-exit-cmd" onclick="app.closeCommander()">SAIR DO MODO ✕</button>
       </div>
 
       <div class="commander-hero-text">
@@ -569,21 +573,19 @@
         CHECKLIST INEGOCIÁVEL DO DIA:
       </div>
       <div id="cmd-tasks-container"></div>
-      <button class="btn-action-neon" style="margin-top:16px; padding:18px;" onclick="completeDay()">
+      <button class="btn-action-neon" style="margin-top:16px; padding:18px;" onclick="app.completeDay()">
         CONCLUIR MISSÕES DO DIA • GRAVAR EVIDÊNCIA
       </button>
     </div>
   </div>
 
-  <!-- MODAL: CADASTRAR / EDITAR LANÇAMENTO -->
+  <!-- MODAL: CADASTRAR LANÇAMENTO -->
   <div id="modal-add-entry" class="modal">
     <div class="modal-box">
       <h3 style="font-size:1rem; font-weight:900; color:var(--neon); margin-bottom:12px;" id="modal-entry-title">REGISTRAR LANÇAMENTO FINANCEIRO</h3>
-      <form onsubmit="saveEntry(event)">
-        <input type="hidden" id="ent-edit-id" value="">
-        
+      <form onsubmit="app.saveEntry(event)">
         <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">TIPO DE LANÇAMENTO</label>
-        <select id="ent-type" class="input-dark" onchange="onEntryTypeChange(this.value)">
+        <select id="ent-type" class="input-dark" onchange="app.onEntryTypeChange(this.value)">
           <option value="DEBT">Dívida / Passivo / Conta a Pagar</option>
           <option value="INFLOW">Entrada a Receber (Azul)</option>
           <option value="RECURRENT">Despesa Fixa Recorrente Mensal</option>
@@ -606,17 +608,17 @@
         <div id="urgency-group">
           <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">GRAU DE URGÊNCIA</label>
           <select id="ent-urgency" class="input-dark">
-            <option value="CRITICA">🔴 CRÍTICA (Ação imediata / Juros altos)</option>
-            <option value="ALTA">🟡 ALTA (Restrição operacional)</option>
-            <option value="NEGOCIAVEL">⚪ NEGOCIÁVEL (Pode aguardar entrada)</option>
+            <option value="CRITICA">🔴 CRÍTICA (Ação imediata / Juros altos / Risco de corte)</option>
+            <option value="ALTA">🟡 ALTA (Restrição operacional / Negociação no radar)</option>
+            <option value="NEGOCIAVEL">⚪ NEGOCIÁVEL (Pode aguardar entrada de caixa)</option>
           </select>
         </div>
 
         <label style="font-size:0.65rem; font-family:var(--mono); color:var(--text-muted)">PLANO DE AÇÃO / DETALHE</label>
         <input type="text" id="ent-plan" class="input-dark" placeholder="Ex: Negociar com comissão do terreno">
 
-        <button type="submit" class="btn-action-neon" style="margin-bottom:8px;" id="btn-save-entry-submit">SALVAR LANÇAMENTO</button>
-        <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none;" onclick="closeModal('modal-add-entry')">CANCELAR</button>
+        <button type="submit" class="btn-action-neon" style="margin-bottom:8px;">SALVAR LANÇAMENTO</button>
+        <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none;" onclick="app.closeModal('modal-add-entry')">CANCELAR</button>
       </form>
     </div>
   </div>
@@ -627,68 +629,142 @@
       <h3 style="font-size:1rem; font-weight:900; color:#38bdf8; margin-bottom:12px;">RELATÓRIO FINANCEIRO • RAFAELA</h3>
       <textarea id="rafaela-report-text" class="input-dark" style="height:180px; font-family:var(--mono); font-size:0.75rem; white-space:pre-wrap;" readonly></textarea>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-        <button class="btn-action-neon" style="background:#25d366; color:#000;" onclick="sendWhatsApp()">WHATSAPP 📲</button>
-        <button class="btn-action-neon" style="background:#1e293b; color:#fff;" onclick="copyReport()">COPIAR 📋</button>
+        <button class="btn-action-neon" style="background:#25d366; color:#000;" onclick="app.sendWhatsApp()">WHATSAPP 📲</button>
+        <button class="btn-action-neon" style="background:#1e293b; color:#fff;" onclick="app.copyReport()">COPIAR 📋</button>
       </div>
-      <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none; margin-top:8px;" onclick="closeModal('modal-share-rafaela')">FECHAR</button>
+      <button type="button" class="btn-action-neon" style="background:transparent; color:var(--text-muted); border:none; margin-top:8px;" onclick="app.closeModal('modal-share-rafaela')">FECHAR</button>
     </div>
   </div>
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-bar">
-    <button class="nav-btn active" onclick="switchView('flow')">
+    <button class="nav-btn active" onclick="app.switchView('flow')">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
       <span>QG</span>
     </button>
-    <button class="nav-btn" onclick="switchView('debts')">
+    <button class="nav-btn" onclick="app.switchView('debts')">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       <span>FINANÇAS</span>
     </button>
-    <button class="nav-btn" onclick="switchView('tech')">
+    <button class="nav-btn" onclick="app.switchView('tech')">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
       <span>TI / IA</span>
     </button>
-    <button class="nav-btn" onclick="switchView('py')">
+    <button class="nav-btn" onclick="app.switchView('py')">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       <span>PARAGUAY</span>
     </button>
-    <button class="nav-btn" onclick="switchView('diag')">
+    <button class="nav-btn" onclick="app.switchView('diag')">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
       <span>56 PERGUNTAS</span>
     </button>
   </nav>
 
-  <!-- JAVASCRIPT ENGINE -->
+  <!-- RADAR CANVAS ANIMATION ENGINE -->
   <script>
-    let state = {
-      finance: [
-        { id: 1, type: "DEBT", name: "Urgência Dia 3", amount: 10000, date: "2026-09-03", urgency: "CRITICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
-        { id: 2, type: "DEBT", name: "Taxa Venda do Terreno", amount: 1500, date: "2026-09-02", urgency: "ALTA", plan: "Pagar para liberar dinheiro da venda", controlled: false },
-        { id: 3, type: "RECURRENT", name: "Sistemas & Obrigações Mar Verde", amount: 4500, date: "2026-09-10", urgency: "NEGOCIAVEL", plan: "Cortar desnecessário e congelar contratos", controlled: true },
-        { id: 4, type: "INFLOW", name: "Aluguel São Paulo", amount: 3200, date: "2026-09-05", urgency: "INFLOW", plan: "Entrada regular de aluguel mensal", controlled: false },
-        { id: 5, type: "INFLOW", name: "Liberação Venda do Terreno", amount: 18000, date: "2026-09-15", urgency: "INFLOW", plan: "Saldo líquido da venda pós-taxa", controlled: false }
-      ],
-      tasks: [
-        { id: 1, text: "Encarar a urgência dos R$ 10.000 do dia 3 com credores", done: true },
-        { id: 2, text: "2 horas inegociáveis de estudo e código em TI + IA", done: true },
-        { id: 3, text: "Agilizar fechamento da venda do terreno (R$ 1.500 taxa)", done: false },
-        { id: 4, text: "Separar certidões para a Fase 1 (GO Paraguay GO)", done: false }
-      ],
-      landChecklist: [
-        { id: 1, text: "Levantar R$ 1.500 para pagamento da taxa de transferência", done: false },
-        { id: 2, text: "Conferir documentação final com o comprador do terreno", done: true },
-        { id: 3, text: "Agendar assinatura em cartório para liberação dos recursos", done: false },
-        { id: 4, text: "Destinar valor da venda diretamente para amortizar dívida crítica", done: false }
-      ],
-      pyChecklist: [
-        { id: 1, text: "Certidão de Nascimento/Casamento atualizada e legalizada", done: true },
-        { id: 2, text: "Certidão de Antecedentes Criminais da Polícia Federal", done: true },
-        { id: 3, text: "Apostilamento de Haia em cartório nos documentos essenciais", done: false },
-        { id: 4, text: "Montagem do Caixa de Sobrevivência inicial (Fase 1)", done: false }
-      ],
-      techHours: 42,
-      currentFilter: 'ALL'
-    };
+    function initRadarAnimation() {
+      const canvas = document.getElementById('tactical-radar');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let angle = 0;
+
+      function drawRadar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 62;
+
+        // Círculos concêntricos
+        ctx.strokeStyle = 'rgba(212, 255, 0, 0.2)';
+        ctx.lineWidth = 1;
+        for (let r = 20; r <= radius; r += 20) {
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Cruz tática
+        ctx.beginPath();
+        ctx.moveTo(centerX - radius, centerY);
+        ctx.lineTo(centerX + radius, centerY);
+        ctx.moveTo(centerX, centerY - radius);
+        ctx.lineTo(centerX, centerY + radius);
+        ctx.stroke();
+
+        // Feixe rotativo sonar
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angle);
+        const gradient = ctx.createLinearGradient(0, 0, radius, 0);
+        gradient.addColorStop(0, 'rgba(212, 255, 0, 0.45)');
+        gradient.addColorStop(1, 'rgba(212, 255, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, 0, 0.45);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        // Alvos pulsantes
+        ctx.fillStyle = '#ff2a4b';
+        ctx.beginPath();
+        ctx.arc(centerX + 26, centerY - 22, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(centerX - 30, centerY + 28, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        angle += 0.04;
+        requestAnimationFrame(drawRadar);
+      }
+      drawRadar();
+    }
+  </script>
+
+  <!-- JAVASCRIPT APP ENGINE -->
+  <script>
+    let supabaseClient = null;
+    try {
+      if (window.supabase) {
+        const SUPABASE_URL = 'https://inqrtidtdzearvhjjpmq.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Z1FHc9GmJUeSugGhNRikIA_N4EjDrBo';
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+    } catch (e) {
+      console.log('Supabase offline');
+    }
+
+    const initialFinance = [
+      { id: 1, type: "DEBT", name: "Urgência Dia 3", amount: 10000, date: "2026-09-03", urgency: "CRITICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
+      { id: 2, type: "DEBT", name: "Taxa Venda do Terreno", amount: 1500, date: "2026-09-02", urgency: "ALTA", plan: "Pagar para liberar dinheiro da venda", controlled: false },
+      { id: 3, type: "RECURRENT", name: "Sistemas & Obrigações Mar Verde", amount: 4500, date: "2026-09-10", urgency: "NEGOCIAVEL", plan: "Cortar desnecessário e congelar contratos", controlled: true },
+      { id: 4, type: "INFLOW", name: "Aluguel São Paulo", amount: 3200, date: "2026-09-05", urgency: "INFLOW", plan: "Entrada regular de aluguel mensal", controlled: false },
+      { id: 5, type: "INFLOW", name: "Liberação Venda do Terreno", amount: 18000, date: "2026-09-15", urgency: "INFLOW", plan: "Saldo líquido da venda pós-taxa", controlled: false }
+    ];
+
+    const defaultTasks = [
+      { id: 1, text: "Encarar a urgência dos R$ 10.000 do dia 3 com credores", done: true },
+      { id: 2, text: "2 horas inegociáveis de estudo e código em TI + IA", done: true },
+      { id: 3, text: "Agilizar fechamento da venda do terreno (R$ 1.500 taxa)", done: false },
+      { id: 4, text: "Separar certidões para a Fase 1 (GO Paraguay GO)", done: false }
+    ];
+
+    const defaultLandChecklist = [
+      { id: 1, text: "Levantar R$ 1.500 para pagamento da taxa de transferência", done: false },
+      { id: 2, text: "Conferir documentação final com o comprador do terreno", done: true },
+      { id: 3, text: "Agendar assinatura em cartório para liberação dos recursos", done: false },
+      { id: 4, text: "Destinar valor da venda diretamente para amortizar dívida crítica", done: false }
+    ];
+
+    const defaultPyChecklist = [
+      { id: 1, text: "Certidão de Nascimento/Casamento atualizada e legalizada", done: true },
+      { id: 2, text: "Certidão de Antecedentes Criminais da Polícia Federal", done: true },
+      { id: 3, text: "Apostilamento de Haia em cartório nos documentos essenciais", done: false },
+      { id: 4, text: "Montagem do Caixa de Sobrevivência inicial (Fase 1)", done: false }
+    ];
 
     const diagnosticData = [
       {
@@ -725,127 +801,339 @@
       }
     ];
 
-    let supabaseClient = null;
-    try {
-      if (window.supabase) {
-        supabaseClient = window.supabase.createClient(
-          'https://inqrtidtdzearvhjjpmq.supabase.co',
-          'sb_publishable_Z1FHc9GmJUeSugGhNRikIA_N4EjDrBo'
-        );
+    class HuudSystem {
+      constructor() {
+        this.finance = JSON.parse(localStorage.getItem('huud_fin_v9')) || initialFinance;
+        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v9')) || defaultTasks;
+        this.landChecklist = JSON.parse(localStorage.getItem('huud_land_v9')) || defaultLandChecklist;
+        this.pyChecklist = JSON.parse(localStorage.getItem('huud_py_v9')) || defaultPyChecklist;
+        this.techHours = Number(localStorage.getItem('huud_tech_hours_v9')) || 42;
+        this.currentFilter = 'ALL';
+        this.init();
       }
-    } catch(e) {}
 
-    // FUNÇÕES DE NAVEGAÇÃO E MODAIS
-    window.switchView = function(viewId) {
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-
-      const target = document.getElementById('view-' + viewId);
-      if (target) target.classList.add('active');
-
-      document.querySelectorAll('.nav-pill').forEach(p => {
-        if ((p.getAttribute('onclick') || '').includes("'" + viewId + "'")) p.classList.add('active');
-      });
-
-      document.querySelectorAll('.nav-btn').forEach(b => {
-        if ((b.getAttribute('onclick') || '').includes("'" + viewId + "'")) b.classList.add('active');
-      });
-
-      window.scrollTo(0, 0);
-    };
-
-    window.openCommander = function() {
-      const el = document.getElementById('commander-mode');
-      if (el) el.classList.add('active');
-    };
-
-    window.closeCommander = function() {
-      const el = document.getElementById('commander-mode');
-      if (el) el.classList.remove('active');
-    };
-
-    window.openModal = function(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.add('active');
-    };
-
-    window.closeModal = function(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.remove('active');
-    };
-
-    // ABERTURA DE NOVO LANÇAMENTO
-    window.openEntryModal = function(type) {
-      document.getElementById('ent-edit-id').value = '';
-      document.getElementById('modal-entry-title').innerText = 'REGISTRAR LANÇAMENTO FINANCEIRO';
-      document.getElementById('btn-save-entry-submit').innerText = 'SALVAR LANÇAMENTO';
-
-      openModal('modal-add-entry');
-      const select = document.getElementById('ent-type');
-      if (select) {
-        select.value = type;
-        onEntryTypeChange(type);
+      async init() {
+        this.renderAll();
+        this.startTimer();
+        initRadarAnimation();
+        await this.syncFromCloud();
       }
-      document.getElementById('ent-name').value = '';
-      document.getElementById('ent-amount').value = '';
-      document.getElementById('ent-plan').value = '';
-      document.getElementById('ent-date').value = new Date().toISOString().split('T')[0];
-    };
 
-    // EDIÇÃO DE LANÇAMENTO EXISTENTE
-    window.editFinanceItem = function(id) {
-      const item = state.finance.find(i => i.id === id);
-      if (!item) return;
-
-      document.getElementById('ent-edit-id').value = item.id;
-      document.getElementById('modal-entry-title').innerText = 'EDITAR LANÇAMENTO FINANCEIRO';
-      document.getElementById('btn-save-entry-submit').innerText = 'SALVAR ALTERAÇÕES';
-
-      document.getElementById('ent-type').value = item.type;
-      onEntryTypeChange(item.type);
-
-      document.getElementById('ent-name').value = item.name;
-      document.getElementById('ent-amount').value = item.amount;
-      document.getElementById('ent-date').value = item.date || new Date().toISOString().split('T')[0];
-      
-      if (item.type === 'DEBT') {
-        document.getElementById('ent-urgency').value = item.urgency;
+      renderAll() {
+        this.renderHome();
+        this.renderFinance();
+        this.renderLandChecklist();
+        this.renderPyChecklist();
+        this.renderTasks();
+        this.renderDiagnosticAccordion();
       }
-      document.getElementById('ent-plan').value = item.plan || '';
 
-      openModal('modal-add-entry');
-    };
+      async syncFromCloud() {
+        if (!supabaseClient) return;
+        try {
+          const { data, error } = await supabaseClient
+            .from('huud_state')
+            .select('*')
+            .eq('id', 'dimas_primary')
+            .single();
 
-    window.onEntryTypeChange = function(val) {
-      const ug = document.getElementById('urgency-group');
-      if (ug) ug.style.display = (val === 'INFLOW' || val === 'RECURRENT') ? 'none' : 'block';
-    };
+          if (data && !error) {
+            if (data.debts && Array.isArray(data.debts) && data.debts.length > 0) this.finance = data.debts;
+            if (data.tasks && Array.isArray(data.tasks) && data.tasks.length > 0) this.tasks = data.tasks;
+            if (data.land_checklist && Array.isArray(data.land_checklist) && data.land_checklist.length > 0) this.landChecklist = data.land_checklist;
+            if (data.py_checklist && Array.isArray(data.py_checklist) && data.py_checklist.length > 0) this.pyChecklist = data.py_checklist;
+            if (data.tech_hours) this.techHours = Number(data.tech_hours);
 
-    // SALVAR (CRIAÇÃO OU EDIÇÃO)
-    window.saveEntry = function(e) {
-      e.preventDefault();
-      const editId = document.getElementById('ent-edit-id').value;
-      const type = document.getElementById('ent-type').value;
-
-      if (editId) {
-        // Modo Edição
-        state.finance = state.finance.map(i => {
-          if (i.id === Number(editId)) {
-            return {
-              ...i,
-              type: type,
-              name: document.getElementById('ent-name').value,
-              amount: Number(document.getElementById('ent-amount').value),
-              date: document.getElementById('ent-date').value,
-              urgency: type === 'INFLOW' ? 'INFLOW' : (type === 'RECURRENT' ? 'RECURRENT' : document.getElementById('ent-urgency').value),
-              plan: document.getElementById('ent-plan').value || "Sem observações"
-            };
+            this.saveLocally();
+            this.renderAll();
+            const statusEl = document.getElementById('cloud-sync-status');
+            if (statusEl) statusEl.innerHTML = '<span class="sync-dot"></span> CLOUD SINCRONIZADO';
           }
-          return i;
+        } catch (err) {
+          console.log('Operando offline');
+        }
+      }
+
+      async saveAll() {
+        this.saveLocally();
+        this.renderHome();
+
+        const statusEl = document.getElementById('cloud-sync-status');
+        if (statusEl) statusEl.innerHTML = '<span class="sync-dot" style="background:var(--warning)"></span> SALVANDO...';
+
+        if (supabaseClient) {
+          try {
+            const payload = {
+              id: 'dimas_primary',
+              debts: this.finance,
+              tasks: this.tasks,
+              land_checklist: this.landChecklist,
+              py_checklist: this.pyChecklist,
+              tech_hours: this.techHours,
+              updated_at: new Date().toISOString()
+            };
+
+            const { error } = await supabaseClient.from('huud_state').upsert(payload);
+            if (!error && statusEl) {
+              statusEl.innerHTML = '<span class="sync-dot"></span> CLOUD ONLINE';
+            }
+          } catch (err) {
+            if (statusEl) statusEl.innerHTML = '<span class="sync-dot" style="background:var(--danger)"></span> LOCAL';
+          }
+        }
+      }
+
+      saveLocally() {
+        localStorage.setItem('huud_fin_v9', JSON.stringify(this.finance));
+        localStorage.setItem('huud_tasks_v9', JSON.stringify(this.tasks));
+        localStorage.setItem('huud_land_v9', JSON.stringify(this.landChecklist));
+        localStorage.setItem('huud_py_v9', JSON.stringify(this.pyChecklist));
+        localStorage.setItem('huud_tech_hours_v9', this.techHours);
+      }
+
+      switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+        const target = document.getElementById('view-' + viewId);
+        if (target) target.classList.add('active');
+
+        document.querySelectorAll('.nav-pill').forEach(p => {
+          const attr = p.getAttribute('onclick') || '';
+          if (attr.includes(`'${viewId}'`)) p.classList.add('active');
         });
-      } else {
-        // Modo Novo
+
+        document.querySelectorAll('.nav-btn').forEach(b => {
+          const attr = b.getAttribute('onclick') || '';
+          if (attr.includes(`'${viewId}'`)) b.classList.add('active');
+        });
+
+        window.scrollTo(0, 0);
+      }
+
+      renderHome() {
+        let totalDebts = 0;
+        let totalInflows = 0;
+        this.finance.forEach(item => {
+          const val = Number(item.amount) || 0;
+          if (item.type === 'INFLOW' && !item.controlled) totalInflows += val;
+          else if (item.type === 'DEBT' && !item.controlled) totalDebts += val;
+        });
+
+        const net = totalInflows - totalDebts;
+        const dEl = document.getElementById('home-debts-val');
+        const iEl = document.getElementById('home-inflows-val');
+        const nEl = document.getElementById('home-net-val');
+        const thEl = document.getElementById('home-tech-hours');
+
+        if (dEl) dEl.innerText = `R$ ${totalDebts.toLocaleString('pt-BR')}`;
+        if (iEl) iEl.innerText = `R$ ${totalInflows.toLocaleString('pt-BR')}`;
+        if (nEl) {
+          nEl.innerText = `R$ ${net.toLocaleString('pt-BR')}`;
+          nEl.style.color = net >= 0 ? 'var(--blue-inflow)' : 'var(--danger)';
+        }
+        if (thEl) thEl.innerText = `${this.techHours}h`;
+
+        const totalTasks = this.tasks.length;
+        const doneTasks = this.tasks.filter(t => t.done).length;
+        const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+        
+        const execEl = document.getElementById('hud-exec-rate');
+        const progEl = document.getElementById('radar-progress-fill');
+        if (execEl) execEl.innerText = `${pct}%`;
+        if (progEl) progEl.style.width = `${pct}%`;
+
+        // Mini checklists na home
+        const landBox = document.getElementById('home-land-mini-checklist');
+        if (landBox) {
+          landBox.innerHTML = this.landChecklist.slice(0, 2).map(t => `
+            <div class="home-task-item ${t.done ? 'done' : ''}" onclick="app.toggleLandTask(${t.id})">
+              <div class="mini-checkbox">${t.done ? '✓' : ''}</div>
+              <span style="font-size:0.75rem;">${t.text}</span>
+            </div>
+          `).join('');
+        }
+
+        const pyBox = document.getElementById('home-py-mini-checklist');
+        if (pyBox) {
+          pyBox.innerHTML = this.pyChecklist.slice(0, 2).map(t => `
+            <div class="home-task-item ${t.done ? 'done' : ''}" onclick="app.togglePyTask(${t.id})">
+              <div class="mini-checkbox">${t.done ? '✓' : ''}</div>
+              <span style="font-size:0.75rem;">${t.text}</span>
+            </div>
+          `).join('');
+        }
+
+        const tasksBox = document.getElementById('home-tasks-mini-list');
+        if (tasksBox) {
+          tasksBox.innerHTML = this.tasks.slice(0, 3).map(t => `
+            <div class="home-task-item ${t.done ? 'done' : ''}" onclick="app.toggleTask(${t.id})">
+              <div class="mini-checkbox">${t.done ? '✓' : ''}</div>
+              <span style="font-size:0.75rem;">${t.text}</span>
+            </div>
+          `).join('');
+        }
+      }
+
+      setFilter(filter) {
+        this.currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.className = 'filter-btn');
+        const activeBtn = document.getElementById(`flt-${filter}`);
+        if (activeBtn) {
+          if (filter === 'ALL') activeBtn.classList.add('active-all');
+          else if (filter === 'CRITICA') activeBtn.classList.add('active-critica');
+          else if (filter === 'ALTA') activeBtn.classList.add('active-alta');
+          else if (filter === 'NEGOCIAVEL') activeBtn.classList.add('active-negociavel');
+          else if (filter === 'INFLOW') activeBtn.classList.add('active-inflows');
+          else if (filter === 'RECORRENTE') activeBtn.classList.add('active-recorrente');
+          else if (filter === 'DONE') activeBtn.classList.add('active-all');
+        }
+        this.renderFinance();
+      }
+
+      formatDateBR(dateStr) {
+        if (!dateStr) return 'Sem Data';
+        const parts = dateStr.split('-');
+        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        return dateStr;
+      }
+
+      renderFinance() {
+        const container = document.getElementById('financial-items-container');
+        if (!container) return;
+
+        let totalDebts = 0;
+        let totalInflows = 0;
+        let totalRecurrent = 0;
+
+        this.finance.forEach(item => {
+          const val = Number(item.amount) || 0;
+          if (item.type === 'INFLOW' && !item.controlled) totalInflows += val;
+          else if (item.type === 'DEBT' && !item.controlled) totalDebts += val;
+          else if (item.type === 'RECURRENT') totalRecurrent += val;
+        });
+
+        const dEl = document.getElementById('fin-debts-total');
+        const iEl = document.getElementById('fin-inflows-total');
+        const rEl = document.getElementById('fin-recurrent-total');
+        if (dEl) dEl.innerText = `R$ ${totalDebts.toLocaleString('pt-BR')}`;
+        if (iEl) iEl.innerText = `R$ ${totalInflows.toLocaleString('pt-BR')}`;
+        if (rEl) rEl.innerText = `R$ ${totalRecurrent.toLocaleString('pt-BR')}`;
+
+        let filtered = this.finance.filter(item => {
+          if (this.currentFilter === 'ALL') return true;
+          if (this.currentFilter === 'DONE') return item.controlled;
+          if (this.currentFilter === 'INFLOW') return item.type === 'INFLOW';
+          if (this.currentFilter === 'RECORRENTE') return item.type === 'RECURRENT';
+          if (this.currentFilter === 'CRITICA') return item.urgency === 'CRITICA' && !item.controlled;
+          if (this.currentFilter === 'ALTA') return item.urgency === 'ALTA' && !item.controlled;
+          if (this.currentFilter === 'NEGOCIAVEL') return item.urgency === 'NEGOCIAVEL' && !item.controlled;
+          return true;
+        });
+
+        const urgencyWeight = { 'CRITICA': 3, 'ALTA': 2, 'NEGOCIAVEL': 1, 'INFLOW': 0 };
+        filtered.sort((a, b) => {
+          const wA = a.controlled ? -1 : (urgencyWeight[a.urgency] || 0);
+          const wB = b.controlled ? -1 : (urgencyWeight[b.urgency] || 0);
+          return wB - wA;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.8rem; font-family:var(--mono);">NENHUM REGISTRO ENCONTRADO PARA ESTE FILTRO.</div>';
+          return;
+        }
+
+        container.innerHTML = filtered.map(item => {
+          const isDone = item.controlled;
+          const isInflow = item.type === 'INFLOW';
+          const isRecurrent = item.type === 'RECURRENT';
+
+          let borderClass = 'is-negociavel';
+          let badgeClass = 'badge-negociavel';
+          let badgeText = 'NEGOCIÁVEL';
+
+          if (isInflow) {
+            borderClass = 'is-inflow';
+            badgeClass = 'badge-inflow';
+            badgeText = 'ENTRADA A RECEBER (AZUL)';
+          } else if (isRecurrent) {
+            borderClass = 'is-recurrent';
+            badgeClass = 'badge-recurrent';
+            badgeText = 'FIXO MENSAL';
+          } else if (item.urgency === 'CRITICA') {
+            borderClass = 'is-critica';
+            badgeClass = 'badge-critica';
+            badgeText = '🔴 CRÍTICA';
+          } else if (item.urgency === 'ALTA') {
+            borderClass = 'is-alta';
+            badgeClass = 'badge-alta';
+            badgeText = '🟡 ALTA PRIORIDADE';
+          }
+
+          if (isDone) {
+            badgeClass = 'badge-done';
+            badgeText = isInflow ? 'RECEBIDO ✓' : 'QUITADO ✓';
+          }
+
+          const valColorClass = isInflow ? 'val-in' : 'val-out';
+          const sign = isInflow ? '+ R$' : '- R$';
+
+          return `
+            <div class="item-card ${borderClass}" style="${isDone ? 'opacity:0.5;' : ''}">
+              <div class="item-top">
+                <span class="item-title">${item.name}</span>
+                <span class="item-val ${valColorClass}">${sign} ${Number(item.amount).toLocaleString('pt-BR')}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                <span class="badge-status ${badgeClass}">${badgeText}</span>
+                <span style="font-family:var(--mono); font-size:0.68rem; color:var(--text-muted);">
+                  📅 ${this.formatDateBR(item.date)}
+                </span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:flex; justify-content:space-between; align-items:flex-end;">
+                <div><strong>Ação:</strong> ${item.plan || 'Em definição'}</div>
+                <div style="display:flex; gap:8px;">
+                  <button style="background:transparent; border:none; color:var(--neon); font-size:0.7rem; font-family:var(--mono); cursor:pointer;" onclick="app.toggleFinanceStatus(${item.id})">
+                    ${isDone ? 'Reabrir' : (isInflow ? 'Dar Baixa Recebido ✓' : 'Dar Baixa Quitado ✓')}
+                  </button>
+                  <button style="background:transparent; border:none; color:var(--danger); font-size:0.7rem; font-family:var(--mono); cursor:pointer;" onclick="app.deleteFinanceItem(${item.id})">✕</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      onEntryTypeChange(val) {
+        const ug = document.getElementById('urgency-group');
+        if (ug) ug.style.display = (val === 'INFLOW' || val === 'RECURRENT') ? 'none' : 'block';
+      }
+
+      openModal(id, preType) {
+        const modal = document.getElementById(id);
+        if (modal) {
+          modal.classList.add('active');
+          if (preType) {
+            const entType = document.getElementById('ent-type');
+            if (entType) {
+              entType.value = preType;
+              this.onEntryTypeChange(preType);
+            }
+          }
+          const entDate = document.getElementById('ent-date');
+          if (entDate) entDate.value = new Date().toISOString().split('T')[0];
+        }
+      }
+
+      closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.remove('active');
+      }
+
+      saveEntry(e) {
+        e.preventDefault();
+        const type = document.getElementById('ent-type').value;
         const newEntry = {
           id: Date.now(),
           type: type,
@@ -856,497 +1144,229 @@
           plan: document.getElementById('ent-plan').value || "Sem observações",
           controlled: false
         };
-        state.finance.push(newEntry);
+
+        this.finance.push(newEntry);
+        this.saveAll();
+        this.renderFinance();
+        this.closeModal('modal-add-entry');
+        e.target.reset();
       }
 
-      saveState();
-      renderFinance();
-      renderHome();
-      closeModal('modal-add-entry');
-      e.target.reset();
-    };
-
-    window.toggleFinanceStatus = function(id) {
-      state.finance = state.finance.map(i => i.id === id ? { ...i, controlled: !i.controlled } : i);
-      saveState();
-      renderFinance();
-      renderHome();
-    };
-
-    window.deleteFinanceItem = function(id) {
-      if (confirm("Deseja realmente remover este lançamento?")) {
-        state.finance = state.finance.filter(i => i.id !== id);
-        saveState();
-        renderFinance();
-        renderHome();
+      toggleFinanceStatus(id) {
+        this.finance = this.finance.map(item => item.id === id ? { ...item, controlled: !item.controlled } : item);
+        this.saveAll();
+        this.renderFinance();
       }
-    };
 
-    window.setFilter = function(filter) {
-      state.currentFilter = filter;
-      document.querySelectorAll('.filter-btn').forEach(btn => btn.className = 'filter-btn');
-      const b = document.getElementById('flt-' + filter);
-      if (b) {
-        if (filter === 'ALL' || filter === 'DONE') b.classList.add('active-all');
-        else if (filter === 'CRITICA') b.classList.add('active-critica');
-        else if (filter === 'ALTA') b.classList.add('active-alta');
-        else if (filter === 'NEGOCIAVEL') b.classList.add('active-negociavel');
-        else if (filter === 'INFLOW') b.classList.add('active-inflows');
-        else if (filter === 'RECORRENTE') b.classList.add('active-recorrente');
-      }
-      renderFinance();
-    };
-
-    window.toggleTask = function(id) {
-      state.tasks = state.tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
-      saveState();
-      renderTasks();
-      renderHome();
-    };
-
-    window.toggleLandTask = function(id) {
-      state.landChecklist = state.landChecklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
-      saveState();
-      renderLand();
-      renderHome();
-    };
-
-    window.togglePyTask = function(id) {
-      state.pyChecklist = state.pyChecklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
-      saveState();
-      renderPy();
-      renderHome();
-    };
-
-    window.logTechHours = function() {
-      state.techHours += 2;
-      saveState();
-      renderHome();
-      alert("2 HORAS DE CÓDIGO REGISTRADAS.");
-    };
-
-    window.toggleAccordion = function(idx) {
-      const b = document.getElementById('diag-body-' + idx);
-      const a = document.getElementById('diag-arrow-' + idx);
-      if (!b || !a) return;
-      if (b.classList.contains('open')) {
-        b.classList.remove('open');
-        a.innerText = '+';
-      } else {
-        b.classList.add('open');
-        a.innerText = '−';
-      }
-    };
-
-    window.completeDay = function() {
-      alert("EVIDÊNCIA GRAVADA E SINCRONIZADA.");
-      closeCommander();
-    };
-
-    window.shareWithRafaela = function() {
-      let totalOut = 0, totalIn = 0;
-      let criticas = [], entradas = [];
-
-      state.finance.forEach(item => {
-        const val = Number(item.amount) || 0;
-        if (item.type === 'INFLOW' && !item.controlled) {
-          totalIn += val;
-          entradas.push("• " + item.name + ": +R$ " + val.toLocaleString('pt-BR'));
-        } else if (!item.controlled) {
-          totalOut += val;
-          if (item.urgency === 'CRITICA') {
-            criticas.push("🔴 " + item.name + ": R$ " + val.toLocaleString('pt-BR'));
-          }
+      deleteFinanceItem(id) {
+        if (confirm("Deseja realmente remover este lançamento?")) {
+          this.finance = this.finance.filter(item => item.id !== id);
+          this.saveAll();
+          this.renderFinance();
         }
-      });
-
-      const report = "📋 *RELATÓRIO FINANCEIRO & DIRETRIZ TÁTICA*\n" +
-        "-----------------------------------\n" +
-        "🚨 *URGÊNCIAS CRÍTICAS:*\n" + (criticas.length ? criticas.join('\n') : "• Nenhuma crítica pendente.") + "\n\n" +
-        "🔵 *ENTRADAS PREVISTAS:*\n" + (entradas.length ? entradas.join('\n') : "• Sem entradas mapeadas.") + "\n\n" +
-        "📊 *RESUMO DO FLUXO:*\n" +
-        "• Passivo Pendente: R$ " + totalOut.toLocaleString('pt-BR') + "\n" +
-        "• Entradas Mapeadas: R$ " + totalIn.toLocaleString('pt-BR') + "\n" +
-        "• Saldo Projetado: R$ " + (totalIn - totalOut).toLocaleString('pt-BR') + "\n\n" +
-        "🎯 *Foco:* Liquidar urgências do dia 3 e proteger caixa.";
-
-      const ta = document.getElementById('rafaela-report-text');
-      if (ta) ta.value = report;
-      openModal('modal-share-rafaela');
-    };
-
-    window.sendWhatsApp = function() {
-      const text = encodeURIComponent(document.getElementById('rafaela-report-text').value);
-      window.open('https://api.whatsapp.com/send?text=' + text, '_blank');
-    };
-
-    window.copyReport = function() {
-      const ta = document.getElementById('rafaela-report-text');
-      ta.select();
-      document.execCommand('copy');
-      alert("Copiado com sucesso!");
-    };
-
-    window.exportBackup = function() {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'HUUD_BACKUP_' + new Date().toISOString().split('T')[0] + '.json';
-      a.click();
-    };
-
-    window.importBackup = function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const data = JSON.parse(evt.target.result);
-          if (data.finance) state.finance = data.finance;
-          if (data.tasks) state.tasks = data.tasks;
-          if (data.landChecklist) state.landChecklist = data.landChecklist;
-          if (data.pyChecklist) state.pyChecklist = data.pyChecklist;
-          if (data.techHours) state.techHours = data.techHours;
-          saveState();
-          renderAll();
-          alert("BACKUP RESTAURADO COM SUCESSO!");
-        } catch(err) {
-          alert("Arquivo inválido.");
-        }
-      };
-      reader.readAsText(file);
-    };
-
-    // RENDERIZAÇÃO
-    function renderHome() {
-      let totalDebts = 0, totalInflows = 0;
-      state.finance.forEach(item => {
-        const val = Number(item.amount) || 0;
-        if (item.type === 'INFLOW' && !item.controlled) totalInflows += val;
-        else if (item.type === 'DEBT' && !item.controlled) totalDebts += val;
-      });
-
-      const net = totalInflows - totalDebts;
-      const dEl = document.getElementById('home-debts-val');
-      const iEl = document.getElementById('home-inflows-val');
-      const nEl = document.getElementById('home-net-val');
-      const thEl = document.getElementById('home-tech-hours');
-
-      if (dEl) dEl.innerText = "R$ " + totalDebts.toLocaleString('pt-BR');
-      if (iEl) iEl.innerText = "R$ " + totalInflows.toLocaleString('pt-BR');
-      if (nEl) {
-        nEl.innerText = "R$ " + net.toLocaleString('pt-BR');
-        nEl.style.color = net >= 0 ? 'var(--blue-inflow)' : 'var(--danger)';
-      }
-      if (thEl) thEl.innerText = state.techHours + "h";
-
-      const totalTasks = state.tasks.length;
-      const doneTasks = state.tasks.filter(t => t.done).length;
-      const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
-      
-      const execEl = document.getElementById('hud-exec-rate');
-      const progEl = document.getElementById('radar-progress-fill');
-      if (execEl) execEl.innerText = pct + "%";
-      if (progEl) progEl.style.width = pct + "%";
-
-      const landBox = document.getElementById('home-land-mini-checklist');
-      if (landBox) {
-        landBox.innerHTML = state.landChecklist.slice(0, 2).map(t => 
-          '<div class="home-task-item ' + (t.done ? 'done' : '') + '" onclick="toggleLandTask(' + t.id + ')">' +
-            '<div class="mini-checkbox">' + (t.done ? '✓' : '') + '</div>' +
-            '<span style="font-size:0.75rem;">' + t.text + '</span>' +
-          '</div>'
-        ).join('');
       }
 
-      const pyBox = document.getElementById('home-py-mini-checklist');
-      if (pyBox) {
-        pyBox.innerHTML = state.pyChecklist.slice(0, 2).map(t => 
-          '<div class="home-task-item ' + (t.done ? 'done' : '') + '" onclick="togglePyTask(' + t.id + ')">' +
-            '<div class="mini-checkbox">' + (t.done ? '✓' : '') + '</div>' +
-            '<span style="font-size:0.75rem;">' + t.text + '</span>' +
-          '</div>'
-        ).join('');
-      }
+      shareWithRafaela() {
+        let totalOut = 0;
+        let totalIn = 0;
+        let criticas = [];
+        let entradas = [];
 
-      const tasksBox = document.getElementById('home-tasks-mini-list');
-      if (tasksBox) {
-        tasksBox.innerHTML = state.tasks.slice(0, 3).map(t => 
-          '<div class="home-task-item ' + (t.done ? 'done' : '') + '" onclick="toggleTask(' + t.id + ')">' +
-            '<div class="mini-checkbox">' + (t.done ? '✓' : '') + '</div>' +
-            '<span style="font-size:0.75rem;">' + t.text + '</span>' +
-          '</div>'
-        ).join('');
-      }
-    }
-
-    function renderFinance() {
-      const container = document.getElementById('financial-items-container');
-      if (!container) return;
-
-      let totalDebts = 0, totalInflows = 0, totalRecurrent = 0;
-      state.finance.forEach(item => {
-        const val = Number(item.amount) || 0;
-        if (item.type === 'INFLOW' && !item.controlled) totalInflows += val;
-        else if (item.type === 'DEBT' && !item.controlled) totalDebts += val;
-        else if (item.type === 'RECURRENT') totalRecurrent += val;
-      });
-
-      const dEl = document.getElementById('fin-debts-total');
-      const iEl = document.getElementById('fin-inflows-total');
-      const rEl = document.getElementById('fin-recurrent-total');
-      if (dEl) dEl.innerText = "R$ " + totalDebts.toLocaleString('pt-BR');
-      if (iEl) iEl.innerText = "R$ " + totalInflows.toLocaleString('pt-BR');
-      if (rEl) rEl.innerText = "R$ " + totalRecurrent.toLocaleString('pt-BR');
-
-      let filtered = state.finance.filter(item => {
-        if (state.currentFilter === 'ALL') return true;
-        if (state.currentFilter === 'DONE') return item.controlled;
-        if (state.currentFilter === 'INFLOW') return item.type === 'INFLOW';
-        if (state.currentFilter === 'RECORRENTE') return item.type === 'RECURRENT';
-        if (state.currentFilter === 'CRITICA') return item.urgency === 'CRITICA' && !item.controlled;
-        if (state.currentFilter === 'ALTA') return item.urgency === 'ALTA' && !item.controlled;
-        if (state.currentFilter === 'NEGOCIAVEL') return item.urgency === 'NEGOCIAVEL' && !item.controlled;
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.8rem; font-family:var(--mono);">NENHUM REGISTRO ENCONTRADO.</div>';
-        return;
-      }
-
-      container.innerHTML = filtered.map(item => {
-        const isDone = item.controlled;
-        const isInflow = item.type === 'INFLOW';
-        const isRecurrent = item.type === 'RECURRENT';
-
-        let borderClass = 'is-negociavel';
-        let badgeClass = 'badge-negociavel';
-        let badgeText = 'NEGOCIÁVEL';
-
-        if (isInflow) {
-          borderClass = 'is-inflow';
-          badgeClass = 'badge-inflow';
-          badgeText = 'ENTRADA (AZUL)';
-        } else if (isRecurrent) {
-          borderClass = 'is-recurrent';
-          badgeClass = 'badge-recurrent';
-          badgeText = 'FIXO MENSAL';
-        } else if (item.urgency === 'CRITICA') {
-          borderClass = 'is-critica';
-          badgeClass = 'badge-critica';
-          badgeText = '🔴 CRÍTICA';
-        } else if (item.urgency === 'ALTA') {
-          borderClass = 'is-alta';
-          badgeClass = 'badge-alta';
-          badgeText = '🟡 ALTA';
-        }
-
-        if (isDone) {
-          badgeClass = 'badge-done';
-          badgeText = isInflow ? 'RECEBIDO ✓' : 'QUITADO ✓';
-        }
-
-        const valColorClass = isInflow ? 'val-in' : 'val-out';
-        const sign = isInflow ? '+ R$' : '- R$';
-
-        let dateStr = item.date || 'Sem Data';
-        const parts = dateStr.split('-');
-        if (parts.length === 3) dateStr = parts[2] + '/' + parts[1] + '/' + parts[0];
-
-        return '<div class="item-card ' + borderClass + '" style="' + (isDone ? 'opacity:0.5;' : '') + '">' +
-          '<div class="item-top">' +
-            '<span class="item-title">' + item.name + '</span>' +
-            '<span class="item-val ' + valColorClass + '">' + sign + ' ' + Number(item.amount).toLocaleString('pt-BR') + '</span>' +
-          '</div>' +
-          '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">' +
-            '<span class="badge-status ' + badgeClass + '">' + badgeText + '</span>' +
-            '<span style="font-family:var(--mono); font-size:0.68rem; color:var(--text-muted);">📅 ' + dateStr + '</span>' +
-          '</div>' +
-          '<div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between; align-items:flex-end;">' +
-            '<div style="max-width:60%;"><strong>Ação:</strong> ' + (item.plan || 'Em definição') + '</div>' +
-            '<div style="display:flex; gap:10px; align-items:center;">' +
-              '<button style="background:transparent; border:none; color:var(--blue-inflow); font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;" onclick="editFinanceItem(' + item.id + ')">✎ Editar</button>' +
-              '<button style="background:transparent; border:none; color:var(--neon); font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;" onclick="toggleFinanceStatus(' + item.id + ')">' +
-                (isDone ? 'Reabrir' : (isInflow ? 'Recebido ✓' : 'Quitado ✓')) +
-              '</button>' +
-              '<button style="background:transparent; border:none; color:var(--danger); font-size:0.75rem; font-family:var(--mono); cursor:pointer;" onclick="deleteFinanceItem(' + item.id + ')">✕</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-    }
-
-    function renderTasks() {
-      const c = document.getElementById('cmd-tasks-container');
-      if (!c) return;
-      c.innerHTML = state.tasks.map(t => 
-        '<div class="home-task-item ' + (t.done ? 'done' : '') + '" style="padding:14px; margin-bottom:8px;" onclick="toggleTask(' + t.id + ')">' +
-          '<div class="mini-checkbox" style="width:20px; height:20px;">' + (t.done ? '✓' : '') + '</div>' +
-          '<span style="font-size:0.85rem;">' + t.text + '</span>' +
-        '</div>'
-      ).join('');
-    }
-
-    function renderLand() {
-      const c = document.getElementById('land-checklist-container');
-      if (!c) return;
-      c.innerHTML = state.landChecklist.map(t => 
-        '<div class="home-task-item ' + (t.done ? 'done' : '') + '" style="padding:14px; margin-bottom:8px;" onclick="toggleLandTask(' + t.id + ')">' +
-          '<div class="mini-checkbox" style="width:20px; height:20px;">' + (t.done ? '✓' : '') + '</div>' +
-          '<span style="font-size:0.85rem;">' + t.text + '</span>' +
-        '</div>'
-      ).join('');
-    }
-
-    function renderPy() {
-      const c = document.getElementById('py-checklist-container');
-      if (!c) return;
-      c.innerHTML = state.pyChecklist.map(t => 
-        '<div class="home-task-item ' + (t.done ? 'done' : '') + '" style="padding:14px; margin-bottom:8px;" onclick="togglePyTask(' + t.id + ')">' +
-          '<div class="mini-checkbox" style="width:20px; height:20px;">' + (t.done ? '✓' : '') + '</div>' +
-          '<span style="font-size:0.85rem;">' + t.text + '</span>' +
-        '</div>'
-      ).join('');
-    }
-
-    function renderDiagnostic() {
-      const c = document.getElementById('diagnostic-blocks-accordion');
-      if (!c) return;
-      c.innerHTML = diagnosticData.map((d, index) => 
-        '<div class="diag-block-card">' +
-          '<div class="diag-block-header" onclick="toggleAccordion(' + index + ')">' +
-            '<span>' + d.block + '</span>' +
-            '<span id="diag-arrow-' + index + '">+</span>' +
-          '</div>' +
-          '<div class="diag-block-body" id="diag-body-' + index + '">' +
-            d.content +
-          '</div>' +
-        '</div>'
-      ).join('');
-    }
-
-    function renderAll() {
-      renderHome();
-      renderFinance();
-      renderTasks();
-      renderLand();
-      renderPy();
-      renderDiagnostic();
-    }
-
-    function saveState() {
-      localStorage.setItem('huud_master_state_v11', JSON.stringify(state));
-      if (supabaseClient) {
-        supabaseClient.from('huud_state').upsert({
-          id: 'dimas_primary',
-          debts: state.finance,
-          tasks: state.tasks,
-          land_checklist: state.landChecklist,
-          py_checklist: state.pyChecklist,
-          tech_hours: state.techHours,
-          updated_at: new Date().toISOString()
-        }).then(({ error }) => {
-          const el = document.getElementById('cloud-sync-status');
-          if (!error && el) el.innerHTML = '<span class="sync-dot"></span> CLOUD ONLINE';
-        }).catch(() => {});
-      }
-    }
-
-    function loadSavedState() {
-      const local = localStorage.getItem('huud_master_state_v11');
-      if (local) {
-        try {
-          const parsed = JSON.parse(local);
-          if (parsed.finance) state.finance = parsed.finance;
-          if (parsed.tasks) state.tasks = parsed.tasks;
-          if (parsed.landChecklist) state.landChecklist = parsed.landChecklist;
-          if (parsed.pyChecklist) state.pyChecklist = parsed.pyChecklist;
-          if (parsed.techHours) state.techHours = parsed.techHours;
-        } catch(e) {}
-      }
-
-      if (supabaseClient) {
-        supabaseClient.from('huud_state').select('*').eq('id', 'dimas_primary').single()
-          .then(({ data, error }) => {
-            if (data && !error) {
-              if (data.debts && data.debts.length) state.finance = data.debts;
-              if (data.tasks && data.tasks.length) state.tasks = data.tasks;
-              if (data.land_checklist && data.land_checklist.length) state.landChecklist = data.land_checklist;
-              if (data.py_checklist && data.py_checklist.length) state.pyChecklist = data.py_checklist;
-              if (data.tech_hours) state.techHours = Number(data.tech_hours);
-              renderAll();
+        this.finance.forEach(item => {
+          const val = Number(item.amount) || 0;
+          if (item.type === 'INFLOW' && !item.controlled) {
+            totalIn += val;
+            entradas.push(`• ${item.name}: +R$ ${val.toLocaleString('pt-BR')} (Prev: ${this.formatDateBR(item.date)})`);
+          } else if (!item.controlled) {
+            totalOut += val;
+            if (item.urgency === 'CRITICA') {
+              criticas.push(`🔴 ${item.name}: R$ ${val.toLocaleString('pt-BR')} (Venc: ${this.formatDateBR(item.date)})`);
             }
-          }).catch(() => {});
+          }
+        });
+
+        const critText = criticas.length > 0 ? criticas.join('\n') : '• Nenhuma urgência crítica pendente.';
+        const entText = entradas.length > 0 ? entradas.join('\n') : '• Sem entradas mapeadas.';
+
+        const report = `📋 *RELATÓRIO FINANCEIRO & DIRETRIZ TÁTICA*\n` +
+          `-----------------------------------\n` +
+          `🚨 *URGÊNCIAS CRÍTICAS:*\n${critText}\n\n` +
+          `🔵 *ENTRADAS PREVISTAS:*\n${entText}\n\n` +
+          `📊 *RESUMO DO FLUXO:*\n` +
+          `• Passivos Pendentes: R$ ${totalOut.toLocaleString('pt-BR')}\n` +
+          `• Entradas Mapeadas: R$ ${totalIn.toLocaleString('pt-BR')}\n` +
+          `• Saldo Projetado: R$ ${(totalIn - totalOut).toLocaleString('pt-BR')}\n\n` +
+          `🎯 *Foco:* Concluir venda do terreno para liquidar urgências do dia 3 e proteger caixa.`;
+
+        const reportEl = document.getElementById('rafaela-report-text');
+        if (reportEl) reportEl.value = report;
+        this.openModal('modal-share-rafaela');
       }
-    }
 
-    function startRadar() {
-      const canvas = document.getElementById('tactical-radar');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      let angle = 0;
+      sendWhatsApp() {
+        const text = encodeURIComponent(document.getElementById('rafaela-report-text').value);
+        window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+      }
 
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const cx = 70, cy = 70, rad = 60;
+      copyReport() {
+        const copyText = document.getElementById("rafaela-report-text");
+        copyText.select();
+        document.execCommand("copy");
+        alert("Relatório copiado!");
+      }
 
-        ctx.strokeStyle = 'rgba(212, 255, 0, 0.2)';
-        ctx.lineWidth = 1;
-        for (let r = 20; r <= rad; r += 20) {
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.stroke();
+      renderTasks() {
+        const c = document.getElementById('cmd-tasks-container');
+        if (!c) return;
+        c.innerHTML = this.tasks.map(t => `
+          <div class="home-task-item ${t.done ? 'done' : ''}" style="padding:14px; margin-bottom:8px;" onclick="app.toggleTask(${t.id})">
+            <div class="mini-checkbox" style="width:20px; height:20px;">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem;">${t.text}</span>
+          </div>
+        `).join('');
+      }
+
+      toggleTask(id) {
+        this.tasks = this.tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        this.saveAll();
+        this.renderTasks();
+      }
+
+      renderLandChecklist() {
+        const c = document.getElementById('land-checklist-container');
+        if (!c) return;
+        c.innerHTML = this.landChecklist.map(t => `
+          <div class="home-task-item ${t.done ? 'done' : ''}" style="padding:14px; margin-bottom:8px;" onclick="app.toggleLandTask(${t.id})">
+            <div class="mini-checkbox" style="width:20px; height:20px;">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem;">${t.text}</span>
+          </div>
+        `).join('');
+      }
+
+      toggleLandTask(id) {
+        this.landChecklist = this.landChecklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        this.saveAll();
+        this.renderLandChecklist();
+      }
+
+      renderPyChecklist() {
+        const c = document.getElementById('py-checklist-container');
+        if (!c) return;
+        c.innerHTML = this.pyChecklist.map(t => `
+          <div class="home-task-item ${t.done ? 'done' : ''}" style="padding:14px; margin-bottom:8px;" onclick="app.togglePyTask(${t.id})">
+            <div class="mini-checkbox" style="width:20px; height:20px;">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem;">${t.text}</span>
+          </div>
+        `).join('');
+      }
+
+      togglePyTask(id) {
+        this.pyChecklist = this.pyChecklist.map(t => t.id === id ? { ...t, done: !t.done } : t);
+        this.saveAll();
+        this.renderPyChecklist();
+      }
+
+      logTechHours() {
+        this.techHours += 2;
+        this.saveAll();
+        alert("2 HORAS DE CÓDIGO REGISTRADAS. Mantenha o foco!");
+      }
+
+      renderDiagnosticAccordion() {
+        const c = document.getElementById('diagnostic-blocks-accordion');
+        if (!c) return;
+        c.innerHTML = diagnosticData.map((d, index) => `
+          <div class="diag-block-card">
+            <div class="diag-block-header" onclick="app.toggleAccordion(${index})">
+              <span>${d.block}</span>
+              <span id="diag-arrow-${index}">+</span>
+            </div>
+            <div class="diag-block-body" id="diag-body-${index}">
+              ${d.content}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      toggleAccordion(index) {
+        const body = document.getElementById(`diag-body-${index}`);
+        const arrow = document.getElementById(`diag-arrow-${index}`);
+        if (!body || !arrow) return;
+        if (body.classList.contains('open')) {
+          body.classList.remove('open');
+          arrow.innerText = '+';
+        } else {
+          body.classList.add('open');
+          arrow.innerText = '−';
         }
-
-        ctx.beginPath();
-        ctx.moveTo(cx - rad, cy); ctx.lineTo(cx + rad, cy);
-        ctx.moveTo(cx, cy - rad); ctx.lineTo(cx, cy + rad);
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(angle);
-        const grad = ctx.createLinearGradient(0, 0, rad, 0);
-        grad.addColorStop(0, 'rgba(212, 255, 0, 0.4)');
-        grad.addColorStop(1, 'rgba(212, 255, 0, 0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.arc(0, 0, rad, 0, 0.5);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-
-        ctx.fillStyle = '#ff2a4b';
-        ctx.beginPath(); ctx.arc(cx + 25, cy - 20, 3, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#38bdf8';
-        ctx.beginPath(); ctx.arc(cx - 28, cy + 25, 3, 0, Math.PI * 2); ctx.fill();
-
-        angle += 0.04;
-        requestAnimationFrame(draw);
       }
-      draw();
+
+      startTimer() {
+        const timerEl = document.getElementById('cmd-timer');
+        setInterval(() => {
+          const now = new Date();
+          const hrs = String(23 - now.getHours()).padStart(2, '0');
+          const mins = String(59 - now.getMinutes()).padStart(2, '0');
+          const secs = String(59 - now.getSeconds()).padStart(2, '0');
+          if (timerEl) timerEl.innerText = `${hrs} : ${mins} : ${secs}`;
+        }, 1000);
+      }
+
+      openCommander() { 
+        const cmd = document.getElementById('commander-mode');
+        if (cmd) cmd.classList.add('active'); 
+      }
+      
+      closeCommander() { 
+        const cmd = document.getElementById('commander-mode');
+        if (cmd) cmd.classList.remove('active'); 
+      }
+
+      completeDay() {
+        alert("EVIDÊNCIA GRAVADA E SINCRONIZADA.");
+        this.closeCommander();
+      }
+
+      exportBackup() {
+        const data = {
+          finance: this.finance,
+          tasks: this.tasks,
+          landChecklist: this.landChecklist,
+          pyChecklist: this.pyChecklist,
+          techHours: this.techHours,
+          exportedAt: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `HUUD_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+      }
+
+      importBackup(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (data.finance) this.finance = data.finance;
+            if (data.tasks) this.tasks = data.tasks;
+            if (data.landChecklist) this.landChecklist = data.landChecklist;
+            if (data.pyChecklist) this.pyChecklist = data.pyChecklist;
+            if (data.techHours) this.techHours = data.techHours;
+            await this.saveAll();
+            alert("BANCO DE DADOS RESTAURADO!");
+            location.reload();
+          } catch (err) {
+            alert("Arquivo de backup inválido.");
+          }
+        };
+        reader.readAsText(file);
+      }
     }
 
-    function startTimer() {
-      setInterval(() => {
-        const now = new Date();
-        const hrs = String(23 - now.getHours()).padStart(2, '0');
-        const mins = String(59 - now.getMinutes()).padStart(2, '0');
-        const secs = String(59 - now.getSeconds()).padStart(2, '0');
-        const el = document.getElementById('cmd-timer');
-        if (el) el.innerText = hrs + ' : ' + mins + ' : ' + secs;
-      }, 1000);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadSavedState();
-      renderAll();
-      startRadar();
-      startTimer();
-    });
+    let app = new HuudSystem();
   </script>
 </body>
 </html>
