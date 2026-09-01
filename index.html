@@ -75,34 +75,39 @@
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* EDITORIAL HERO */
+    /* HERO TITLES */
     .hero-meta { font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); letter-spacing: 2px; margin-bottom: 8px; }
     .hero-meta span { color: var(--neon); }
     .hero-title { font-size: 1.65rem; font-weight: 900; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 12px; }
     .hero-title em { font-style: normal; color: var(--neon); }
     .hero-body { font-size: 0.85rem; line-height: 1.5; color: var(--text-muted); margin-bottom: 16px; }
 
-    /* GENERAL TACTICAL BANNER */
+    /* GENERAL TACTICAL BANNER COM IMAGEM LOCAL */
     .general-card {
-  background: linear-gradient(180deg, rgba(6, 7, 9, 0.4) 0%, rgba(6, 7, 9, 0.95) 100%),
-              url('comandante.png') top center/cover;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px 16px;
-  margin-bottom: 20px;
-  position: relative;
-  overflow: hidden;
-}
+      background: linear-gradient(180deg, rgba(6, 7, 9, 0.45) 0%, rgba(6, 7, 9, 0.95) 100%),
+                  url('comandante.png') center top/cover no-repeat;
+      border: 1px solid var(--border); border-radius: 12px; padding: 22px 16px;
+      margin-bottom: 20px; position: relative; overflow: hidden;
+    }
+    .general-card::after {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--neon);
+    }
+    .general-avatar-box { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+    .general-img {
+      width: 58px; height: 58px; border-radius: 50%; border: 2px solid var(--neon);
+      object-fit: cover; box-shadow: 0 0 14px var(--neon-glow); background: #000;
+    }
+    .general-tag { font-family: var(--mono); font-size: 0.62rem; color: var(--neon); letter-spacing: 2px; font-weight: 800; }
+    .general-name { font-size: 1rem; font-weight: 900; letter-spacing: 1px; }
 
-.commander-hero-banner {
-  background: linear-gradient(180deg, rgba(6, 7, 9, 0.4) 0%, #050607 100%),
-              url('comandante.png') top center/cover;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 28px 16px;
-  text-align: center;
-  margin-bottom: 16px;
-}
+    /* BOTÕES TÁTICOS */
+    .btn-action-neon {
+      background: var(--neon); color: #000; border: none; width: 100%; padding: 15px;
+      border-radius: 8px; font-weight: 900; font-size: 0.82rem; font-family: var(--mono);
+      letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center;
+      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px var(--neon-glow);
+      margin-bottom: 16px;
+    }
 
     /* RADIAL GAUGES */
     .gauge-hud-card {
@@ -158,7 +163,7 @@
     .card-task-title { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; }
     .card-task-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px; }
 
-    /* DEBTS MODULE */
+    /* DÍVIDAS */
     .debt-header-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .stat-card { background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
     .stat-val-danger { font-size: 1.3rem; font-weight: 900; font-family: var(--mono); color: var(--danger); }
@@ -176,7 +181,7 @@
     .badge-alta { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
     .badge-renegociada { background: rgba(0, 229, 153, 0.15); color: var(--success); border: 1px solid var(--success); }
 
-    /* ACCORDION DIAGNOSTICO */
+    /* ACCORDION 56 PERGUNTAS */
     .diag-block-card {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
       margin-bottom: 10px; overflow: hidden;
@@ -198,8 +203,8 @@
     }
     .commander-overlay.active { display: block; }
     .commander-hero-banner {
-      background: linear-gradient(180deg, rgba(14, 17, 22, 0.6) 0%, #050607 100%),
-                  <img class="general-img" src="comandante.png" alt="General Tático"> center/cover;
+      background: linear-gradient(180deg, rgba(14, 17, 22, 0.5) 0%, #050607 100%),
+                  url('comandante.png') center top/cover no-repeat;
       border: 1px solid var(--border); border-radius: 12px; padding: 24px 16px; text-align: center; margin-bottom: 16px;
     }
     .timer-display {
@@ -219,14 +224,13 @@
     }
     .check-dark-item.done .check-box-custom { background: var(--neon); border-color: var(--neon); color: #000; }
 
-    /* INPUTS */
+    /* INPUTS & MODAIS */
     .input-dark {
       width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
       padding: 12px; color: var(--text); font-size: 0.85rem; margin: 6px 0 12px 0; outline: none;
     }
     .input-dark:focus { border-color: var(--neon); }
 
-    /* BOTTOM NAV */
     .bottom-bar {
       position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
       background: rgba(6, 7, 9, 0.95); backdrop-filter: blur(14px);
@@ -279,10 +283,10 @@
     <!-- 1. FLUXO TÁTICO -->
     <section id="view-flow" class="view active">
       
-      <!-- GENERAL CARD -->
+      <!-- GENERAL CARD COM FOTO DE PERFIL -->
       <div class="general-card">
         <div class="general-avatar-box">
-          <img class="general-img" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="General Tático">
+          <img class="general-img" src="perfil.png" onerror="this.src='comandante.png'" alt="Comandante Dimas">
           <div>
             <div class="general-tag">CASO 001 • COMANDANTE DIMAS</div>
             <div class="general-name">Operação 90 Dias</div>
@@ -462,7 +466,7 @@
       </div>
     </section>
 
-    <!-- 6. DIAGNÓSTICO (56 PERGUNTAS COMPLETAS) -->
+    <!-- 6. DIAGNÓSTICO (56 PERGUNTAS) -->
     <section id="view-diag" class="view">
       <div class="hero-meta">FRENTE 05 • <span>BASE DA VERDADE</span></div>
       <h2 class="hero-title">O Diagnóstico das <em>56 Perguntas</em>.</h2>
@@ -481,7 +485,7 @@
     </div>
 
     <div class="commander-hero-banner">
-      <img class="general-img" style="margin-bottom:8px;" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" alt="General Dimas">
+      <img class="general-img" style="margin-bottom:8px;" src="perfil.png" onerror="this.src='comandante.png'" alt="Comandante Dimas">
       <div class="timer-display" id="cmd-timer">14 : 18 : 27</div>
       <div style="font-size:0.6rem; font-family:var(--mono); color:var(--text-muted);">TEMPO RESTANTE HOJE</div>
     </div>
@@ -637,8 +641,8 @@
 
     class HuudSystem {
       constructor() {
-        this.debts = JSON.parse(localStorage.getItem('huud_debts_v3')) || defaultDebts;
-        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v3')) || defaultTasks;
+        this.debts = JSON.parse(localStorage.getItem('huud_debts_v4')) || defaultDebts;
+        this.tasks = JSON.parse(localStorage.getItem('huud_tasks_v4')) || defaultTasks;
         this.init();
       }
 
@@ -713,7 +717,7 @@
           controlled: false
         };
         this.debts.push(newDebt);
-        localStorage.setItem('huud_debts_v3', JSON.stringify(this.debts));
+        localStorage.setItem('huud_debts_v4', JSON.stringify(this.debts));
         this.renderDebts();
         this.closeModal('modal-add-debt');
         e.target.reset();
@@ -721,7 +725,7 @@
 
       toggleDebtControl(id) {
         this.debts = this.debts.map(d => d.id === id ? { ...d, controlled: !d.controlled } : d);
-        localStorage.setItem('huud_debts_v3', JSON.stringify(this.debts));
+        localStorage.setItem('huud_debts_v4', JSON.stringify(this.debts));
         this.renderDebts();
       }
 
@@ -738,7 +742,7 @@
 
       toggleTask(id) {
         this.tasks = this.tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
-        localStorage.setItem('huud_tasks_v3', JSON.stringify(this.tasks));
+        localStorage.setItem('huud_tasks_v4', JSON.stringify(this.tasks));
         this.renderTasks();
         this.updateHUD();
       }
