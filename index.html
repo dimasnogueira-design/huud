@@ -84,30 +84,25 @@
 
     /* GENERAL TACTICAL BANNER */
     .general-card {
-      background: linear-gradient(180deg, rgba(14, 17, 22, 0.6) 0%, rgba(6, 7, 9, 0.95) 100%),
-                  url('https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80') center/cover;
-      border: 1px solid var(--border); border-radius: 12px; padding: 20px 16px;
-      margin-bottom: 20px; position: relative; overflow: hidden;
-    }
-    .general-card::after {
-      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--neon);
-    }
-    .general-avatar-box { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
-    .general-img {
-      width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--neon);
-      object-fit: cover; box-shadow: 0 0 14px var(--neon-glow);
-    }
-    .general-tag { font-family: var(--mono); font-size: 0.62rem; color: var(--neon); letter-spacing: 2px; font-weight: 800; }
-    .general-name { font-size: 1rem; font-weight: 900; letter-spacing: 1px; }
+  background: linear-gradient(180deg, rgba(6, 7, 9, 0.4) 0%, rgba(6, 7, 9, 0.95) 100%),
+              url('comandante.png') top center/cover;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 16px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
 
-    /* ACTION BUTTONS */
-    .btn-action-neon {
-      background: var(--neon); color: #000; border: none; width: 100%; padding: 15px;
-      border-radius: 8px; font-weight: 900; font-size: 0.82rem; font-family: var(--mono);
-      letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center;
-      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px var(--neon-glow);
-      margin-bottom: 16px;
-    }
+.commander-hero-banner {
+  background: linear-gradient(180deg, rgba(6, 7, 9, 0.4) 0%, #050607 100%),
+              url('comandante.png') top center/cover;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 16px;
+  text-align: center;
+  margin-bottom: 16px;
+}
 
     /* RADIAL GAUGES */
     .gauge-hud-card {
