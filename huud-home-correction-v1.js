@@ -1,4 +1,4 @@
-/* HUUD OS — CORREÇÃO HOME V1.3
+/* HUUD OS — CORREÇÃO HOME V1.4
    Home/QG: banner primeiro, agenda imediatamente abaixo, Mar Verde depois.
    56 perguntas não fazem parte da navegação principal.
 */
@@ -28,16 +28,25 @@
     navButtons().forEach(btn=>{if(btn.__HUUD_ACTIVE_PATCHED)return;btn.__HUUD_ACTIVE_PATCHED=true;btn.addEventListener('click',()=>setTimeout(()=>{const text=(btn.textContent||'').trim().toUpperCase();setActiveMenu(text.includes('MAR VERDE')?'mar-verde':'qg');},30),true);});
     navButtons().forEach(btn=>{const t=(btn.textContent||'').toUpperCase();if(t.includes('56 PERGUNTAS')||t.includes('56 PERGUNTA')){btn.style.display='none';btn.setAttribute('aria-hidden','true');}});
   }
+  function marVerdeHTML(){return '<div class="card-header-row"><span class="card-tag">● MAR VERDE // OPERAÇÃO</span><span class="card-action-link" id="huud-home-mv-link">AGENDA →</span></div><div style="font-size:1.05rem;font-weight:900;margin:5px 0 7px;">Agenda Operacional</div><div style="font-size:0.74rem;line-height:1.55;color:var(--text-muted);"><strong style="color:var(--text);">RAFAELLA</strong> — captação + atendimento + reativação de leads.<br><strong style="color:var(--text);">DIMAS</strong> — comando + gestão + negociação + fechamento.</div><div style="margin-top:12px;padding:9px;border-left:3px solid var(--neon);background:rgba(212,255,0,.04);font-size:.64rem;line-height:1.45;color:#aeb8c5;">MISSÃO → EXECUÇÃO → RESULTADO → PRÓXIMO PASSO</div><button class="btn-action-neon" id="huud-home-mv-btn" style="margin-top:12px;padding:10px;font-size:.65rem;">ABRIR AGENDA MAR VERDE →</button>'}
+  function bindMarVerde(card){
+    card.querySelector('#huud-home-mv-link')?.addEventListener('click',openMarVerde);
+    card.querySelector('#huud-home-mv-btn')?.addEventListener('click',openMarVerde);
+  }
   function patchHome(){
-    const grid=document.querySelector('#view-flow .dashboard-tactical-grid');if(!grid)return;
-    const cards=[...grid.children];
-    const oldLand=cards.find(card=>{const t=card.textContent||'';return t.includes('OPERAÇÃO TERRENO & CAIXA')||t.includes('Terreno & Caixa')||t.includes('liberar a comissão')||t.includes('MAR VERDE // OPERAÇÃO');});
-    if(oldLand){
-      oldLand.innerHTML='<div class="card-header-row"><span class="card-tag">● MAR VERDE // OPERAÇÃO</span><span class="card-action-link" id="huud-home-mv-link">AGENDA →</span></div><div style="font-size:1.05rem;font-weight:900;margin:5px 0 7px;">Agenda Operacional</div><div style="font-size:0.74rem;line-height:1.55;color:var(--text-muted);"><strong style="color:var(--text);">RAFAELLA</strong> — captação + atendimento + reativação de leads.<br><strong style="color:var(--text);">DIMAS</strong> — comando + gestão + negociação + fechamento.</div><div style="margin-top:12px;padding:9px;border-left:3px solid var(--neon);background:rgba(212,255,0,.04);font-size:.64rem;line-height:1.45;color:#aeb8c5;">MISSÃO → EXECUÇÃO → RESULTADO → PRÓXIMO PASSO</div><button class="btn-action-neon" id="huud-home-mv-btn" style="margin-top:12px;padding:10px;font-size:.65rem;">ABRIR AGENDA MAR VERDE →</button>';
-      document.getElementById('huud-home-mv-link')?.addEventListener('click',openMarVerde);document.getElementById('huud-home-mv-btn')?.addEventListener('click',openMarVerde);
-      // REGRA DE HIERARQUIA: Mar Verde fica depois do banner + agenda do QG.
-      const agenda=document.getElementById('huud-home-command-agenda');
-      if(agenda)agenda.parentNode.insertBefore(oldLand,agenda.nextSibling);
+    const flow=document.getElementById('view-flow');const grid=flow?.querySelector('.dashboard-tactical-grid');if(!flow||!grid)return;
+    const agenda=document.getElementById('huud-home-command-agenda');
+    let oldLand=Array.from(grid.children).find(card=>{const t=card.textContent||'';return t.includes('OPERAÇÃO TERRENO & CAIXA')||t.includes('Terreno & Caixa')||t.includes('liberar a comissão')||t.includes('MAR VERDE // OPERAÇÃO');});
+    if(!oldLand){
+      oldLand=document.createElement('div');oldLand.className='tactical-module-card';oldLand.id='huud-home-mar-verde-card';oldLand.innerHTML=marVerdeHTML();
+      grid.appendChild(oldLand);
+    }else{
+      oldLand.innerHTML=marVerdeHTML();
+    }
+    bindMarVerde(oldLand);
+    if(agenda){
+      // REGRA FIXA: o bloco Mar Verde fica imediatamente abaixo do COMANDO DE HOJE.
+      agenda.insertAdjacentElement('afterend',oldLand);
     }
     document.querySelectorAll('#view-flow .card-tag').forEach(el=>{if((el.textContent||'').trim().includes('TERRENO'))el.textContent='● MAR VERDE // OPERAÇÃO';});
   }
@@ -48,5 +57,5 @@
   }
   function run(){patchNav();patchHome();addResponsibilities();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(run,120));else setTimeout(run,120);
-  setTimeout(run,700);setTimeout(run,1600);
+  setTimeout(run,700);setTimeout(run,1600);setTimeout(run,3000);
 })();
