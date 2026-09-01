@@ -1,18 +1,37 @@
-/* HUUD OS — CORREÇÃO HOME V1.1
-   HOME atualizada para a arquitetura correta do HUUD.
-   Mar Verde = operação imobiliária.
-   Agenda = comando operacional compartilhado, não CRM/pipeline.
+/* HUUD OS — CORREÇÃO HOME V1.2
+   Home/QG e Mar Verde precisam ter estado visual correto no menu.
+   Mar Verde = operação imobiliária / agenda operacional, não CRM.
 */
 (function(){
   'use strict';
 
+  function navButtons(){
+    return Array.from(document.querySelectorAll('.sub-nav .nav-pill'));
+  }
+
+  function setActiveMenu(target){
+    navButtons().forEach(function(btn){
+      btn.classList.remove('active');
+      btn.removeAttribute('aria-current');
+    });
+    var buttons=navButtons();
+    var wanted=target==='mar-verde' ? 'MAR VERDE' : 'QG';
+    buttons.forEach(function(btn){
+      var text=(btn.textContent||'').trim().toUpperCase();
+      if((target==='mar-verde' && text.includes('MAR VERDE')) ||
+         (target==='qg' && (text==='QG' || text.includes('PRINCIPAL') || text.includes('HOJE')))){
+        btn.classList.add('active');
+        btn.setAttribute('aria-current','page');
+      }
+    });
+  }
+
   function openMarVerde(){
-    // Abre a agenda diretamente, sem passar pelo wrapper antigo do H41.
-    // Isso evita recursão entre __HUUD_H41_OPEN e __MVA_OPEN.
     const flow=document.getElementById('view-flow');
     if(!flow) return;
     document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
     flow.classList.add('active');
+
     let v=document.getElementById('huud-mar-verde-view');
     if(!v){
       v=document.createElement('div');
@@ -25,31 +44,44 @@
     }else{
       v.innerHTML='<section style="padding:30px;border:1px solid var(--border);border-left:4px solid var(--neon);border-radius:10px;background:var(--bg-card)"><div style="color:var(--neon);font:900 .65rem var(--mono);letter-spacing:2px">MAR VERDE</div><h2 style="margin:8px 0">Agenda operacional indisponível</h2><p style="color:var(--text-muted)">A camada da agenda ainda não foi carregada. Recarregue o HUUD.</p></section>';
     }
+    setActiveMenu('mar-verde');
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function openQG(){
-    // O wrapper do H41 delega 'flow' para a função original, restaurando a HOME.
     try{
       if(typeof window.__HUUD_H41_OPEN==='function') window.__HUUD_H41_OPEN('flow');
       else if(window.HUUD && typeof window.HUUD.switchView==='function') window.HUUD.switchView('flow');
     }catch(e){
       if(window.HUUD && typeof window.HUUD.switchView==='function') window.HUUD.switchView('flow');
     }
+    setTimeout(function(){setActiveMenu('qg');},60);
   }
 
-  // Substitui o ponto de entrada problemático criado pela agenda anterior.
   window.__MVA_OPEN=openMarVerde;
   window.__HUUD_HOME_OPEN_MV=openMarVerde;
   window.__HUUD_HOME_OPEN_QG=openQG;
 
   function patchNav(){
-    document.querySelectorAll('.sub-nav .nav-pill').forEach(function(btn){
+    navButtons().forEach(function(btn){
       const t=(btn.textContent||'').trim();
       if(t.includes('TERRENO')){
         btn.textContent='MAR VERDE';
         btn.onclick=openMarVerde;
       }
+    });
+
+    // Se a camada H41 trocar de view por conta própria, sincroniza o destaque.
+    navButtons().forEach(function(btn){
+      if(btn.__HUUD_ACTIVE_PATCHED) return;
+      btn.__HUUD_ACTIVE_PATCHED=true;
+      btn.addEventListener('click',function(){
+        setTimeout(function(){
+          var text=(btn.textContent||'').trim().toUpperCase();
+          if(text.includes('MAR VERDE')) setActiveMenu('mar-verde');
+          else setActiveMenu('qg');
+        },30);
+      },true);
     });
   }
 
@@ -107,11 +139,17 @@
       </div>
       <button class="btn-action-neon" style="margin-top:12px;padding:10px;font-size:.65rem;">VER RESPONSABILIDADES →</button>`;
     grid.appendChild(card);
-    card.querySelector('.card-action-link').onclick=function(){if(window.HUUD&&typeof window.HUUD.switchView==='function')window.HUUD.switchView('pendencias');};
-    card.querySelector('button').onclick=function(){if(window.HUUD&&typeof window.HUUD.switchView==='function')window.HUUD.switchView('pendencias');};
+    var open=function(){if(window.HUUD&&typeof window.HUUD.switchView==='function')window.HUUD.switchView('pendencias');};
+    card.querySelector('.card-action-link').onclick=open;
+    card.querySelector('button').onclick=open;
   }
 
-  function run(){patchNav();patchHome();addResponsibilities();}
+  function run(){
+    patchNav();
+    patchHome();
+    addResponsibilities();
+  }
+
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(run,120);});
   else setTimeout(run,120);
   setTimeout(run,700);
