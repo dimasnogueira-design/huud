@@ -8,10 +8,320 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  
-  <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #040507;
+      --bg-card: #090c10;
+      --bg-card-elevated: #0f131a;
+      --border: #161b24;
+      --border-focus: #252e3d;
+      --text: #f0f3f6;
+      --text-muted: #6b778a;
+      --neon: #d4ff00;
+      --neon-glow: rgba(212, 255, 0, 0.28);
+      --danger: #ff2a4b;
+      --danger-bg: rgba(255, 42, 75, 0.15);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --blue-inflow: #38bdf8;
+      --blue-inflow-bg: rgba(56, 189, 248, 0.15);
+      --success: #00e599;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--sans); -webkit-tap-highlight-color: transparent; }
+    html, body { background-color: var(--bg); color: var(--text); min-height: 100vh; }
+    body { padding-top: 60px; padding-bottom: 76px; overflow-x: hidden; }
+
+    /* TOP BAR */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: rgba(4, 5, 7, 0.96); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border); display: flex; align-items: center;
+      justify-content: space-between; padding: 0 20px; z-index: 100;
+    }
+    .brand-group { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .brand-icon { width: 18px; height: 18px; border-left: 3px solid var(--neon); border-right: 3px solid var(--neon); position: relative; }
+    .brand-icon::after { content: ''; position: absolute; left: 3px; right: 3px; top: 3px; bottom: 3px; background: var(--neon); }
+    .brand-name { font-size: 0.92rem; font-weight: 900; letter-spacing: 2px; color: var(--text); }
+    .brand-name span { color: var(--neon); }
+
+    .top-right { display: flex; align-items: center; gap: 14px; }
+    .sync-status { font-family: var(--mono); font-size: 0.62rem; color: var(--neon); display: flex; align-items: center; gap: 6px; font-weight: 700; }
+    .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--neon); box-shadow: 0 0 8px var(--neon); }
+
+    .btn-commander-top {
+      background: var(--neon); color: #000; border: none; font-size: 0.68rem;
+      font-weight: 900; font-family: var(--mono); letter-spacing: 1.5px; padding: 9px 16px;
+      border-radius: 4px; cursor: pointer; box-shadow: 0 0 14px var(--neon-glow);
+    }
+    .btn-commander-top:active { transform: scale(0.96); }
+
+    /* SUBNAV */
+    .sub-nav {
+      display: flex; gap: 8px; overflow-x: auto; padding: 12px 20px;
+      scrollbar-width: none; border-bottom: 1px solid var(--border);
+      background: rgba(9, 12, 16, 0.7);
+    }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .nav-pill {
+      background: transparent; border: 1px solid transparent; color: var(--text-muted);
+      font-family: var(--mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+      padding: 6px 14px; border-radius: 6px; white-space: nowrap; cursor: pointer; transition: all 0.2s;
+    }
+    .nav-pill.active { background: var(--neon); color: #000; font-weight: 900; box-shadow: 0 0 12px var(--neon-glow); }
+    .nav-pill:hover:not(.active) { border-color: var(--border-focus); color: var(--text); }
+
+    /* MAIN FLUID */
+    .main-fluid-wrapper { width: 100%; max-width: 1600px; margin: 0 auto; padding: 16px 20px; }
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ROOM HEADERS */
+    .room-header-banner {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 12px; padding: 22px;
+      margin-bottom: 18px; position: relative; overflow: hidden;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    .room-header-banner::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--neon); }
+    
+    .room-banner-home {
+      background: linear-gradient(90deg, rgba(9, 12, 16, 0.98) 0%, rgba(9, 12, 16, 0.85) 50%, rgba(9, 12, 16, 0.2) 100%),
+                  url('comandante.png') right center / contain no-repeat;
+    }
+    .room-banner-finance {
+      background: linear-gradient(90deg, rgba(9, 12, 16, 0.98) 0%, rgba(9, 12, 16, 0.8) 60%, rgba(255, 42, 75, 0.15) 100%);
+    }
+    .room-banner-land {
+      background: linear-gradient(90deg, rgba(9, 12, 16, 0.98) 0%, rgba(9, 12, 16, 0.8) 60%, rgba(245, 158, 11, 0.15) 100%);
+    }
+    .room-banner-tech {
+      background: linear-gradient(90deg, rgba(9, 12, 16, 0.98) 0%, rgba(9, 12, 16, 0.8) 60%, rgba(56, 189, 248, 0.15) 100%);
+    }
+    .room-banner-py {
+      background: linear-gradient(90deg, rgba(9, 12, 16, 0.98) 0%, rgba(9, 12, 16, 0.8) 60%, rgba(212, 255, 0, 0.15) 100%);
+    }
+    .room-banner-diag {
+      background: linear-gradient(90deg, rgba(9, 12, 16, 0.98) 0%, rgba(9, 12, 16, 0.8) 60%, rgba(107, 119, 138, 0.2) 100%);
+    }
+
+    .commander-profile-box { display: flex; align-items: center; gap: 16px; }
+    .user-avatar-main {
+      width: 74px; height: 74px; border-radius: 12px; border: 2px solid var(--neon);
+      object-fit: cover; box-shadow: 0 0 18px var(--neon-glow); background: #000;
+    }
+    .commander-titles { display: flex; flex-direction: column; gap: 3px; }
+    .threat-tag { font-family: var(--mono); font-size: 0.65rem; color: var(--neon); font-weight: 800; letter-spacing: 2px; }
+    .hero-headline { font-size: 1.35rem; font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; }
+    .hero-headline em { font-style: normal; color: var(--neon); }
+    .hero-quote-sub { font-size: 0.82rem; color: #94a3b8; font-style: italic; max-width: 650px; margin-top: 4px; line-height: 1.4; }
+
+    /* GRID */
+    .dashboard-tactical-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 16px; margin-bottom: 18px;
+    }
+    @media (min-width: 1200px) {
+      .dashboard-tactical-grid { grid-template-columns: 1.2fr 1fr 1fr; }
+    }
+
+    .tactical-module-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px; position: relative; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .card-tag { font-family: var(--mono); font-size: 0.65rem; font-weight: 800; color: var(--neon); letter-spacing: 1.5px; }
+    .card-action-link { font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted); cursor: pointer; }
+    .card-action-link:hover { color: var(--neon); }
+
+    /* HUD CONCENTRICO */
+    .concentric-hud-box { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 10px 0; }
+    .canvas-hud-holder { position: relative; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; }
+    #disciplina-concentric-chart { width: 150px; height: 150px; }
+    .chart-center-label { position: absolute; text-align: center; font-family: var(--mono); pointer-events: none; }
+    .chart-center-val { font-size: 1.6rem; font-weight: 900; color: #fff; line-height: 1; }
+    .chart-center-sub { font-size: 0.58rem; color: var(--text-muted); }
+
+    .fin-metric-triple { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .fin-mini-stat { background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 6px; padding: 10px 6px; text-align: center; }
+    .fin-val-danger { font-size: 1.15rem; font-weight: 900; font-family: var(--mono); color: var(--danger); }
+    .fin-val-blue { font-size: 1.15rem; font-weight: 900; font-family: var(--mono); color: var(--blue-inflow); }
+    .fin-val-neon { font-size: 1.15rem; font-weight: 900; font-family: var(--mono); color: var(--neon); }
+    .fin-lbl { font-size: 0.58rem; font-family: var(--mono); color: var(--text-muted); margin-top: 2px; }
+
+    .progress-bar-bg { width: 100%; height: 6px; background: var(--bg-card-elevated); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+    .progress-bar-fill { height: 100%; background: var(--neon); border-radius: 3px; box-shadow: 0 0 8px var(--neon-glow); }
+
+    .home-task-item {
+      background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 6px;
+      padding: 10px 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; cursor: pointer;
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .home-task-item.done { opacity: 0.45; text-decoration: line-through; }
+    .mini-checkbox {
+      width: 16px; height: 16px; border: 1.5px solid var(--border-focus); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.65rem;
+    }
+    .home-task-item.done .mini-checkbox { background: var(--neon); border-color: var(--neon); color: #000; font-weight: 900; }
+
+    .btn-action-neon {
+      background: var(--neon); color: #000; border: none; width: 100%; padding: 14px;
+      border-radius: 6px; font-weight: 900; font-size: 0.82rem; font-family: var(--mono);
+      letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center;
+      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px var(--neon-glow);
+    }
+    .btn-action-blue {
+      background: var(--blue-inflow); color: #000; border: none; width: 100%; padding: 14px;
+      border-radius: 6px; font-weight: 900; font-size: 0.82rem; font-family: var(--mono);
+      letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center;
+      justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+    }
+
+    /* FILTROS E TABELAS */
+    .filter-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px; scrollbar-width: none; }
+    .filter-btn {
+      background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);
+      font-family: var(--mono); font-size: 0.65rem; font-weight: 800; padding: 6px 12px;
+      border-radius: 6px; cursor: pointer; white-space: nowrap;
+    }
+    .filter-btn.active-all { background: var(--text); color: #000; border-color: var(--text); }
+    .filter-btn.active-critica { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .filter-btn.active-alta { background: var(--warning); color: #000; border-color: var(--warning); }
+    .filter-btn.active-negociavel { background: #334155; color: #fff; border-color: #475569; }
+    .filter-btn.active-inflows { background: var(--blue-inflow); color: #000; border-color: var(--blue-inflow); }
+    .filter-btn.active-recorrente { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
+
+    .item-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .item-card.is-inflow { border-left: 4px solid var(--blue-inflow); }
+    .item-card.is-critica { border-left: 4px solid var(--danger); }
+    .item-card.is-alta { border-left: 4px solid var(--warning); }
+    .item-card.is-negociavel { border-left: 4px solid #64748b; }
+    .item-card.is-recurrent { border-left: 4px solid #8b5cf6; }
+
+    .item-top { display: flex; justify-content: space-between; align-items: center; }
+    .item-title { font-weight: 800; font-size: 0.92rem; }
+    .item-val { font-family: var(--mono); font-weight: 800; }
+    .item-val.val-out { color: var(--danger); }
+    .item-val.val-in { color: var(--blue-inflow); }
+
+    .badge-status { font-family: var(--mono); font-size: 0.58rem; font-weight: 800; padding: 3px 6px; border-radius: 4px; }
+    .badge-critica { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
+    .badge-alta { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
+    .badge-negociavel { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid #475569; }
+    .badge-inflow { background: var(--blue-inflow-bg); color: var(--blue-inflow); border: 1px solid var(--blue-inflow); }
+    .badge-recurrent { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid #8b5cf6; }
+    .badge-done { background: rgba(0, 229, 153, 0.15); color: var(--success); border: 1px solid var(--success); }
+
+    /* MODO COMANDANTE */
+    .commander-full-screen {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: #030406; z-index: 500; overflow-y: auto; display: none;
+    }
+    .commander-full-screen.active { display: block; }
+
+    .commander-hero-wrapper {
+      position: relative; width: 100%; min-height: 560px;
+      display: flex; flex-direction: column; justify-content: space-between; padding: 24px;
+      background: radial-gradient(circle at center top, rgba(20, 26, 36, 0.4) 0%, #030406 80%);
+    }
+    .commander-portrait-canvas {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: url('comandante.png') center top / contain no-repeat;
+      z-index: 1; pointer-events: none;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 98%);
+      -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.9) 60%, rgba(0,0,0,0) 98%);
+    }
+    @media (min-width: 900px) {
+      .commander-portrait-canvas { background-size: auto 90%; background-position: center top 10px; }
+    }
+
+    .commander-top-actions { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; }
+    .cmd-badge {
+      background: rgba(0,0,0,0.85); border: 1px solid var(--neon); color: var(--neon);
+      font-family: var(--mono); font-size: 0.65rem; font-weight: 800; padding: 6px 12px; border-radius: 4px;
+      letter-spacing: 1.5px;
+    }
+    .btn-exit-cmd {
+      background: rgba(0,0,0,0.85); border: 1px solid var(--border); color: var(--text-muted);
+      font-family: var(--mono); font-size: 0.65rem; padding: 6px 14px; border-radius: 4px; cursor: pointer;
+    }
+
+    .commander-hero-text { position: relative; z-index: 2; text-align: center; margin-top: 260px; }
+    .commander-quote {
+      font-size: 1.2rem; font-weight: 900; color: #fff; line-height: 1.35;
+      text-shadow: 0 2px 14px rgba(0,0,0,0.95); margin-bottom: 8px;
+    }
+    .commander-quote em { font-style: normal; color: var(--neon); }
+    .timer-giant {
+      font-size: 2.8rem; font-weight: 900; font-family: var(--mono); color: #fff;
+      letter-spacing: 3px; text-shadow: 0 0 24px rgba(212,255,0,0.4);
+    }
+    .timer-sub { font-size: 0.65rem; font-family: var(--mono); color: var(--text-muted); letter-spacing: 1px; }
+
+    .commander-content-area {
+      padding: 0 20px 40px 20px; max-width: 760px; margin: 0 auto; position: relative; z-index: 2;
+    }
+
+    /* AUDITORIA DO COMANDANTE */
+    .commander-audit-box {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px; margin-top: 18px; text-align: center;
+    }
+    .audit-buttons-grid { display: flex; flex-direction: column; gap: 8px; }
+    .btn-audit {
+      border: none; padding: 14px; border-radius: 6px; font-family: var(--mono); font-weight: 800;
+      font-size: 0.78rem; letter-spacing: 1px; cursor: pointer; text-align: left;
+    }
+    .btn-audit-success { background: var(--neon); color: #000; box-shadow: 0 0 12px var(--neon-glow); }
+    .btn-audit-blocked { background: var(--warning-bg); border: 1px solid var(--warning); color: var(--warning); }
+    .btn-audit-failed { background: var(--danger-bg); border: 1px solid var(--danger); color: var(--danger); }
+
+    /* INPUTS & MODAIS */
+    .input-dark {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 12px; color: var(--text); font-size: 0.85rem; margin: 6px 0 12px 0; outline: none;
+    }
+    .input-dark:focus { border-color: var(--neon); }
+
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
+      background: rgba(4, 5, 7, 0.96); backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+      align-items: center; z-index: 100;
+    }
+    .nav-btn {
+      background: transparent; border: none; color: var(--text-muted);
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 0.58rem; font-family: var(--mono); font-weight: 700; cursor: pointer; width: 20%;
+    }
+    .nav-btn.active { color: var(--neon); }
+    .nav-btn svg { width: 18px; height: 18px; stroke: currentColor; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.88);
+      z-index: 600; display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal.active { display: flex; }
+    .modal-box {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      width: 100%; max-width: 500px; padding: 22px; max-height: 90vh; overflow-y: auto;
+    }
+
+    .diag-block-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+    .diag-block-header { padding: 12px 16px; font-weight: 800; font-size: 0.82rem; font-family: var(--mono); display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--bg-card-elevated); }
+    .diag-block-body { padding: 14px; display: none; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); border-top: 1px solid var(--border); }
+    .diag-block-body.open { display: block; }
+    .diag-q { font-weight: 700; color: var(--text); margin-top: 8px; }
+    .diag-a { color: var(--neon); margin-bottom: 8px; font-style: italic; }
+  </style>
 </head>
 <body>
 
@@ -39,7 +349,7 @@
     <button class="nav-pill" onclick="HUUD.switchView('diag')">56 PERGUNTAS</button>
   </nav>
 
-  <!-- MAIN CONTAINER FLUIDO -->
+  <!-- CONTAINER FLUIDO -->
   <main class="main-fluid-wrapper">
 
     <!-- 1. QG PRINCIPAL -->
@@ -227,8 +537,8 @@
       
       <div class="tactical-module-card" style="margin-bottom:12px;">
         <span class="card-tag">MÓDULO 01 • BÁSICO</span>
-        <h4 style="margin:6px 0;">1. Estrutura Web Modular (Separando HTML, CSS & JS)</h4>
-        <p style="font-size:0.8rem; color:var(--text-muted)">Arquitetura de software profissional, separação de responsabilidades e state management.</p>
+        <h4 style="margin:6px 0;">1. Estrutura Web (HTML5 & CSS Grid)</h4>
+        <p style="font-size:0.8rem; color:var(--text-muted)">Construção de interfaces táticas de comando e grid fluido.</p>
       </div>
 
       <div class="tactical-module-card" style="margin-bottom:12px;">
@@ -273,7 +583,7 @@
 
   </main>
 
-  <!-- MODO COMANDANTE COM AUDITORIA REAL -->
+  <!-- MODO COMANDANTE -->
   <div id="commander-mode" class="commander-full-screen">
     <div class="commander-hero-wrapper">
       <div class="commander-portrait-canvas"></div>
@@ -414,6 +724,725 @@
     </button>
   </nav>
 
-  <script src="app.js"></script>
+  <!-- STATE ENGINE -->
+  <script>
+    const SUPABASE_CONFIG = {
+      url: 'https://inqrtidtdzearvhjjpmq.supabase.co',
+      key: 'sb_publishable_Z1FHc9GmJUeSugGhNRikIA_N4EjDrBo'
+    };
+
+    const INITIAL_STATE = {
+      finance: [
+        { id: 1, type: "DEBT", name: "Urgência Dia 3", amount: 10000, date: "2026-09-03", urgency: "CRITICA", plan: "Negociação fria ou ponte via comissão/terreno", controlled: false },
+        { id: 2, type: "DEBT", name: "Taxa Venda do Terreno", amount: 1500, date: "2026-09-02", urgency: "ALTA", plan: "Pagar para liberar dinheiro da venda", controlled: false },
+        { id: 3, type: "RECURRENT", name: "Sistemas & Obrigações Mar Verde", amount: 4500, date: "2026-09-10", urgency: "NEGOCIAVEL", plan: "Cortar desnecessário e congelar contratos", controlled: false },
+        { id: 4, type: "INFLOW", name: "Aluguel São Paulo", amount: 3200, date: "2026-09-05", urgency: "INFLOW", plan: "Entrada regular de aluguel mensal", controlled: false },
+        { id: 5, type: "INFLOW", name: "Liberação Venda do Terreno", amount: 18000, date: "2026-09-15", urgency: "INFLOW", plan: "Saldo líquido da venda pós-taxa", controlled: false }
+      ],
+      tasks: [
+        { id: 1, text: "Encarar a urgência dos R$ 10.000 do dia 3 com credores", done: true },
+        { id: 2, text: "2 horas inegociáveis de estudo e código em TI + IA", done: true },
+        { id: 3, text: "Agilizar fechamento da venda do terreno (R$ 1.500 taxa)", done: false },
+        { id: 4, text: "Separar certidões para a Fase 1 (GO Paraguay GO)", done: false }
+      ],
+      landChecklist: [
+        { id: 1, text: "Levantar R$ 1.500 para pagamento da taxa de transferência", done: false },
+        { id: 2, text: "Conferir documentação final com o comprador do terreno", done: true },
+        { id: 3, text: "Agendar assinatura em cartório para liberação dos recursos", done: false },
+        { id: 4, text: "Destinar valor da venda diretamente para amortizar dívida crítica", done: false }
+      ],
+      pyChecklist: [
+        { id: 1, text: "Certidão de Nascimento/Casamento atualizada e legalizada", done: true },
+        { id: 2, text: "Certidão de Antecedentes Criminais da Polícia Federal", done: true },
+        { id: 3, text: "Apostilamento de Haia em cartório nos documentos essenciais", done: false },
+        { id: 4, text: "Montagem do Caixa de Sobrevivência inicial (Fase 1)", done: false }
+      ],
+      techHours: 42,
+      evidenceCount: 1,
+      currentFilter: 'ALL'
+    };
+
+    const DIAGNOSTIC_DATA = [
+      {
+        block: "1. REALIDADE — O que é verdade?",
+        content: '<div class="diag-q">Situação financeira e rotina:</div><div class="diag-a">Pressão alta com dívidas e duas crianças. A empresa Mar Verde não gera mais tração. Necessidade de comando imediato.</div><div class="diag-q">O que está funcionando?</div><div class="diag-a">Apenas a academia. O resto precisa de comando imediato.</div>'
+      },
+      {
+        block: "2. EU — Quem estou me tornando?",
+        content: '<div class="diag-q">Quem eu era antes?</div><div class="diag-a">Um cara organizado, inteligente, que venceu o crack e a dependência química, sabe criar e trabalhar.</div><div class="diag-q">O que eu faria sem medo de julgamentos?</div><div class="diag-a">Voltaria para o computador para criar projetos e estudar TI/IA ouvindo metal.</div>'
+      },
+      {
+        block: "3. RELACIONAMENTO — Viper",
+        content: '<div class="diag-q">Diretriz adotada:</div><div class="diag-a">Não romper no meio do caos, mas não paralisar meu plano dependendo das atitudes dela. Cada um carrega a própria mochila. Compartilhar os números frios.</div>'
+      },
+      {
+        block: "4. OPORTUNIDADES — Para onde aponta?",
+        content: '<div class="diag-q">Vetor principal nos próximos 12 meses:</div><div class="diag-a">Área de TI + IA, desenvolvimento do Disciplina OS e monetização de negócios digitais. Imobiliária apenas como ponte.</div>'
+      },
+      {
+        block: "5. PARAGUAI — Fuga ou Movimento?",
+        content: '<div class="diag-q">É fuga?</div><div class="diag-a">Não. É criação de oportunidade, redução de custo de vida e novo ambiente. As dívidas continuam para serem quitadas.</div>'
+      },
+      {
+        block: "6. MEDO — O que realmente trava?",
+        content: '<div class="diag-q">Maior medo:</div><div class="diag-a">Meu maior medo é NÃO TENTAR e continuar parado por mais um ano.</div>'
+      },
+      {
+        block: "7. RESPONSABILIDADE — Extreme Ownership",
+        content: '<div class="diag-q">O que está sob controle?</div><div class="diag-a">Minhas próximas ações, meu trabalho, meu estudo de código e minhas negociações. Honrar sem carregar.</div>'
+      },
+      {
+        block: "8. A ESTÁTUA — O Legado",
+        content: '<div class="diag-q">O que estará escrito aos 80 anos?</div><div class="diag-a">“Ele foi um cara que fez o que tinha que ser feito e deu certo. Seu legado foi escrito.”</div>'
+      }
+    ];
+
+    class StateEngine {
+      constructor() {
+        this.state = this.loadLocal();
+        this.supabase = null;
+        this.auditActionPending = null;
+        this.initSupabase();
+      }
+
+      initSupabase() {
+        try {
+          if (window.supabase) {
+            this.supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
+            this.syncFromCloud();
+          }
+        } catch (e) {
+          console.log('Operando offline');
+        }
+      }
+
+      sanitizeFinance(list) {
+        if (!Array.isArray(list)) return INITIAL_STATE.finance;
+        return list.map(item => {
+          let rawType = String(item.type || '').toUpperCase().trim();
+          if (rawType !== 'INFLOW' && rawType !== 'RECURRENT') rawType = 'DEBT';
+
+          let rawUrg = String(item.urgency || '').toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+          if (rawUrg.includes('CRITIC')) rawUrg = 'CRITICA';
+          else if (rawUrg.includes('ALT')) rawUrg = 'ALTA';
+          else if (rawUrg.includes('NEGOCI')) rawUrg = 'NEGOCIAVEL';
+          else if (rawType === 'INFLOW') rawUrg = 'INFLOW';
+          else if (rawType === 'RECURRENT') rawUrg = 'RECURRENT';
+          else rawUrg = 'NEGOCIAVEL';
+
+          return {
+            id: item.id || Date.now() + Math.random(),
+            type: rawType,
+            name: String(item.name || 'Conta'),
+            amount: Number(item.amount) || 0,
+            date: item.date || item.deadline || '',
+            urgency: rawUrg,
+            plan: String(item.plan || ''),
+            controlled: Boolean(item.controlled)
+          };
+        });
+      }
+
+      loadLocal() {
+        const raw = localStorage.getItem('HUUD_STATE_FINAL_V1');
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            parsed.finance = this.sanitizeFinance(parsed.finance);
+            return { ...INITIAL_STATE, ...parsed };
+          } catch (e) {}
+        }
+        return INITIAL_STATE;
+      }
+
+      save() {
+        localStorage.setItem('HUUD_STATE_FINAL_V1', JSON.stringify(this.state));
+        this.render();
+
+        const statusEl = document.getElementById('cloud-sync-status');
+        if (statusEl) statusEl.innerHTML = '<span class="sync-dot" style="background:var(--warning)"></span> SALVANDO...';
+
+        if (this.supabase) {
+          this.supabase.from('huud_state').upsert({
+            id: 'dimas_primary',
+            debts: this.state.finance,
+            tasks: this.state.tasks,
+            land_checklist: this.state.landChecklist,
+            py_checklist: this.state.pyChecklist,
+            tech_hours: this.state.techHours,
+            updated_at: new Date().toISOString()
+          }).then(({ error }) => {
+            if (!error && statusEl) statusEl.innerHTML = '<span class="sync-dot"></span> CLOUD ONLINE';
+          }).catch(() => {});
+        }
+      }
+
+      async syncFromCloud() {
+        if (!this.supabase) return;
+        try {
+          const { data, error } = await this.supabase
+            .from('huud_state')
+            .select('*')
+            .eq('id', 'dimas_primary')
+            .single();
+
+          if (data && !error) {
+            if (data.debts && data.debts.length) this.state.finance = this.sanitizeFinance(data.debts);
+            if (data.tasks && data.tasks.length) this.state.tasks = data.tasks;
+            if (data.land_checklist && data.land_checklist.length) this.state.landChecklist = data.land_checklist;
+            if (data.py_checklist && data.py_checklist.length) this.state.pyChecklist = data.py_checklist;
+            if (data.tech_hours) this.state.techHours = Number(data.tech_hours);
+            this.save();
+          }
+        } catch (e) {}
+      }
+
+      dispatch(action, payload) {
+        switch (action) {
+          case 'ADD_FINANCE':
+            this.state.finance.push(payload);
+            break;
+          case 'EDIT_FINANCE':
+            this.state.finance = this.state.finance.map(i => i.id === payload.id ? payload : i);
+            break;
+          case 'TOGGLE_FINANCE':
+            this.state.finance = this.state.finance.map(i => i.id === payload ? { ...i, controlled: !i.controlled } : i);
+            break;
+          case 'DELETE_FINANCE':
+            this.state.finance = this.state.finance.filter(i => i.id !== payload);
+            break;
+          case 'TOGGLE_TASK':
+            this.state.tasks = this.state.tasks.map(t => t.id === payload ? { ...t, done: !t.done } : t);
+            break;
+          case 'TOGGLE_LAND':
+            this.state.landChecklist = this.state.landChecklist.map(t => t.id === payload ? { ...t, done: !t.done } : t);
+            break;
+          case 'TOGGLE_PY':
+            this.state.pyChecklist = this.state.pyChecklist.map(t => t.id === payload ? { ...t, done: !t.done } : t);
+            break;
+          case 'ADD_TECH_HOURS':
+            this.state.techHours += payload;
+            break;
+          case 'RESOLVE_AUDIT':
+            if (payload.type === 'SUCCESS') {
+              this.state.evidenceCount += 1;
+            }
+            break;
+        }
+        this.save();
+      }
+
+      render() {
+        this.renderHome();
+        this.renderFinance();
+        this.renderTasks();
+        this.renderLand();
+        this.renderPy();
+        this.renderDiagnostic();
+      }
+
+      renderHome() {
+        let totalDebts = 0, totalInflows = 0;
+        this.state.finance.forEach(item => {
+          const val = Number(item.amount) || 0;
+          if (item.type === 'INFLOW' && !item.controlled) totalInflows += val;
+          else if ((item.type === 'DEBT' || item.type === 'RECURRENT') && !item.controlled) totalDebts += val;
+        });
+
+        const net = totalInflows - totalDebts;
+        const dEl = document.getElementById('home-debts-val');
+        const iEl = document.getElementById('home-inflows-val');
+        const nEl = document.getElementById('home-net-val');
+        const thEl = document.getElementById('home-tech-hours');
+        const evEl = document.getElementById('hud-evidence-count');
+
+        if (dEl) dEl.innerText = "R$ " + totalDebts.toLocaleString('pt-BR');
+        if (iEl) iEl.innerText = "R$ " + totalInflows.toLocaleString('pt-BR');
+        if (nEl) {
+          nEl.innerText = "R$ " + net.toLocaleString('pt-BR');
+          nEl.style.color = net >= 0 ? 'var(--blue-inflow)' : 'var(--danger)';
+        }
+        if (thEl) thEl.innerText = this.state.techHours + "h";
+        if (evEl) evEl.innerText = this.state.evidenceCount;
+
+        const totalTasks = this.state.tasks.length;
+        const doneTasks = this.state.tasks.filter(t => t.done).length;
+        const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+        
+        const execEl = document.getElementById('hud-exec-rate');
+        const progEl = document.getElementById('radar-progress-fill');
+        if (execEl) execEl.innerText = pct + "%";
+        if (progEl) progEl.style.width = pct + "%";
+
+        const landBox = document.getElementById('home-land-mini-checklist');
+        if (landBox) {
+          landBox.innerHTML = this.state.landChecklist.slice(0, 2).map(t => 
+            `<div class="home-task-item ${t.done ? 'done' : ''}" onclick="HUUD.toggleLandTask(${t.id})">
+              <div class="mini-checkbox">${t.done ? '✓' : ''}</div>
+              <span style="font-size:0.75rem;">${t.text}</span>
+            </div>`
+          ).join('');
+        }
+
+        const pyBox = document.getElementById('home-py-mini-checklist');
+        if (pyBox) {
+          pyBox.innerHTML = this.state.pyChecklist.slice(0, 2).map(t => 
+            `<div class="home-task-item ${t.done ? 'done' : ''}" onclick="HUUD.togglePyTask(${t.id})">
+              <div class="mini-checkbox">${t.done ? '✓' : ''}</div>
+              <span style="font-size:0.75rem;">${t.text}</span>
+            </div>`
+          ).join('');
+        }
+
+        const tasksBox = document.getElementById('home-tasks-mini-list');
+        if (tasksBox) {
+          tasksBox.innerHTML = this.state.tasks.slice(0, 3).map(t => 
+            `<div class="home-task-item ${t.done ? 'done' : ''}" onclick="HUUD.toggleTask(${t.id})">
+              <div class="mini-checkbox">${t.done ? '✓' : ''}</div>
+              <span style="font-size:0.75rem;">${t.text}</span>
+            </div>`
+          ).join('');
+        }
+      }
+
+      renderFinance() {
+        const container = document.getElementById('financial-items-container');
+        if (!container) return;
+
+        let totalDebts = 0, totalInflows = 0, totalRecurrent = 0;
+        this.state.finance.forEach(item => {
+          const val = Number(item.amount) || 0;
+          if (item.type === 'INFLOW' && !item.controlled) totalInflows += val;
+          else if (item.type === 'RECURRENT') {
+            totalRecurrent += val;
+            if (!item.controlled) totalDebts += val;
+          } else if (!item.controlled) {
+            totalDebts += val;
+          }
+        });
+
+        const dEl = document.getElementById('fin-debts-total');
+        const iEl = document.getElementById('fin-inflows-total');
+        const rEl = document.getElementById('fin-recurrent-total');
+        if (dEl) dEl.innerText = "R$ " + totalDebts.toLocaleString('pt-BR');
+        if (iEl) iEl.innerText = "R$ " + totalInflows.toLocaleString('pt-BR');
+        if (rEl) rEl.innerText = "R$ " + totalRecurrent.toLocaleString('pt-BR');
+
+        let filtered = this.state.finance.filter(item => {
+          if (this.state.currentFilter === 'ALL') return true;
+          if (this.state.currentFilter === 'DONE') return item.controlled;
+          if (this.state.currentFilter === 'INFLOW') return item.type === 'INFLOW';
+          if (this.state.currentFilter === 'RECORRENTE') return item.type === 'RECURRENT';
+          if (this.state.currentFilter === 'CRITICA') return item.urgency === 'CRITICA' && !item.controlled;
+          if (this.state.currentFilter === 'ALTA') return item.urgency === 'ALTA' && !item.controlled;
+          if (this.state.currentFilter === 'NEGOCIAVEL') return item.urgency === 'NEGOCIAVEL' && !item.controlled;
+          return true;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.8rem; font-family:var(--mono);">NENHUM REGISTRO ENCONTRADO.</div>';
+          return;
+        }
+
+        container.innerHTML = filtered.map(item => {
+          const isDone = item.controlled;
+          const isInflow = item.type === 'INFLOW';
+          const isRecurrent = item.type === 'RECURRENT';
+
+          let borderClass = 'is-negociavel';
+          let badgeClass = 'badge-negociavel';
+          let badgeText = 'NEGOCIÁVEL';
+
+          if (isInflow) { borderClass = 'is-inflow'; badgeClass = 'badge-inflow'; badgeText = 'ENTRADA (AZUL)'; }
+          else if (isRecurrent) { borderClass = 'is-recurrent'; badgeClass = 'badge-recurrent'; badgeText = 'FIXO MENSAL'; }
+          else if (item.urgency === 'CRITICA') { borderClass = 'is-critica'; badgeClass = 'badge-critica'; badgeText = '🔴 CRÍTICA'; }
+          else if (item.urgency === 'ALTA') { borderClass = 'is-alta'; badgeClass = 'badge-alta'; badgeText = '🟡 ALTA'; }
+
+          if (isDone) { badgeClass = 'badge-done'; badgeText = isInflow ? 'RECEBIDO ✓' : 'QUITADO ✓'; }
+
+          const valColorClass = isInflow ? 'val-in' : 'val-out';
+          const sign = isInflow ? '+ R$' : '- R$';
+
+          let dateStr = item.date || 'Sem Data';
+          const parts = dateStr.split('-');
+          if (parts.length === 3) dateStr = parts[2] + '/' + parts[1] + '/' + parts[0];
+
+          return `
+            <div class="item-card ${borderClass}" style="${isDone ? 'opacity:0.5;' : ''}">
+              <div class="item-top">
+                <span class="item-title">${item.name}</span>
+                <span class="item-val ${valColorClass}">${sign} ${Number(item.amount).toLocaleString('pt-BR')}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                <span class="badge-status ${badgeClass}">${badgeText}</span>
+                <span style="font-family:var(--mono); font-size:0.68rem; color:var(--text-muted);">📅 ${dateStr}</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px; display:flex; justify-content:space-between; align-items:flex-end;">
+                <div style="max-width:55%;"><strong>Ação:</strong> ${item.plan || 'Em definição'}</div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <button style="background:#161b24; border:1px solid #252e3d; color:var(--blue-inflow); font-size:0.72rem; font-family:var(--mono); font-weight:800; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="HUUD.editFinanceItem(${item.id})">✎ EDITAR</button>
+                  <button style="background:transparent; border:none; color:var(--neon); font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;" onclick="HUUD.toggleFinanceStatus(${item.id})">
+                    ${isDone ? 'Reabrir' : (isInflow ? 'Recebido ✓' : 'Dar Baixa ✓')}
+                  </button>
+                  <button style="background:transparent; border:none; color:var(--danger); font-size:0.75rem; font-family:var(--mono); cursor:pointer;" onclick="HUUD.deleteFinanceItem(${item.id})">✕</button>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      renderTasks() {
+        const c = document.getElementById('cmd-tasks-container');
+        if (!c) return;
+        c.innerHTML = this.state.tasks.map(t => 
+          `<div class="home-task-item ${t.done ? 'done' : ''}" style="padding:14px; margin-bottom:8px;" onclick="HUUD.toggleTask(${t.id})">
+            <div class="mini-checkbox" style="width:20px; height:20px;">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem;">${t.text}</span>
+          </div>`
+        ).join('');
+      }
+
+      renderLand() {
+        const c = document.getElementById('land-checklist-container');
+        if (!c) return;
+        c.innerHTML = this.state.landChecklist.map(t => 
+          `<div class="home-task-item ${t.done ? 'done' : ''}" style="padding:14px; margin-bottom:8px;" onclick="HUUD.toggleLandTask(${t.id})">
+            <div class="mini-checkbox" style="width:20px; height:20px;">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem;">${t.text}</span>
+          </div>`
+        ).join('');
+      }
+
+      renderPy() {
+        const c = document.getElementById('py-checklist-container');
+        if (!c) return;
+        c.innerHTML = this.state.pyChecklist.map(t => 
+          `<div class="home-task-item ${t.done ? 'done' : ''}" style="padding:14px; margin-bottom:8px;" onclick="HUUD.togglePyTask(${t.id})">
+            <div class="mini-checkbox" style="width:20px; height:20px;">${t.done ? '✓' : ''}</div>
+            <span style="font-size:0.85rem;">${t.text}</span>
+          </div>`
+        ).join('');
+      }
+
+      renderDiagnostic() {
+        const c = document.getElementById('diagnostic-blocks-accordion');
+        if (!c) return;
+        c.innerHTML = DIAGNOSTIC_DATA.map((d, index) => 
+          `<div class="diag-block-card">
+            <div class="diag-block-header" onclick="HUUD.toggleAccordion(${index})">
+              <span>${d.block}</span>
+              <span id="diag-arrow-${index}">+</span>
+            </div>
+            <div class="diag-block-body" id="diag-body-${index}">
+              ${d.content}
+            </div>
+          </div>`
+        ).join('');
+      }
+    }
+
+    const engine = new StateEngine();
+
+    const HUUD = {
+      switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+        const target = document.getElementById('view-' + viewId);
+        if (target) target.classList.add('active');
+
+        document.querySelectorAll('.nav-pill').forEach(p => {
+          if ((p.getAttribute('onclick') || '').includes("'" + viewId + "'")) p.classList.add('active');
+        });
+        document.querySelectorAll('.nav-btn').forEach(b => {
+          if ((b.getAttribute('onclick') || '').includes("'" + viewId + "'")) b.classList.add('active');
+        });
+        window.scrollTo(0, 0);
+      },
+
+      openCommander() { document.getElementById('commander-mode').classList.add('active'); },
+      closeCommander() { document.getElementById('commander-mode').classList.remove('active'); },
+      openModal(id) { document.getElementById(id).classList.add('active'); },
+      closeModal(id) { document.getElementById(id).classList.remove('active'); },
+
+      openEntryModal(type) {
+        document.getElementById('ent-edit-id').value = '';
+        document.getElementById('modal-entry-title').innerText = 'REGISTRAR LANÇAMENTO FINANCEIRO';
+        document.getElementById('btn-save-entry-submit').innerText = 'SALVAR LANÇAMENTO';
+
+        this.openModal('modal-add-entry');
+        const select = document.getElementById('ent-type');
+        if (select) { select.value = type; this.onEntryTypeChange(type); }
+        document.getElementById('ent-name').value = '';
+        document.getElementById('ent-amount').value = '';
+        document.getElementById('ent-plan').value = '';
+        document.getElementById('ent-date').value = new Date().toISOString().split('T')[0];
+      },
+
+      editFinanceItem(id) {
+        const item = engine.state.finance.find(i => i.id === id);
+        if (!item) return;
+
+        document.getElementById('ent-edit-id').value = item.id;
+        document.getElementById('modal-entry-title').innerText = 'EDITAR LANÇAMENTO FINANCEIRO';
+        document.getElementById('btn-save-entry-submit').innerText = 'SALVAR ALTERAÇÕES';
+
+        document.getElementById('ent-type').value = item.type;
+        this.onEntryTypeChange(item.type);
+
+        document.getElementById('ent-name').value = item.name;
+        document.getElementById('ent-amount').value = item.amount;
+        document.getElementById('ent-date').value = item.date || new Date().toISOString().split('T')[0];
+        
+        if (item.type === 'DEBT') document.getElementById('ent-urgency').value = item.urgency;
+        document.getElementById('ent-plan').value = item.plan || '';
+
+        this.openModal('modal-add-entry');
+      },
+
+      onEntryTypeChange(val) {
+        const ug = document.getElementById('urgency-group');
+        if (ug) ug.style.display = (val === 'INFLOW' || val === 'RECURRENT') ? 'none' : 'block';
+      },
+
+      saveEntry(e) {
+        e.preventDefault();
+        const editId = document.getElementById('ent-edit-id').value;
+        const type = document.getElementById('ent-type').value;
+
+        const payload = engine.sanitizeFinance([{
+          id: editId ? Number(editId) : Date.now(),
+          type: type,
+          name: document.getElementById('ent-name').value,
+          amount: Number(document.getElementById('ent-amount').value),
+          date: document.getElementById('ent-date').value,
+          urgency: type === 'INFLOW' ? 'INFLOW' : (type === 'RECURRENT' ? 'RECURRENT' : document.getElementById('ent-urgency').value),
+          plan: document.getElementById('ent-plan').value || "Sem observações",
+          controlled: false
+        }])[0];
+
+        engine.dispatch(editId ? 'EDIT_FINANCE' : 'ADD_FINANCE', payload);
+        this.closeModal('modal-add-entry');
+        e.target.reset();
+      },
+
+      toggleFinanceStatus(id) { engine.dispatch('TOGGLE_FINANCE', id); },
+      deleteFinanceItem(id) { if (confirm("Remover este lançamento?")) engine.dispatch('DELETE_FINANCE', id); },
+
+      setFilter(filter) {
+        engine.state.currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.className = 'filter-btn');
+        const b = document.getElementById('flt-' + filter);
+        if (b) {
+          if (filter === 'ALL' || filter === 'DONE') b.classList.add('active-all');
+          else if (filter === 'CRITICA') b.classList.add('active-critica');
+          else if (filter === 'ALTA') b.classList.add('active-alta');
+          else if (filter === 'NEGOCIAVEL') b.classList.add('active-negociavel');
+          else if (filter === 'INFLOW') b.classList.add('active-inflows');
+          else if (filter === 'RECORRENTE') b.classList.add('active-recorrente');
+        }
+        engine.renderFinance();
+      },
+
+      toggleTask(id) { engine.dispatch('TOGGLE_TASK', id); },
+      toggleLandTask(id) { engine.dispatch('TOGGLE_LAND', id); },
+      togglePyTask(id) { engine.dispatch('TOGGLE_PY', id); },
+      logTechHours() { engine.dispatch('ADD_TECH_HOURS', 2); alert("2 HORAS DE CÓDIGO REGISTRADAS."); },
+
+      toggleAccordion(idx) {
+        const b = document.getElementById('diag-body-' + idx);
+        const a = document.getElementById('diag-arrow-' + idx);
+        if (!b || !a) return;
+        if (b.classList.contains('open')) { b.classList.remove('open'); a.innerText = '+'; }
+        else { b.classList.add('open'); a.innerText = '−'; }
+      },
+
+      resolveCommanderAudit(type) {
+        engine.auditActionPending = type;
+        const titleEl = document.getElementById('modal-audit-title');
+        const subEl = document.getElementById('modal-audit-subtitle');
+
+        if (type === 'SUCCESS') {
+          titleEl.innerText = 'REGISTRAR EVIDÊNCIA DE VITÓRIA';
+          subEl.innerText = 'Descreva a evidência concreta do que foi executado hoje:';
+        } else if (type === 'BLOCKED') {
+          titleEl.innerText = 'REGISTRAR TRAVA / BLOQUEIO';
+          subEl.innerText = 'O que impediu a execução? Como eliminar essa trava amanhã?';
+        } else {
+          titleEl.innerText = 'REGISTRO DE QUEBRA DE COMANDO';
+          subEl.innerText = 'O que causou a falha? O plano será recalibrado.';
+        }
+
+        document.getElementById('audit-evidence-text').value = '';
+        this.openModal('modal-audit-input');
+      },
+
+      submitAuditResolution(e) {
+        e.preventDefault();
+        const text = document.getElementById('audit-evidence-text').value;
+        engine.dispatch('RESOLVE_AUDIT', { type: engine.auditActionPending, note: text });
+        this.closeModal('modal-audit-input');
+        this.closeCommander();
+        alert("AUDITORIA CONCLUÍDA: Registro gravado no banco de dados.");
+      },
+
+      shareWithRafaela() {
+        let totalOut = 0, totalIn = 0;
+        let criticas = [], entradas = [];
+
+        engine.state.finance.forEach(item => {
+          const val = Number(item.amount) || 0;
+          if (item.type === 'INFLOW' && !item.controlled) {
+            totalIn += val;
+            entradas.push("• " + item.name + ": +R$ " + val.toLocaleString('pt-BR'));
+          } else if (!item.controlled) {
+            totalOut += val;
+            if (item.urgency === 'CRITICA') {
+              criticas.push("🔴 " + item.name + ": R$ " + val.toLocaleString('pt-BR'));
+            }
+          }
+        });
+
+        const report = "📋 *RELATÓRIO FINANCEIRO & DIRETRIZ TÁTICA*\n" +
+          "-----------------------------------\n" +
+          "🚨 *URGÊNCIAS CRÍTICAS:*\n" + (criticas.length ? criticas.join('\n') : "• Nenhuma crítica pendente.") + "\n\n" +
+          "🔵 *ENTRADAS PREVISTAS:*\n" + (entradas.length ? entradas.join('\n') : "• Sem entradas mapeadas.") + "\n\n" +
+          "📊 *RESUMO DO FLUXO:*\n" +
+          "• Passivo Pendente: R$ " + totalOut.toLocaleString('pt-BR') + "\n" +
+          "• Entradas Mapeadas: R$ " + totalIn.toLocaleString('pt-BR') + "\n" +
+          "• Saldo Projetado: R$ " + (totalIn - totalOut).toLocaleString('pt-BR') + "\n\n" +
+          "🎯 *Foco:* Liquidar urgências do dia 3 e proteger caixa.";
+
+        document.getElementById('rafaela-report-text').value = report;
+        this.openModal('modal-share-rafaela');
+      },
+
+      sendWhatsApp() {
+        const text = encodeURIComponent(document.getElementById('rafaela-report-text').value);
+        window.open('https://api.whatsapp.com/send?text=' + text, '_blank');
+      },
+
+      copyReport() {
+        const ta = document.getElementById('rafaela-report-text');
+        ta.select();
+        document.execCommand('copy');
+        alert("Relatório copiado!");
+      },
+
+      exportBackup() {
+        const blob = new Blob([JSON.stringify(engine.state, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'HUUD_MASTER_BACKUP_' + new Date().toISOString().split('T')[0] + '.json';
+        a.click();
+      },
+
+      importBackup(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const data = JSON.parse(evt.target.result);
+            engine.state = { ...INITIAL_STATE, ...data };
+            engine.state.finance = engine.sanitizeFinance(engine.state.finance);
+            engine.save();
+            alert("BACKUP RESTAURADO COM SUCESSO!");
+          } catch (err) {
+            alert("Arquivo inválido.");
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+
+    function startDeadlineTimer() {
+      const timerEl = document.getElementById('cmd-timer');
+      setInterval(() => {
+        const now = new Date();
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).getTime();
+        const diff = endOfDay - now.getTime();
+
+        if (diff <= 0) {
+          if (timerEl) timerEl.innerText = "00 : 00 : 00";
+          return;
+        }
+
+        const hrs = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+        const mins = String(Math.floor((diff / 1000 / 60) % 60)).padStart(2, '0');
+        const secs = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+
+        if (timerEl) timerEl.innerText = `${hrs} : ${mins} : ${secs}`;
+      }, 1000);
+    }
+
+    function startConcentricChart() {
+      const canvas = document.getElementById('disciplina-concentric-chart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let angleOffset = 0;
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const cx = 75, cy = 75;
+
+        // Anel 1
+        ctx.beginPath();
+        ctx.arc(cx, cy, 62, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(212, 255, 0, 0.15)';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 62, -Math.PI / 2, Math.PI * 1.5);
+        ctx.strokeStyle = '#d4ff00';
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = 'rgba(212, 255, 0, 0.5)';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Anel 2
+        ctx.beginPath();
+        ctx.arc(cx, cy, 48, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 48, -Math.PI / 2 + angleOffset, (-Math.PI / 2 + angleOffset) + Math.PI);
+        ctx.strokeStyle = 'rgba(212, 255, 0, 0.8)';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Anel 3
+        ctx.beginPath();
+        ctx.arc(cx, cy, 34, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.1)';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 34, Math.PI / 4, Math.PI);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        angleOffset += 0.015;
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      engine.render();
+      startConcentricChart();
+      startDeadlineTimer();
+    });
+  </script>
 </body>
 </html>
