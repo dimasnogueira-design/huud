@@ -5,6 +5,24 @@
 (function () {
   'use strict';
 
+  function loadNavigationRouter(next) {
+    if (window.__HUUD_ROUTER_V1) {
+      if (typeof next === 'function') next();
+      return;
+    }
+    const existing = document.querySelector('script[data-huud-navigation-router]');
+    if (existing) {
+      existing.addEventListener('load', function () { if (typeof next === 'function') next(); }, { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'huud-navigation-router-v1.js';
+    script.dataset.huudNavigationRouter = '1';
+    script.onload = function () { if (typeof next === 'function') next(); };
+    script.onerror = function () { if (typeof next === 'function') next(); };
+    document.head.appendChild(script);
+  }
+
   function openPendencias() {
     const target = document.getElementById('view-pendencias');
     if (!target) {
@@ -39,7 +57,7 @@
   }
 
   function boot() {
-    wire();
+    loadNavigationRouter(wire);
   }
 
   if (document.readyState === 'loading') {
@@ -116,11 +134,6 @@
     if (preserved.length) write(TERRAIN_STORE, preserved);
   }
 
-  /*
-   * O problema real identificado: os quatro itens também estavam no HTML
-   * legado da própria sala view-land. Portanto não basta limpar localStorage.
-   * Esta rotina remove somente esses quatro nós do QG MV, sem tocar no restante.
-   */
   function removeTerrainFromMVRoom() {
     const room = document.getElementById('view-land');
     if (!room) return;
@@ -173,7 +186,6 @@
     }
   }
 
-  /* NAVEGAÇÃO DAS SALAS + EFEITO TÁTICO DOS BLOCOS DA HOME. */
   const ROOM_MAP = {
     'realidade-v2': 'realidade-v2',
     'pendencias': 'pendencias',
@@ -184,6 +196,10 @@
   };
 
   function openRoom(roomId) {
+    if (window.HUUD && typeof window.HUUD.navigate === 'function') {
+      return window.HUUD.navigate(roomId);
+    }
+
     const room = ROOM_MAP[String(roomId || '')] || String(roomId || '');
 
     if (room === 'realidade-v2' && window.HUUD_R2 && typeof window.HUUD_R2.open === 'function') {
