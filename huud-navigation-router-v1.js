@@ -90,10 +90,19 @@
     },true);
   }
 
+  function loadResponsibilities(){
+    if(document.querySelector('script[data-huud-responsabilidades-v1]')||window.HUUD_RESPONSABILIDADES_V1)return;
+    const script=document.createElement('script');
+    script.src='huud-responsabilidades-v1.js';
+    script.dataset.huudResponsabilidadesV1='1';
+    document.body.appendChild(script);
+  }
+
   function boot(){
     if(!install())setTimeout(boot,100);
     interceptHomeQGMV();
     bindNavigationMenu();
+    loadResponsibilities();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
