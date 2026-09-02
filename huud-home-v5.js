@@ -8,7 +8,7 @@ const modules=[
 ['01','REALIDADE','Mapa da Realidade','Fatos, direção, riscos, forças e o que precisa ser enfrentado.','realidade-v2','ABRIR MAPA →'],
 ['02','RESPONSABILIDADES','Pendências & Processos','Obrigações, processos, documentos e assuntos que não podem continuar esquecidos.','pendencias','VER PENDÊNCIAS →'],
 ['03','FINANÇAS','Sala de Guerra Financeira','Dívidas, entradas, compromissos e decisões de caixa.','debts','ABRIR →'],
-['04','MAR VERDE','Operação','Ações comerciais essenciais que sustentam o presente.','land','ATACAR →'],
+['04','MAR VERDE','PRIORIDADE ÚNICA','Pendência financeira: entrada séria e objetiva. Resolver, concluir e retirar quando estiver encerrada.','debts','ATACAR PRIORIDADE →'],
 ['05','TI + IA','Sala de Aula','Construção de autonomia técnica.','tech','ESTUDAR →'],
 ['06','GO PARAGUAY GO','Operação Paraguai','Pesquisa, inteligência comercial, margem e projeto.','py','ABRIR →']
 ];
