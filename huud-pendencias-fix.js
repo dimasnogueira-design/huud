@@ -60,4 +60,114 @@
   } else {
     setTimeout(loadHomeV5, 0);
   }
+
+  /*
+   * REGRA DE SALAS — TERRENO NÃO É QG MV.
+   *
+   * Os quatro itens abaixo nasceram em chaves legadas de pendências/realidade
+   * e, por isso, o Command Center acabava puxando-os como obrigações gerais.
+   * Aqui fazemos uma migração única: preservamos os objetos completos em uma
+   * chave própria do Terreno e retiramos somente esses registros das fontes
+   * gerais. A operação financeira do Terreno continua sendo exibida pela sala
+   * FINANÇAS → OPERAÇÃO TERRENO & CAIXA.
+   */
+  const TERRAIN_TITLES = new Set([
+    'Levantar R$ 1.500 para pagamento da taxa de transferência',
+    'Conferir documentação final com o comprador do terreno',
+    'Agendar assinatura em cartório para liberação dos recursos',
+    'Destinar valor da venda diretamente para amortizar dívida crítica'
+  ]);
+  const TERRAIN_STORE = 'HUUD_TERRENO_PENDENCIAS_V1';
+  const SOURCES = ['HUUD_PENDENCIAS_V1', 'HUUD_REALIDADE_V1'];
+
+  function read(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key) || 'null');
+      return value == null ? fallback : value;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function write(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {}
+  }
+
+  function isolateTerrain() {
+    const moved = read(TERRAIN_STORE, []);
+    const preserved = Array.isArray(moved) ? moved.slice() : [];
+    const known = new Set(preserved.map(function (item) {
+      return String(item && (item.title || item.name) || '').trim();
+    }));
+
+    SOURCES.forEach(function (key) {
+      const list = read(key, null);
+      if (!Array.isArray(list)) return;
+
+      const keep = [];
+      list.forEach(function (item) {
+        const title = String(item && (item.title || item.name) || '').trim();
+        if (TERRAIN_TITLES.has(title)) {
+          if (!known.has(title)) {
+            preserved.push(item);
+            known.add(title);
+          }
+        } else {
+          keep.push(item);
+        }
+      });
+
+      if (keep.length !== list.length) write(key, keep);
+    });
+
+    if (preserved.length) write(TERRAIN_STORE, preserved);
+  }
+
+  function removeTerrainFromCommandCenter() {
+    const terrain = function (text) {
+      return TERRAIN_TITLES.has(String(text || '').trim());
+    };
+
+    function clean(root) {
+      if (!root) return;
+
+      root.querySelectorAll('.cc2-ob').forEach(function (card) {
+        const title = card.querySelector('strong');
+        if (title && terrain(title.textContent)) card.remove();
+      });
+
+      // Se um item de Terreno tiver virado o PRIMEIRO ALVO, remove o bloco inteiro.
+      root.querySelectorAll('.cc2-command').forEach(function (command) {
+        const title = command.querySelector('strong');
+        if (title && terrain(title.textContent)) command.remove();
+      });
+    }
+
+    clean(document);
+
+    if (window.MutationObserver) {
+      const observer = new MutationObserver(function () { clean(document); });
+      observer.observe(document.body, { childList: true, subtree: true });
+      window.__HUUD_TERRAIN_ISOLATION_OBSERVER = observer;
+    }
+  }
+
+  function enforceRoomSeparation() {
+    isolateTerrain();
+    removeTerrainFromCommandCenter();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(enforceRoomSeparation, 0);
+      setTimeout(enforceRoomSeparation, 700);
+      setTimeout(enforceRoomSeparation, 1800);
+    });
+  } else {
+    setTimeout(enforceRoomSeparation, 0);
+    setTimeout(enforceRoomSeparation, 700);
+    setTimeout(enforceRoomSeparation, 1800);
+  }
 })();
