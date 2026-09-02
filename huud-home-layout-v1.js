@@ -198,3 +198,107 @@
   }
   document.addEventListener('DOMContentLoaded',()=>{setTimeout(reconcile,0);setTimeout(reconcile,500);setTimeout(reconcile,1500);});
 })();
+
+/* HUUD OS — QG MV // OPERAÇÃO V2 HARDENING
+   Mantém a operação semanal viva sem destruir a estrutura legada.
+   IDs dos ataques são preservados em edição/movimentação para manter checks.
+*/
+(function(){
+  'use strict';
+  const KEY='HUUD_MAR_VERDE_OPERACAO_V1';
+  const CHECK='HUUD_MAR_VERDE_AGENDA_V1_CHECKS';
+  const REPORT='HUUD_MAR_VERDE_AGENDA_V1_REPORTS';
+  const DAYS=['SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO'];
+  let selected=0;
+  const read=(k,f)=>{try{const x=JSON.parse(localStorage.getItem(k)||'null');return x??f}catch(e){return f}};
+  const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const uid=()=>Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+  const root=()=>document.getElementById('huud-mar-verde-view');
+  const operation=()=>read(KEY,null);
+  const checks=()=>read(CHECK,{});
+  const reports=()=>read(REPORT,{});
+  const ensure=()=>{const o=operation();if(!o||!Array.isArray(o.days)||o.days.length!==6)return null;o.days.forEach(d=>{if(!Array.isArray(d.attacks))d.attacks=[];d.attacks.forEach(a=>{if(!a.id)a.id=uid();if(!a.status)a.status='OPEN'})});write(KEY,o);return o};
+
+  function styles(){
+    if(document.getElementById('mvop-v2-css'))return;
+    const s=document.createElement('style');s.id='mvop-v2-css';s.textContent=`
+      #huud-mar-verde-view.mvop2{display:grid;gap:12px;padding:4px 0 38px}
+      .mv2-head{border:1px solid #252d38;border-left:4px solid var(--neon);border-radius:14px;background:linear-gradient(135deg,#090c10,#05070a);padding:20px}.mv2-k{font:900 .56rem var(--mono);letter-spacing:2px;color:var(--neon)}.mv2-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1;margin:7px 0}.mv2-title em{color:var(--neon);font-style:normal}.mv2-sub{max-width:900px;color:#8d99a9;font-size:.7rem;line-height:1.5}.mv2-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}.mv2-btn{border:1px solid var(--neon);background:var(--neon);color:#000;border-radius:5px;padding:9px 12px;font:900 .54rem var(--mono);letter-spacing:1px;cursor:pointer}.mv2-btn.alt{background:transparent;color:var(--neon)}
+      .mv2-week{display:grid;grid-template-columns:repeat(6,minmax(135px,1fr));gap:7px;overflow-x:auto}.mv2-day{min-width:135px;text-align:left;border:1px solid var(--border);background:var(--bg-card);border-radius:8px;padding:10px;cursor:pointer}.mv2-day.active{border-color:var(--neon);background:#0d1208;box-shadow:0 0 12px var(--neon-glow)}.mv2-day b{display:block;color:var(--neon);font:900 .53rem var(--mono);letter-spacing:1px}.mv2-day strong{display:block;font-size:.68rem;margin-top:4px}.mv2-day small{display:block;color:#687587;font:700 .48rem var(--mono);margin-top:5px}
+      .mv2-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(270px,.75fr);gap:12px}.mv2-panel{border:1px solid var(--border);border-radius:11px;background:var(--bg-card);overflow:hidden}.mv2-ph{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border)}.mv2-ph strong{font-size:.82rem}.mv2-label{color:var(--neon);font:900 .52rem var(--mono);letter-spacing:1.4px}.mv2-target{padding:12px 16px;background:#0a0e13;border-bottom:1px solid var(--border);font-size:.68rem;color:#aeb7c3}.mv2-target b{display:block;color:#697789;font:900 .49rem var(--mono);margin-bottom:4px}.mv2-attacks{padding:9px;display:grid;gap:7px}.mv2-attack{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;border:1px solid var(--border);border-radius:8px;background:var(--bg-card-elevated);padding:10px}.mv2-attack.done{opacity:.45}.mv2-attack.done .mv2-atitle{text-decoration:line-through}.mv2-check{width:17px;height:17px;accent-color:var(--neon);cursor:pointer}.mv2-who{font:900 .48rem var(--mono);letter-spacing:1px;color:var(--neon);margin-bottom:3px}.mv2-atitle{font-size:.69rem;font-weight:750;line-height:1.35}.mv2-result{color:#687587;font:700 .49rem var(--mono);margin-top:4px}.mv2-move{border:1px solid #344052;background:transparent;color:#9ba5b4;border-radius:4px;padding:6px 7px;font:800 .47rem var(--mono);cursor:pointer}.mv2-add{margin:0 9px 9px;width:calc(100% - 18px);border:1px dashed #344052;background:transparent;color:#8d99a9;border-radius:7px;padding:9px;font:800 .5rem var(--mono);cursor:pointer}.mv2-score{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:9px}.mv2-stat{border:1px solid var(--border);border-radius:7px;padding:11px;background:var(--bg-card-elevated)}.mv2-stat b{display:block;color:#687587;font:900 .47rem var(--mono)}.mv2-stat strong{display:block;font:900 1.2rem var(--mono);margin-top:4px}.mv2-report{padding:10px 12px;border-top:1px solid var(--border)}.mv2-report label{display:block;color:#687587;font:900 .48rem var(--mono);letter-spacing:1px;margin:7px 0 4px}.mv2-report textarea{width:100%;box-sizing:border-box;min-height:72px;background:#080b0f;color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px;font:600 .6rem var(--mono);resize:vertical}
+      .mv2-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:grid;place-items:center;padding:18px}.mv2-dialog{width:min(520px,100%);border:1px solid #2b3542;border-radius:12px;background:#080b0f;padding:17px;box-shadow:0 20px 70px rgba(0,0,0,.55)}.mv2-dialog h3{margin:0 0 5px;font-size:1rem}.mv2-dialog p{color:#768294;font-size:.62rem}.mv2-select{width:100%;box-sizing:border-box;background:#05070a;color:var(--text);border:1px solid #303b49;border-radius:6px;padding:10px;font:700 .62rem var(--mono);margin:6px 0}.mv2-dialog-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}
+      .mv2-edit{padding:10px;display:grid;gap:9px}.mv2-edit-day{border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--bg-card-elevated)}.mv2-edit-day h4{margin:0 0 8px;color:var(--neon);font:900 .55rem var(--mono);letter-spacing:1px}.mv2-edit-day label{display:block;color:#758194;font:900 .48rem var(--mono);letter-spacing:1px;margin:7px 0 4px}.mv2-edit-day input,.mv2-edit-day textarea{width:100%;box-sizing:border-box;background:#080b0f;color:var(--text);border:1px solid var(--border);border-radius:5px;padding:8px;font:600 .6rem var(--mono)}.mv2-edit-day textarea{min-height:105px;resize:vertical}.mv2-note{padding:10px;color:#687587;font:600 .55rem var(--mono);line-height:1.45}
+      @media(max-width:900px){.mv2-grid{grid-template-columns:1fr}.mv2-week{grid-template-columns:repeat(6,135px)}}
+    `;document.head.appendChild(s);
+  }
+
+  function saveEdit(){
+    const o=ensure();if(!o)return;
+    for(let i=0;i<6;i++){
+      const d=o.days[i];
+      d.focus=document.getElementById('mv2_focus_'+i).value.trim();
+      d.target=document.getElementById('mv2_target_'+i).value.trim();
+      const old=d.attacks||[];
+      const lines=document.getElementById('mv2_attacks_'+i).value.split('\n').map(x=>x.trim()).filter(Boolean);
+      d.attacks=lines.map(line=>{
+        const p=line.split('|').map(x=>x.trim());
+        const who=(p[0]||'DIMAS').toUpperCase().includes('RAFA')?'RAFAELLA':'DIMAS';
+        const title=p[1]||p[0]||'Ataque operacional';
+        const prev=old.find(a=>a.who===who&&a.title===title);
+        return {id:prev?.id||uid(),who,title,result:p[2]||prev?.result||'',status:prev?.status||'OPEN'};
+      });
+    }
+    write(KEY,o);render();
+  }
+
+  function edit(){
+    const o=ensure(),v=root();if(!o||!v)return;styles();
+    v.className='mvop2';
+    v.innerHTML=`<section class="mv2-head"><div class="mv2-k">QG MV // CONFIGURAÇÃO DA OPERAÇÃO</div><div class="mv2-title">EDITAR <em>OPERAÇÃO</em></div><div class="mv2-sub">Mude foco, alvo e ataques sem perder os IDs dos movimentos que continuam iguais. A estrutura legada permanece preservada.</div><div class="mv2-actions"><button class="mv2-btn" onclick="window.__MVO2_SAVE()">SALVAR OPERAÇÃO</button><button class="mv2-btn alt" onclick="window.__MVO2_RENDER()">CANCELAR</button></div></section><section class="mv2-panel mv2-edit">${o.days.map((d,i)=>`<div class="mv2-edit-day"><h4>${d.day}</h4><label>FOCO</label><input id="mv2_focus_${i}" value="${esc(d.focus)}"><label>ALVO / RESULTADO ESPERADO</label><input id="mv2_target_${i}" value="${esc(d.target)}"><label>ATAQUES — RESPONSÁVEL | ATAQUE | RESULTADO</label><textarea id="mv2_attacks_${i}">${esc((d.attacks||[]).map(a=>a.who+' | '+a.title+' | '+(a.result||'')).join('\n'))}</textarea></div>`).join('')}</section>`;
+  }
+
+  function addAttack(){
+    const o=ensure(),d=o?.days[selected];if(!d)return;
+    d.attacks.push({id:uid(),who:'DIMAS',title:'Novo ataque operacional',result:'Defina o resultado esperado.',status:'OPEN'});
+    write(KEY,o);render();
+  }
+
+  function move(id){
+    const o=ensure();let attack=null,from=-1;
+    o.days.forEach((d,i)=>{const a=d.attacks.find(x=>x.id===id);if(a){attack=a;from=i}});
+    if(!attack)return;
+    const modal=document.createElement('div');modal.className='mv2-modal';
+    modal.innerHTML=`<div class="mv2-dialog"><h3>MOVER ATAQUE</h3><p>Escolha o novo dia. O ataque e seu ID permanecem intactos.</p><select class="mv2-select" id="mv2_dest">${DAYS.map((d,i)=>`<option value="${d}" ${i===from?'selected':''}>${d}</option>`).join('')}</select><div class="mv2-dialog-actions"><button class="mv2-btn alt" id="mv2_cancel">CANCELAR</button><button class="mv2-btn" id="mv2_confirm">MOVER ATAQUE</button></div></div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('#mv2_cancel').onclick=()=>modal.remove();
+    modal.querySelector('#mv2_confirm').onclick=()=>{
+      const dest=modal.querySelector('#mv2_dest').value,to=o.days.findIndex(d=>d.day===dest);
+      if(to<0){modal.remove();return}
+      o.days[from].attacks=o.days[from].attacks.filter(x=>x.id!==id);
+      o.days[to].attacks.push(attack);write(KEY,o);selected=to;modal.remove();render();
+    };
+  }
+
+  function toggle(id,val){const c=checks();c[id]=!!val;write(CHECK,c);render()}
+  function report(day,who,val){const r=reports();r[day+'_'+who]=val;write(REPORT,r)}
+
+  function render(){
+    const o=ensure(),v=root();if(!o||!v)return;styles();
+    const d=o.days[selected]||o.days[0],c=checks(),r=reports(),att=d.attacks||[],done=att.filter(a=>c[a.id]).length,total=att.length;
+    v.className='mvop2';
+    v.innerHTML=`<section class="mv2-head"><div class="mv2-k">QG MV // OPERAÇÃO DE ATAQUE</div><div class="mv2-title">MAR VERDE <em>OPERAÇÃO</em></div><div class="mv2-sub"><b>MISSÃO:</b> ${esc(o.mission)} &nbsp; <b>ALVO DA SEMANA:</b> ${esc(o.weeklyTarget)}</div><div class="mv2-actions"><button class="mv2-btn" onclick="window.__MVO2_EDIT()">EDITAR OPERAÇÃO</button><button class="mv2-btn alt" onclick="window.__MVO2_ADD()">+ NOVO ATAQUE</button></div></section><section class="mv2-week">${o.days.map((x,i)=>{const n=(x.attacks||[]).length,dc=(x.attacks||[]).filter(a=>c[a.id]).length;return `<button class="mv2-day ${i===selected?'active':''}" onclick="window.__MVO2_DAY(${i})"><b>${x.day}</b><strong>${esc(x.focus)}</strong><small>${dc}/${n} ATAQUES EXECUTADOS</small></button>`}).join('')}</section><section class="mv2-grid"><div class="mv2-panel"><div class="mv2-ph"><div><div class="mv2-label">${d.day}</div><strong>ATAQUES DO DIA</strong></div><span class="mv2-label">${done}/${total}</span></div><div class="mv2-target"><b>RESULTADO ESPERADO</b>${esc(d.target)}</div><div class="mv2-attacks">${att.length?att.map(a=>`<div class="mv2-attack ${c[a.id]?'done':''}"><input class="mv2-check" type="checkbox" ${c[a.id]?'checked':''} onchange="window.__MVO2_TOGGLE('${esc(a.id)}',this.checked)"><div><div class="mv2-who">${a.who}</div><div class="mv2-atitle">${esc(a.title)}</div>${a.result?`<div class="mv2-result">RESULTADO: ${esc(a.result)}</div>`:''}</div><button class="mv2-move" onclick="window.__MVO2_MOVE('${esc(a.id)}')">MOVER</button></div>`).join(''):'<div class="mv2-note">Nenhum ataque definido para este dia.</div>'}</div><button class="mv2-add" onclick="window.__MVO2_ADD()">+ ADICIONAR ATAQUE NESTE DIA</button></div><aside class="mv2-panel"><div class="mv2-ph"><div><div class="mv2-label">PLACAR</div><strong>OPERAÇÃO MV</strong></div></div><div class="mv2-score"><div class="mv2-stat"><b>EXECUTADOS</b><strong>${done}</strong></div><div class="mv2-stat"><b>RESTANTES</b><strong>${Math.max(0,total-done)}</strong></div><div class="mv2-stat"><b>RAFAELLA</b><strong>${att.filter(a=>a.who==='RAFAELLA').length}</strong></div><div class="mv2-stat"><b>DIMAS</b><strong>${att.filter(a=>a.who==='DIMAS').length}</strong></div></div><div class="mv2-report"><label>RELATÓRIO RAFAELLA // EXECUÇÃO</label><textarea oninput="window.__MVO2_REPORT('${esc(d.day)}','RAFAELLA',this.value)">${esc(r[d.day+'_RAFAELLA']||'')}</textarea><label>RELATÓRIO DIMAS // COMANDO</label><textarea oninput="window.__MVO2_REPORT('${esc(d.day)}','DIMAS',this.value)">${esc(r[d.day+'_DIMAS']||'')}</textarea></div></aside></section>`;
+  }
+
+  window.__MVO2_RENDER=render;window.__MVO2_EDIT=edit;window.__MVO2_SAVE=saveEdit;window.__MVO2_DAY=i=>{selected=Math.max(0,Math.min(5,Number(i)||0));render()};window.__MVO2_ADD=addAttack;window.__MVO2_MOVE=move;window.__MVO2_TOGGLE=toggle;window.__MVO2_REPORT=report;
+  window.__MVO2_OPEN=()=>{try{window.HUUD?.switchView?.('land')}catch(e){}setTimeout(()=>{const v=root();if(v){render();window.scrollTo({top:0,behavior:'smooth'})}},0)};
+
+  function hook(){
+    if(!operation())return;
+    window.__HUUD_MV_OPERATION_V2=true;
+    window.__MVA_RENDER=render;
+    window.__MVA_OPEN=window.__MVO2_OPEN;
+    if(root())render();
+  }
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(hook,700);setTimeout(hook,1800);setTimeout(hook,3000)});
+})();
