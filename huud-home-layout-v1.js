@@ -1,9 +1,9 @@
-/* HUUD OS — HOME / FIELD RECONCILIATION V5
+/* HUUD OS — HOME / FIELD RECONCILIATION V6
    ARQUITETURA DE ATAQUE:
    REALIDADE → REALIDADE.
    RESPONSABILIDADES → RESPONSABILIDADES.
    FINANÇAS / TERRENO → FINANÇAS.
-   QG MV → somente Mar Verde Imóveis.
+   QG MV → somente Mar Verde Imóveis, com agenda operacional completa.
    TI + IA → TI + IA.
    GO PARAGUAY GO → PARAGUAI.
    56 PERGUNTAS → fora da Home.
@@ -92,20 +92,53 @@
     write(BLOCK_KEY,migrated);
   }
 
+  function ensureMVAgendaView(){
+    const land=document.getElementById('view-land');
+    if(!land)return null;
+    let v=document.getElementById('huud-mar-verde-view');
+    if(!v){
+      v=document.createElement('div');
+      v.id='huud-mar-verde-view';
+      land.appendChild(v);
+    }
+    return v;
+  }
+
+  function openMVAgenda(){
+    try{
+      if(typeof window.HUUD?.switchView==='function')window.HUUD.switchView('land');
+    }catch(e){}
+    const v=ensureMVAgendaView();
+    if(v && typeof window.__MVA_RENDER==='function'){
+      try{window.__MVA_RENDER()}catch(e){}
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function installMVNavigation(){
+    if(window.__HUUD_MV_NAV_V6)return;
+    window.__HUUD_MV_NAV_V6=true;
+    const original=window.HUUD?.switchView;
+    if(typeof original!=='function')return;
+    window.HUUD.switchView=function(id){
+      const result=original.apply(this,arguments);
+      if(id==='land')setTimeout(openMVAgenda,0);
+      return result;
+    };
+  }
+
   function blockArea(b){return classifyArea(b)}
 
   function openBlockArea(block){
     const area=blockArea(block||{});
+    if(area==='land'){openMVAgenda();return;}
     try{if(typeof window.HUUD?.switchView==='function')window.HUUD.switchView(area);else return;}catch(e){return;}
-    window.scrollTo(0,0);
-    if(area==='land' && typeof window.__MVA_OPEN==='function'){
-      try{window.__MVA_OPEN()}catch(e){}
-    }
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function installBlockRouting(){
-    if(window.__HUUD_BLOCK_ROUTING_V5)return;
-    window.__HUUD_BLOCK_ROUTING_V5=true;
+    if(window.__HUUD_BLOCK_ROUTING_V6)return;
+    window.__HUUD_BLOCK_ROUTING_V6=true;
     document.addEventListener('click',function(e){
       const block=e.target.closest&&e.target.closest('.cc2-block');
       if(!block)return;
@@ -144,11 +177,12 @@
   }
 
   function addStyles(){
-    if(document.getElementById('huud-reconcile-v5-css'))return;
-    const s=document.createElement('style');s.id='huud-reconcile-v5-css';s.textContent=`
+    if(document.getElementById('huud-reconcile-v6-css'))return;
+    const s=document.createElement('style');s.id='huud-reconcile-v6-css';s.textContent=`
       .huud-fin-op{margin:0 0 16px;border:1px solid #26303d;border-left:4px solid var(--blue-inflow);border-radius:13px;background:linear-gradient(135deg,#090c10,#07090c);padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
       .huud-fin-op-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.huud-fin-k{font:900 .58rem var(--mono);letter-spacing:2px;color:var(--blue-inflow)}.huud-fin-op h2{font-size:1.35rem;margin:5px 0}.huud-fin-op p{font-size:.68rem;color:var(--text-muted);line-height:1.45}.huud-fin-badge{font:900 .52rem var(--mono);color:var(--blue-inflow);border:1px solid var(--blue-inflow);padding:7px 9px;border-radius:5px;white-space:nowrap}.huud-fin-list{display:grid;gap:7px;margin-top:14px}.huud-fin-item{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--border);background:var(--bg-card-elevated);border-radius:7px;font-size:.7rem;cursor:pointer}.huud-fin-item input{accent-color:var(--blue-inflow)}.huud-fin-item.done{opacity:.45;text-decoration:line-through}
       .cc2-block{cursor:pointer}.cc2-block:hover{background:rgba(212,255,0,.035)}.cc2-block::after{content:'ABRIR →';font:900 .48rem var(--mono);color:var(--text-muted);white-space:nowrap;margin-left:4px}.cc2-block:hover::after{color:var(--neon)}
+      #huud-mar-verde-view{margin-top:0}
       @media(max-width:650px){.huud-fin-op-head{flex-direction:column}.huud-fin-badge{align-self:flex-start}}
     `;document.head.appendChild(s);
   }
@@ -160,6 +194,8 @@
     fixHomeModules();
     moveAttackBelowHero();
     renameLandRoom();
+    ensureMVAgendaView();
+    installMVNavigation();
     installBlockRouting();
     renderTerrain();
   }
