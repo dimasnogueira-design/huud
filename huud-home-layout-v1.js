@@ -1,13 +1,24 @@
-/* HUUD OS — HOME / FIELD RECONCILIATION V4
-   TERRENO ≠ MAR VERDE.
-   FINANÇAS = liquidez, terreno, dívidas e amortização.
-   QG MV = somente Mar Verde Imóveis.
-   BLOCO = movimento essencial com hora + resultado + área de ataque.
+/* HUUD OS — HOME / FIELD RECONCILIATION V5
+   ARQUITETURA DE ATAQUE:
+   REALIDADE → REALIDADE.
+   RESPONSABILIDADES → RESPONSABILIDADES.
+   FINANÇAS / TERRENO → FINANÇAS.
+   QG MV → somente Mar Verde Imóveis.
+   TI + IA → TI + IA.
+   GO PARAGUAY GO → PARAGUAI.
+   56 PERGUNTAS → fora da Home.
+   BLOCO = movimento essencial com hora + resultado + sala de ataque.
    ÍCONES/NAVEGAÇÃO INFERIOR: NÃO ALTERAR NESTA ETAPA.
 */
 (function(){
   'use strict';
   const FIN_KEY='HUUD_TERRENO_OP_V1', BLOCK_KEY='HUUD_MAR_VERDE_BLOCOS_V1', AGENDA_KEY='HUUD_MAR_VERDE_AGENDA_V1';
+  const TERRAIN_TITLES=new Set([
+    'Levantar R$ 1.500 para pagamento da taxa de transferência',
+    'Conferir documentação final com o comprador do terreno',
+    'Agendar assinatura em cartório para liberação dos recursos',
+    'Destinar valor da venda diretamente para amortizar dívida crítica'
+  ]);
   const terrain=[
     ['t1','Levantar R$ 1.500 para pagamento da taxa de transferência'],
     ['t2','Conferir documentação final com o comprador do terreno'],
@@ -17,6 +28,8 @@
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const read=(k,f)=>{try{const x=JSON.parse(localStorage.getItem(k)||'null');return x??f}catch(e){return f}};
   const write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+  const isTerrainTitle=t=>TERRAIN_TITLES.has(String(t||'').trim());
 
   function renameNavigation(){
     document.querySelectorAll('.nav-pill,.nav-btn').forEach(el=>{
@@ -45,36 +58,41 @@
     if(hero && agenda.previousElementSibling!==hero)hero.parentNode.insertBefore(agenda,hero.nextSibling);
   }
 
+  function classifyArea(b){
+    const t=norm(b&&b.title);
+    if(/TERRENO|CARTORIO|TRANSFERENCIA|AMORTIZAR|DIVIDA|PAGAMENTO|CAIXA|LIQUIDEZ/.test(t))return 'debts';
+    if(/FACULDADE|ESTUDO|CODIGO|SUPABASE|\bIA\b|TECNOLOGIA/.test(t))return 'tech';
+    if(/PARAGUAI/.test(t))return 'py';
+    if(/PROCESSO|PENDENCIA|FAMILIA|DOCUMENTO PESSOAL|RESPONSABILIDADE/.test(t))return 'realidade';
+    if(/REALIDADE|MAPA DA REALIDADE/.test(t))return 'realidade';
+    if(/MAR VERDE|QG MV|LEAD|CAPTACAO|ATENDIMENTO|REATIVACAO|VISITA|IMOVEL|IMOBILIARIA|PROSPECCAO|NEGOCIACAO|VENDA/.test(t))return 'land';
+    return b&&b.area ? b.area : 'land';
+  }
+
   function migrateBlocks(){
     const current=read(BLOCK_KEY,null);
     if(!current||typeof current!=='object'||!Object.keys(current).length)return;
-    const all=Object.values(current).flat().filter(Boolean);
     const agenda=read(AGENDA_KEY,[]),targets={};
     if(Array.isArray(agenda))agenda.forEach(d=>{targets[d.day]=d.target||''});
     const migrated={};
     Object.keys(current).forEach(day=>{
       const arr=Array.isArray(current[day])?current[day]:[];
-      migrated[day]=arr.slice(0,3).map((b,i)=>({
-        ...b,
-        id:b.id||('essential_'+day+'_'+i),
-        essential:true,
-        priority:'ESSENCIAL',
-        result:b.result||targets[day]||'Resultado definido ao concluir o movimento.',
-        area:b.area||'land'
-      }));
+      migrated[day]=arr
+        .filter(b=>b&&!isTerrainTitle(b.title))
+        .slice(0,3)
+        .map((b,i)=>({
+          ...b,
+          id:b.id||('essential_'+day+'_'+i),
+          essential:true,
+          priority:'ESSENCIAL',
+          result:b.result||targets[day]||'Resultado definido ao concluir o movimento.',
+          area:classifyArea(b)
+        }));
     });
     write(BLOCK_KEY,migrated);
   }
 
-  function blockArea(b){
-    if(b&&b.area)return b.area;
-    const t=String((b&&b.title)||'').toUpperCase();
-    if(/TERRENO|CARTÓRIO|TRANSFERÊNCIA|AMORTIZAR|DÍVIDA|PAGAMENTO|CAIXA|LIQUIDEZ/.test(t))return 'debts';
-    if(/FACULDADE|ESTUDO|CÓDIGO|CODIGO|SUPABASE|IA|TECNOLOGIA/.test(t))return 'tech';
-    if(/PARAGUAI/.test(t))return 'py';
-    if(/PROCESSO|PENDÊNCIA|PENDENCIA|FAMÍLIA|FAMILIA|DOCUMENTO PESSOAL/.test(t))return 'realidade';
-    return 'land';
-  }
+  function blockArea(b){return classifyArea(b)}
 
   function openBlockArea(block){
     const area=blockArea(block||{});
@@ -86,8 +104,8 @@
   }
 
   function installBlockRouting(){
-    if(window.__HUUD_BLOCK_ROUTING_V4)return;
-    window.__HUUD_BLOCK_ROUTING_V4=true;
+    if(window.__HUUD_BLOCK_ROUTING_V5)return;
+    window.__HUUD_BLOCK_ROUTING_V5=true;
     document.addEventListener('click',function(e){
       const block=e.target.closest&&e.target.closest('.cc2-block');
       if(!block)return;
@@ -126,8 +144,8 @@
   }
 
   function addStyles(){
-    if(document.getElementById('huud-reconcile-v4-css'))return;
-    const s=document.createElement('style');s.id='huud-reconcile-v4-css';s.textContent=`
+    if(document.getElementById('huud-reconcile-v5-css'))return;
+    const s=document.createElement('style');s.id='huud-reconcile-v5-css';s.textContent=`
       .huud-fin-op{margin:0 0 16px;border:1px solid #26303d;border-left:4px solid var(--blue-inflow);border-radius:13px;background:linear-gradient(135deg,#090c10,#07090c);padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
       .huud-fin-op-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.huud-fin-k{font:900 .58rem var(--mono);letter-spacing:2px;color:var(--blue-inflow)}.huud-fin-op h2{font-size:1.35rem;margin:5px 0}.huud-fin-op p{font-size:.68rem;color:var(--text-muted);line-height:1.45}.huud-fin-badge{font:900 .52rem var(--mono);color:var(--blue-inflow);border:1px solid var(--blue-inflow);padding:7px 9px;border-radius:5px;white-space:nowrap}.huud-fin-list{display:grid;gap:7px;margin-top:14px}.huud-fin-item{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--border);background:var(--bg-card-elevated);border-radius:7px;font-size:.7rem;cursor:pointer}.huud-fin-item input{accent-color:var(--blue-inflow)}.huud-fin-item.done{opacity:.45;text-decoration:line-through}
       .cc2-block{cursor:pointer}.cc2-block:hover{background:rgba(212,255,0,.035)}.cc2-block::after{content:'ABRIR →';font:900 .48rem var(--mono);color:var(--text-muted);white-space:nowrap;margin-left:4px}.cc2-block:hover::after{color:var(--neon)}
