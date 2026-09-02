@@ -1,14 +1,7 @@
-/* HUUD OS — HOME / FIELD RECONCILIATION V6
-   ARQUITETURA DE ATAQUE:
-   REALIDADE → REALIDADE.
-   RESPONSABILIDADES → RESPONSABILIDADES.
-   FINANÇAS / TERRENO → FINANÇAS.
-   QG MV → somente Mar Verde Imóveis, com agenda operacional completa.
-   TI + IA → TI + IA.
-   GO PARAGUAY GO → PARAGUAI.
-   56 PERGUNTAS → fora da Home.
+/* HUUD OS — HOME / FIELD RECONCILIATION V7
+   QG MV = sala operacional completa da Mar Verde.
+   TERRENO = operação financeira pessoal.
    BLOCO = movimento essencial com hora + resultado + sala de ataque.
-   ÍCONES/NAVEGAÇÃO INFERIOR: NÃO ALTERAR NESTA ETAPA.
 */
 (function(){
   'use strict';
@@ -59,14 +52,20 @@
   }
 
   function classifyArea(b){
+    const explicit=String(b?.area||b?.room||b?.view||'').toLowerCase();
+    if(explicit.includes('debts')||explicit.includes('finan'))return 'debts';
+    if(explicit.includes('tech')||explicit.includes('ia'))return 'tech';
+    if(explicit.includes('py')||explicit.includes('paragu'))return 'py';
+    if(explicit.includes('realidade')||explicit.includes('respons')||explicit.includes('pend'))return 'realidade';
+    if(explicit.includes('mar-verde')||explicit.includes('mar verde')||explicit==='land')return 'mar-verde';
     const t=norm(b&&b.title);
     if(/TERRENO|CARTORIO|TRANSFERENCIA|AMORTIZAR|DIVIDA|PAGAMENTO|CAIXA|LIQUIDEZ/.test(t))return 'debts';
     if(/FACULDADE|ESTUDO|CODIGO|SUPABASE|\bIA\b|TECNOLOGIA/.test(t))return 'tech';
     if(/PARAGUAI/.test(t))return 'py';
     if(/PROCESSO|PENDENCIA|FAMILIA|DOCUMENTO PESSOAL|RESPONSABILIDADE/.test(t))return 'realidade';
     if(/REALIDADE|MAPA DA REALIDADE/.test(t))return 'realidade';
-    if(/MAR VERDE|QG MV|LEAD|CAPTACAO|ATENDIMENTO|REATIVACAO|VISITA|IMOVEL|IMOBILIARIA|PROSPECCAO|NEGOCIACAO|VENDA/.test(t))return 'land';
-    return b&&b.area ? b.area : 'land';
+    if(/MAR VERDE|QG MV|LEAD|CAPTACAO|ATENDIMENTO|REATIVACAO|VISITA|IMOVEL|IMOBILIARIA|PROSPECCAO|NEGOCIACAO|VENDA/.test(t))return 'mar-verde';
+    return 'mar-verde';
   }
 
   function migrateBlocks(){
@@ -77,17 +76,14 @@
     const migrated={};
     Object.keys(current).forEach(day=>{
       const arr=Array.isArray(current[day])?current[day]:[];
-      migrated[day]=arr
-        .filter(b=>b&&!isTerrainTitle(b.title))
-        .slice(0,3)
-        .map((b,i)=>({
-          ...b,
-          id:b.id||('essential_'+day+'_'+i),
-          essential:true,
-          priority:'ESSENCIAL',
-          result:b.result||targets[day]||'Resultado definido ao concluir o movimento.',
-          area:classifyArea(b)
-        }));
+      migrated[day]=arr.filter(b=>b&&!isTerrainTitle(b.title)).slice(0,3).map((b,i)=>({
+        ...b,
+        id:b.id||('essential_'+day+'_'+i),
+        essential:true,
+        priority:'ESSENCIAL',
+        result:b.result||targets[day]||'Resultado definido ao concluir o movimento.',
+        area:classifyArea(b)
+      }));
     });
     write(BLOCK_KEY,migrated);
   }
@@ -96,11 +92,7 @@
     const land=document.getElementById('view-land');
     if(!land)return null;
     let v=document.getElementById('huud-mar-verde-view');
-    if(!v){
-      v=document.createElement('div');
-      v.id='huud-mar-verde-view';
-      land.appendChild(v);
-    }
+    if(!v){v=document.createElement('div');v.id='huud-mar-verde-view';land.appendChild(v)}
     return v;
   }
 
@@ -109,17 +101,17 @@
       if(typeof window.HUUD?.switchView==='function')window.HUUD.switchView('land');
     }catch(e){}
     const v=ensureMVAgendaView();
-    if(v && typeof window.__MVA_RENDER==='function'){
+    if(v&&typeof window.__MVA_RENDER==='function'){
       try{window.__MVA_RENDER()}catch(e){}
     }
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function installMVNavigation(){
-    if(window.__HUUD_MV_NAV_V6)return;
-    window.__HUUD_MV_NAV_V6=true;
+    if(window.__HUUD_MV_NAV_V7)return;
     const original=window.HUUD?.switchView;
     if(typeof original!=='function')return;
+    window.__HUUD_MV_NAV_V7=true;
     window.HUUD.switchView=function(id){
       const result=original.apply(this,arguments);
       if(id==='land')setTimeout(openMVAgenda,0);
@@ -127,24 +119,40 @@
     };
   }
 
-  function blockArea(b){return classifyArea(b)}
+  function fixHomeModules(){
+    const flow=document.getElementById('view-flow');if(!flow)return;
+    flow.querySelectorAll('.h5-module,.tactical-module-card').forEach(card=>{
+      const text=(card.textContent||'').toUpperCase();
+      if(text.includes('MAR VERDE')){
+        const h=card.querySelector('h3,.card-title');if(h)h.textContent='QG MV // AGENDA OPERACIONAL';
+        const p=card.querySelector('p');if(p)p.textContent='Mar Verde Imóveis. Agenda semanal, missões da Rafaella, comando do Dimas, execução e prestação de contas.';
+        card.dataset.huudRoom='mar-verde';
+        card.onclick=function(e){e.preventDefault();e.stopPropagation();openMVAgenda()};
+      }else if(text.includes('TERRENO')){
+        const h=card.querySelector('h3,.card-title');if(h)h.textContent='TERRENO // FINANÇAS';
+        card.dataset.huudRoom='debts';
+        card.onclick=function(e){e.preventDefault();e.stopPropagation();if(typeof window.HUUD?.switchView==='function')window.HUUD.switchView('debts')};
+      }
+    });
+    flow.querySelectorAll('*').forEach(el=>{if(el.children.length)return;const t=(el.textContent||'').trim();if(/^MAR VERDE$/i.test(t))el.textContent='QG MV'});
+  }
 
   function openBlockArea(block){
-    const area=blockArea(block||{});
-    if(area==='land'){openMVAgenda();return;}
-    try{if(typeof window.HUUD?.switchView==='function')window.HUUD.switchView(area);else return;}catch(e){return;}
+    const area=classifyArea(block||{});
+    if(area==='mar-verde'){openMVAgenda();return}
+    try{if(typeof window.HUUD?.switchView==='function')window.HUUD.switchView(area);else return}catch(e){return}
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function installBlockRouting(){
-    if(window.__HUUD_BLOCK_ROUTING_V6)return;
-    window.__HUUD_BLOCK_ROUTING_V6=true;
+    if(window.__HUUD_BLOCK_ROUTING_V7)return;
+    window.__HUUD_BLOCK_ROUTING_V7=true;
     document.addEventListener('click',function(e){
-      const block=e.target.closest&&e.target.closest('.cc2-block');
+      const block=e.target.closest&&e.target.closest('.cc2-block,.h5-block');
       if(!block)return;
       if(e.target.closest('input,button,a,select,textarea'))return;
       e.preventDefault();
-      const id=block.querySelector('.cc2-check')?.getAttribute('onchange')?.match(/check\('([^']+)'/)?.[1];
+      const id=block.dataset.blockId||block.querySelector('.cc2-check')?.getAttribute('onchange')?.match(/check\('([^']+)'/)?.[1];
       if(!id)return;
       const data=read(BLOCK_KEY,{}),all=Object.values(data).flat();
       const b=all.find(x=>String(x?.id)===String(id));
@@ -165,23 +173,12 @@
     document.querySelectorAll('[data-terrain]').forEach(el=>el.addEventListener('change',()=>saveTerrain(el.dataset.terrain,el.checked)));
   }
 
-  function fixHomeModules(){
-    const flow=document.getElementById('view-flow');if(!flow)return;
-    flow.querySelectorAll('.h5-module,.tactical-module-card').forEach(card=>{
-      const text=(card.textContent||'').toUpperCase();
-      if(text.includes('MAR VERDE')||text.includes('TERRENO')){
-        const h=card.querySelector('h3,.card-title');if(h)h.textContent='QG MV';card.dataset.huudRoom='land';
-      }
-    });
-    flow.querySelectorAll('*').forEach(el=>{if(el.children.length)return;const t=(el.textContent||'').trim();if(/^MAR VERDE$/i.test(t))el.textContent='QG MV';});
-  }
-
   function addStyles(){
-    if(document.getElementById('huud-reconcile-v6-css'))return;
-    const s=document.createElement('style');s.id='huud-reconcile-v6-css';s.textContent=`
+    if(document.getElementById('huud-reconcile-v7-css'))return;
+    const s=document.createElement('style');s.id='huud-reconcile-v7-css';s.textContent=`
       .huud-fin-op{margin:0 0 16px;border:1px solid #26303d;border-left:4px solid var(--blue-inflow);border-radius:13px;background:linear-gradient(135deg,#090c10,#07090c);padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
       .huud-fin-op-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.huud-fin-k{font:900 .58rem var(--mono);letter-spacing:2px;color:var(--blue-inflow)}.huud-fin-op h2{font-size:1.35rem;margin:5px 0}.huud-fin-op p{font-size:.68rem;color:var(--text-muted);line-height:1.45}.huud-fin-badge{font:900 .52rem var(--mono);color:var(--blue-inflow);border:1px solid var(--blue-inflow);padding:7px 9px;border-radius:5px;white-space:nowrap}.huud-fin-list{display:grid;gap:7px;margin-top:14px}.huud-fin-item{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--border);background:var(--bg-card-elevated);border-radius:7px;font-size:.7rem;cursor:pointer}.huud-fin-item input{accent-color:var(--blue-inflow)}.huud-fin-item.done{opacity:.45;text-decoration:line-through}
-      .cc2-block{cursor:pointer}.cc2-block:hover{background:rgba(212,255,0,.035)}.cc2-block::after{content:'ABRIR →';font:900 .48rem var(--mono);color:var(--text-muted);white-space:nowrap;margin-left:4px}.cc2-block:hover::after{color:var(--neon)}
+      .cc2-block,.h5-block{cursor:pointer}.cc2-block:hover,.h5-block:hover{background:rgba(212,255,0,.035)}
       #huud-mar-verde-view{margin-top:0}
       @media(max-width:650px){.huud-fin-op-head{flex-direction:column}.huud-fin-badge{align-self:flex-start}}
     `;document.head.appendChild(s);
