@@ -91,23 +91,13 @@
   }
 
   function normalizeResponsibilitiesHomeCard(){
-    function fix(){
-      document.querySelectorAll('.h5-module').forEach(card=>{
-        const text=(card.textContent||'').toUpperCase();
-        if(!text.includes('RESPONSABILIDADES'))return;
-        const num=card.querySelector('.h5-num');
-        if(num)num.textContent='08 // RESPONSABILIDADES';
-        card.dataset.huudRoom='pendencias';
-      });
-    }
-    fix();
-    if(window.MutationObserver){
-      const old=window.__HUUD_RESP_HOME_OBSERVER;
-      if(old)try{old.disconnect()}catch(e){}
-      const observer=new MutationObserver(fix);
-      observer.observe(document.body,{childList:true,subtree:true});
-      window.__HUUD_RESP_HOME_OBSERVER=observer;
-    }
+    document.querySelectorAll('.h5-module').forEach(card=>{
+      const text=(card.textContent||'').toUpperCase();
+      if(!text.includes('RESPONSABILIDADES'))return;
+      const num=card.querySelector('.h5-num');
+      if(num&&num.textContent!=='08 // RESPONSABILIDADES')num.textContent='08 // RESPONSABILIDADES';
+      card.dataset.huudRoom='pendencias';
+    });
   }
 
   function loadResponsibilities(){
