@@ -90,6 +90,26 @@
     },true);
   }
 
+  function normalizeResponsibilitiesHomeCard(){
+    function fix(){
+      document.querySelectorAll('.h5-module').forEach(card=>{
+        const text=(card.textContent||'').toUpperCase();
+        if(!text.includes('RESPONSABILIDADES'))return;
+        const num=card.querySelector('.h5-num');
+        if(num)num.textContent='08 // RESPONSABILIDADES';
+        card.dataset.huudRoom='pendencias';
+      });
+    }
+    fix();
+    if(window.MutationObserver){
+      const old=window.__HUUD_RESP_HOME_OBSERVER;
+      if(old)try{old.disconnect()}catch(e){}
+      const observer=new MutationObserver(fix);
+      observer.observe(document.body,{childList:true,subtree:true});
+      window.__HUUD_RESP_HOME_OBSERVER=observer;
+    }
+  }
+
   function loadResponsibilities(){
     if(document.querySelector('script[data-huud-responsabilidades-v1]')||window.HUUD_RESPONSABILIDADES_V1)return;
     const script=document.createElement('script');
@@ -102,6 +122,7 @@
     if(!install())setTimeout(boot,100);
     interceptHomeQGMV();
     bindNavigationMenu();
+    normalizeResponsibilitiesHomeCard();
     loadResponsibilities();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
