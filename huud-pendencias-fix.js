@@ -130,7 +130,6 @@
       const text = String(el.textContent || '').trim();
       if (!TERRAIN_TITLES.has(text)) return;
 
-      // Remove o card/item inteiro quando houver um contêiner próprio.
       const item = el.closest('.home-task-item, .cc2-ob, .mvop-attack, .task-item, li');
       if (item && item !== room) {
         item.remove();
@@ -172,6 +171,93 @@
       observer.observe(document.body, { childList: true, subtree: true });
       window.__HUUD_TERRAIN_ISOLATION_OBSERVER = observer;
     }
+  }
+
+  /* NAVEGAÇÃO DAS SALAS + EFEITO TÁTICO DOS BLOCOS DA HOME. */
+  const ROOM_MAP = {
+    'realidade-v2': 'realidade-v2',
+    'pendencias': 'pendencias',
+    'debts': 'debts',
+    'land': 'land',
+    'tech': 'tech',
+    'py': 'py'
+  };
+
+  function openRoom(roomId) {
+    const room = ROOM_MAP[String(roomId || '')] || String(roomId || '');
+
+    if (room === 'realidade-v2' && window.HUUD_R2 && typeof window.HUUD_R2.open === 'function') {
+      return window.HUUD_R2.open();
+    }
+
+    if (room === 'land' && typeof window.__MVA_OPEN === 'function') {
+      return window.__MVA_OPEN();
+    }
+
+    if (window.HUUD && typeof window.HUUD.switchView === 'function') {
+      return window.HUUD.switchView(room);
+    }
+
+    const target = document.getElementById('view-' + room);
+    if (target) {
+      document.querySelectorAll('.view').forEach(function (view) {
+        view.style.display = 'none';
+        view.classList.remove('active');
+      });
+      target.style.display = 'block';
+      target.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function wireHomeRooms() {
+    document.querySelectorAll('.h5-module').forEach(function (card) {
+      const onclick = card.getAttribute('onclick') || '';
+      const match = onclick.match(/__HUUD_H5_OPEN\(['"]([^'"]+)['"]\)/);
+      if (!match) return;
+      const roomId = match[1];
+
+      card.onclick = function () {
+        openRoom(roomId);
+      };
+      card.dataset.huudRoom = roomId;
+    });
+
+    if (!document.getElementById('huud-tactical-room-hover')) {
+      const style = document.createElement('style');
+      style.id = 'huud-tactical-room-hover';
+      style.textContent = `
+        .h5-module {
+          transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+          will-change: transform;
+        }
+        .h5-module:hover,
+        .h5-module:focus-visible {
+          transform: translateY(-5px);
+          border-color: var(--neon) !important;
+          box-shadow: 0 0 0 1px rgba(170,255,0,.18), 0 0 18px rgba(170,255,0,.12);
+          background: linear-gradient(145deg,#0d1210,#07090c);
+        }
+        .h5-module:hover .h5-link,
+        .h5-module:focus-visible .h5-link {
+          color: var(--neon);
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  function bootHomeRoomFix() {
+    wireHomeRooms();
+    setTimeout(wireHomeRooms, 300);
+    setTimeout(wireHomeRooms, 900);
+    setTimeout(wireHomeRooms, 1800);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootHomeRoomFix);
+  } else {
+    bootHomeRoomFix();
   }
 
   function enforceRoomSeparation() {
